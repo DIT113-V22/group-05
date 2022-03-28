@@ -9,7 +9,6 @@ Extra (if time allows it):
 5. Following another car
 6. Staying within 2 white lines (lane keeping)
 7. Autonomous parking 
-8. Implementing this to the physical car 
 
 WHY:
 
