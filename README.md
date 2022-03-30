@@ -10,7 +10,7 @@
 5. Following another car
 6. Staying within 2 white lines (lane keeping)
 7. Autonomous parking 
-8. Implementing this to the physical car 
+ 
 
 #### WHY:
 The idea is to permit the car to recognize obstacles and other SmartCars. This would be the first step towards self-driving cars, guide and assist with parking, prevent car collisions, thus decreasing accidents. 
