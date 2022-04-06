@@ -54,7 +54,7 @@ void setup() {
 void loop() {
     handleInput();
 
-    auto temp = front.getdistance();
+    auto temp = front.getdistance();//Temp variable to compare in order to decide whether to stop or not
 
     if (temp < 50 && temp != 0) 
     //car will not move unless we have the second statement 
