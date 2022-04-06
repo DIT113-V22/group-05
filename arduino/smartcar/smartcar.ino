@@ -54,7 +54,9 @@ void setup() {
 void loop() {
     handleInput();
 
-    if (front.getDistance() < 50 && front.getDistance() != 0) 
+    auto temp = front.getdistance();
+
+    if (temp < 50 && temp != 0) 
     //car will not move unless we have the second statement 
     //because sensor sends 0 when nothing is in reach
     {
