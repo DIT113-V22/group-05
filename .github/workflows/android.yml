@@ -6,7 +6,7 @@ jobs:
   build-app:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up JDK 1.8
+      - name: Set up JDK 1.11
         uses: actions/setup-java@v1
         with:
           java-version: 1.11
@@ -20,7 +20,7 @@ jobs:
   run-unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up JDK 1.8
+      - name: Set up JDK 1.11
         uses: actions/setup-java@v1
         with:
           java-version: 1.11
@@ -34,6 +34,10 @@ jobs:
   run-instrumented-tests:
     runs-on: macos-latest
     steps:
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.11
       - name: Clone Repo
         uses: actions/checkout@v2
       - name: Run instrumented tests for SmartcarMqttController
