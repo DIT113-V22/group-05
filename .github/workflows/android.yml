@@ -13,8 +13,8 @@ jobs:
       - name: Clone Repo
         uses: actions/checkout@v2
       - name: Build SmartcarMqttController
-        working-on: ./app
-        run: gradlew build --stacktrace
+        run: |
+            gradlew build --stacktrace
 
   run-unit-tests:
     runs-on: ubuntu-latest
@@ -26,8 +26,8 @@ jobs:
       - name: Clone Repo
         uses: actions/checkout@v2
       - name: Run unit tests for SmartcarMqttController
-        working-on: ./app
-        run: gradlew test --info
+        run: |
+              gradlew test --info
 
   run-instrumented-tests:
     runs-on: macos-latest
@@ -39,7 +39,6 @@ jobs:
       - name: Clone Repo
         uses: actions/checkout@v2
       - name: Run instrumented tests for SmartcarMqttController
-        working-on: ./app
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
