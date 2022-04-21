@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         mCameraView = findViewById(R.id.imageView);
 
         connectToMqttBroker();
+
     }
 
     @Override
@@ -75,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     isConnected = true;
 
+                    mqttConnectionStatus(isConnected);
+
                     final String successfulConnection = "Connected to MQTT broker";
                     Log.i(TAG, successfulConnection);
                     Toast.makeText(getApplicationContext(), successfulConnection, Toast.LENGTH_SHORT).show();
@@ -93,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void connectionLost(Throwable cause) {
                     isConnected = false;
+
+                    mqttConnectionStatus(isConnected);
 
                     final String connectionLost = "Connection to MQTT broker lost";
                     Log.w(TAG, connectionLost);
@@ -123,20 +128,27 @@ public class MainActivity extends AppCompatActivity {
                 public void deliveryComplete(IMqttDeliveryToken token) {
                     Log.d(TAG, "Message delivered");
                 }
+
+
             });
         }
+        mqttConnectionStatus(isConnected);
+
     }
 
     void drive(int throttleSpeed, int steeringAngle, String actionDescription) {
         if (!isConnected) {
+
             final String notConnected = "Not connected (yet)";
             Log.e(TAG, notConnected);
             Toast.makeText(getApplicationContext(), notConnected, Toast.LENGTH_SHORT).show();
+
             return;
         }
         Log.i(TAG, actionDescription);
         mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
+
     }
 
     public void moveForward(View view) {
@@ -157,5 +169,19 @@ public class MainActivity extends AppCompatActivity {
 
     public void moveBackward(View view) {
         drive(-MOVEMENT_SPEED, STRAIGHT_ANGLE, "Moving backward");
+    }
+
+
+    public void mqttConnectionStatus(boolean isConnected){
+
+        if(!isConnected){
+            findViewById(R.id.imageView_no_connection).setVisibility(View.VISIBLE);
+            findViewById(R.id.imageView_connected).setVisibility(View.GONE);
+        }else{
+            findViewById(R.id.imageView_connected).setVisibility(View.VISIBLE);
+            findViewById(R.id.imageView_no_connection).setVisibility(View.GONE);
+        }
+
+
     }
 }
