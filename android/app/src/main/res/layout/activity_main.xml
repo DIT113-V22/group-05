@@ -23,8 +23,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.3"
+            android:textSize="12pt"
             android:textColor="#FAFAFA"
-            android:backgroundTint="#616161"
+            android:backgroundTint="#275370"
             android:onClick="moveForward"
             android:text="Forward" />
 
@@ -39,8 +40,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:textSize="10pt"
                 android:textColor="#FAFAFA"
-                android:backgroundTint="#616161"
+                android:backgroundTint="#275370"
                 android:onClick="moveForwardLeft"
                 android:text="Left" />
 
@@ -48,6 +50,7 @@
                 android:id="@+id/button14"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:textSize="10pt"
                 android:textColor="#FAFAFA"
                 android:backgroundTint="#212121"
                 android:onClick="stop"
@@ -58,8 +61,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:textSize="10pt"
                 android:textColor="#FAFAFA"
-                android:backgroundTint="#616161"
+                android:backgroundTint="#275370"
                 android:onClick="moveForwardRight"
                 android:text="Right" />
         </LinearLayout>
@@ -69,8 +73,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.3"
+            android:textSize="12pt"
             android:textColor="#FAFAFA"
-            android:backgroundTint="#616161"
+            android:backgroundTint="#275370"
             android:onClick="moveBackward"
             android:text="Backward" />
 
