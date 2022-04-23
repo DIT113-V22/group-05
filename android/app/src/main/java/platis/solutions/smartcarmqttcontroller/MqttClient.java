@@ -38,12 +38,13 @@ public class MqttClient {
         }
     }
 
-    public void subscribe(String topic, int qos, IMqttActionListener subscriptionCallback) {
+    public int subscribe(String topic, int qos, IMqttActionListener subscriptionCallback) {
         try {
             mMqttAndroidClient.subscribe(topic, qos, null, subscriptionCallback);
         } catch (MqttException e) {
             e.printStackTrace();
         }
+        return qos;
     }
 
     public void unsubscribe(String topic, IMqttActionListener unsubscriptionCallback) {

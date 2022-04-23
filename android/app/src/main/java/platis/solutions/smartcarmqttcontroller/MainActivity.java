@@ -23,13 +23,17 @@ public class MainActivity extends AppCompatActivity {
     private static final String MQTT_SERVER = "tcp://" + LOCALHOST + ":1883";
     private static final String THROTTLE_CONTROL = "/smartcar/control/throttle";
     private static final String STEERING_CONTROL = "/smartcar/control/steering";
-    private static final int MOVEMENT_SPEED = 70;
+    private static int MOVEMENT_SPEED = 40;
     private static final int IDLE_SPEED = 0;
     private static final int STRAIGHT_ANGLE = 0;
     private static final int STEERING_ANGLE = 50;
     private static final int QOS = 1;
     private static final int IMAGE_WIDTH = 320;
     private static final int IMAGE_HEIGHT = 240;
+    // Variable to store distance
+    private static int ultraSoundFront;
+
+    private static boolean canDriveForward = true;
 
     private MqttClient mMqttClient;
     private boolean isConnected = false;
@@ -81,9 +85,17 @@ public class MainActivity extends AppCompatActivity {
                     final String successfulConnection = "Connected to MQTT broker";
                     Log.i(TAG, successfulConnection);
                     Toast.makeText(getApplicationContext(), successfulConnection, Toast.LENGTH_SHORT).show();
-
-                    mMqttClient.subscribe("/smartcar/ultrasound/front", QOS, null);
+                    //Store and update (loop) distance into the ultraSoundFront variable
+                    ultraSoundFront = mMqttClient.subscribe("/smartcar/ultrasound/front", QOS, null);
+                    if(ultraSoundFront <= 200 && ultraSoundFront >= 10){
+                        mMqttClient.publish(THROTTLE_CONTROL, "Stopping", QOS, null);
+                    }else{
+                        MOVEMENT_SPEED = 40;
+                        canDriveForward = true;
+                    }
                     mMqttClient.subscribe("/smartcar/camera", QOS, null);
+                    //Debugging purposes
+                    System.out.println(ultraSoundFront);
                 }
 
                 @Override

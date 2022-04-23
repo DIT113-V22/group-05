@@ -21,7 +21,7 @@ DifferentialControl control(leftMotor, rightMotor);
 
 SimpleCar car(control);
 
-const auto oneSecond = 1000UL;
+const auto oneSecond = 1UL;
 #ifdef __SMCE__
 const auto triggerPin = 6;
 const auto echoPin = 7;
@@ -31,7 +31,7 @@ const auto triggerPin = 33;
 const auto echoPin = 32;
 const auto mqttBrokerUrl = "192.168.0.40";
 #endif
-const auto maxDistance = 400;
+const auto maxDistance = 200;
 SR04 front(arduinoRuntime, triggerPin, echoPin, maxDistance);
 
 std::vector<char> frameBuffer;
@@ -91,6 +91,7 @@ void loop() {
     if (currentTime - previousTransmission >= oneSecond) {
       previousTransmission = currentTime;
       const auto distance = String(front.getDistance());
+      Serial.println(distance);
       mqtt.publish("/smartcar/ultrasound/front", distance);
     }
   }
