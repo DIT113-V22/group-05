@@ -11,6 +11,8 @@
 MQTTClient mqtt;
 WiFiClient net;
 
+bool canDrive = true;
+
 const char ssid[] = "***";
 const char pass[] = "****";
 
@@ -97,10 +99,17 @@ void loop()
         {
             previousTransmission = currentTime;
             const auto distance = front.getDistance();
-            if (distance <= 200 && distance != 0)
+            if (distance <= 75 && distance != 0)//stop zone
             {
-                car.setSpeed(0);
-                Serial.println("Emergency stop");
+                if (canDrive)//check whether you're in the stop zone
+                {
+                    car.setSpeed(0);
+                    Serial.println("Emergency stop");
+                }
+                canDrive = false;//so the car can move in the stop soon
+            } else {
+                canDrive = true;//so the car will stop again if it hits the stop zone
+                Serial.println("emergency stop reestablished");
             }
             Serial.println(distance);
             mqtt.publish("/smartcar/ultrasound/front", String(distance));
