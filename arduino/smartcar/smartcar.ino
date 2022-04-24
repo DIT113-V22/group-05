@@ -1,71 +1,113 @@
+#include <vector>
+
+#include <MQTT.h>
+#include <WiFi.h>
+#ifdef __SMCE__
+#include <OV767X.h>
+#endif
+
 #include <Smartcar.h>
 
-//Engine constants
-const int fSpeed   = 30;  // 30% of the full speed forward
-const int bSpeed   = -30; // 30% of the full speed backward
-const int lDegrees = -75; // degrees to turn left
-const int rDegrees = 75;  // degrees to turn right
+MQTTClient mqtt;
+WiFiClient net;
 
-//ultrasonic sensor constants
-const int TRIGGER_PIN           = 6; // D6
-const int ECHO_PIN              = 7; // D7
-const unsigned int MAX_DISTANCE = 100;
+const char ssid[] = "***";
+const char pass[] = "****";
 
-//Car setup
 ArduinoRuntime arduinoRuntime;
 BrushedMotor leftMotor(arduinoRuntime, smartcarlib::pins::v2::leftMotorPins);
 BrushedMotor rightMotor(arduinoRuntime, smartcarlib::pins::v2::rightMotorPins);
 DifferentialControl control(leftMotor, rightMotor);
 
-//ultrasonic sensor setup
-SR04 front(arduinoRuntime, TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
-
 SimpleCar car(control);
 
+const auto oneSecond = 1UL;
+#ifdef __SMCE__
+const auto triggerPin = 6;
+const auto echoPin = 7;
+const auto mqttBrokerUrl = "127.0.0.1";
+#else
+const auto triggerPin = 33;
+const auto echoPin = 32;
+const auto mqttBrokerUrl = "192.168.0.40";
+#endif
+const auto maxDistance = 200;
+SR04 front(arduinoRuntime, triggerPin, echoPin, maxDistance);
 
-void handleInput() { // handle serial input if there is any
-    if (Serial.available()) {
-        char input = Serial.read(); // read everything that has been received so far and log down
-                                    // the last entry
-        switch (input) {
-        case 'a': // rotate counter-clockwise going forward
-            car.setSpeed(fSpeed);
-            car.setAngle(lDegrees);
-            break;
-        case 's': // turn clock-wise
-            car.setSpeed(fSpeed);
-            car.setAngle(rDegrees);
-            break;
-        case 'w': // go ahead
-            car.setSpeed(fSpeed);
-            car.setAngle(0);
-            break;
-        case 'd': // go back
-            car.setSpeed(bSpeed);
-            car.setAngle(0);
-            break;
-        default: // if you receive something that you don't know, just stop
-            car.setSpeed(0);
-            car.setAngle(0);
-        }
-    }
-}
+std::vector<char> frameBuffer;
 
-void setup() {
+void setup()
+{
     Serial.begin(9600);
+#ifdef __SMCE__
+    Camera.begin(QVGA, RGB888, 15);
+    frameBuffer.resize(Camera.width() * Camera.height() * Camera.bytesPerPixel());
+#endif
+
+    WiFi.begin(ssid, pass);
+    mqtt.begin(mqttBrokerUrl, 1883, net);
+
+    Serial.println("Connecting to WiFi...");
+    auto wifiStatus = WiFi.status();
+    while (wifiStatus != WL_CONNECTED && wifiStatus != WL_NO_SHIELD)
+    {
+        Serial.println(wifiStatus);
+        Serial.print(".");
+        delay(1000);
+        wifiStatus = WiFi.status();
+    }
+
+    Serial.println("Connecting to MQTT broker");
+    while (!mqtt.connect("arduino", "public", "public"))
+    {
+        Serial.print(".");
+        delay(1000);
+    }
+
+    mqtt.subscribe("/smartcar/control/#", 1);
+    mqtt.onMessage([](String topic, String message)
+                   {
+    if (topic == "/smartcar/control/throttle") {
+      car.setSpeed(message.toInt());
+    } else if (topic == "/smartcar/control/steering") {
+      car.setAngle(message.toInt());
+    } else {
+      Serial.println(topic + " " + message);
+    } });
 }
 
-void loop() {
-    handleInput();
-
-    auto temp = front.getDistance(); //Temp variable to compare in order to decide whether to stop or not
-
-    if (temp < 50 && temp != 0) 
-    //car will not move unless we have the second statement 
-    //because sensor sends 0 when nothing is in reach
+void loop()
+{
+    if (mqtt.connected())
     {
-        car.setSpeed(0);
+        mqtt.loop();
+        const auto currentTime = millis();
+#ifdef __SMCE__
+        static auto previousFrame = 0UL;
+        if (currentTime - previousFrame >= 65)
+        {
+            previousFrame = currentTime;
+            Camera.readFrame(frameBuffer.data());
+            mqtt.publish("/smartcar/camera", frameBuffer.data(), frameBuffer.size(),
+                         false, 0);
+        }
+#endif
+        static auto previousTransmission = 0UL;
+        if (currentTime - previousTransmission >= oneSecond)
+        {
+            previousTransmission = currentTime;
+            const auto distance = front.getDistance();
+            if (distance <= 200 && distance != 0)
+            {
+                car.setSpeed(0);
+                Serial.println("Emergency stop");
+            }
+            Serial.println(distance);
+            mqtt.publish("/smartcar/ultrasound/front", String(distance));
+        }
+#ifdef __SMCE__
+        // Avoid over-using the CPU if we are running in the emulator
+        delay(1);
+#endif
     }
-    Serial.println(front.getDistance());
-    delay(100); 
 }
