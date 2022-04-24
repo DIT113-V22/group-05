@@ -30,10 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int QOS = 1;
     private static final int IMAGE_WIDTH = 320;
     private static final int IMAGE_HEIGHT = 240;
-    // Variable to store distance
-    private static int ultraSoundFront;
-
-    private static boolean canDriveForward = true;
 
     private MqttClient mMqttClient;
     private boolean isConnected = false;
@@ -85,17 +81,8 @@ public class MainActivity extends AppCompatActivity {
                     final String successfulConnection = "Connected to MQTT broker";
                     Log.i(TAG, successfulConnection);
                     Toast.makeText(getApplicationContext(), successfulConnection, Toast.LENGTH_SHORT).show();
-                    //Store and update (loop) distance into the ultraSoundFront variable
-                    ultraSoundFront = mMqttClient.subscribe("/smartcar/ultrasound/front", QOS, null);
-                    if(ultraSoundFront <= 200 && ultraSoundFront >= 10){
-                        mMqttClient.publish(THROTTLE_CONTROL, "Stopping", QOS, null);
-                    }else{
-                        MOVEMENT_SPEED = 40;
-                        canDriveForward = true;
-                    }
+                    mMqttClient.subscribe("/smartcar/ultrasound/front", QOS, null);
                     mMqttClient.subscribe("/smartcar/camera", QOS, null);
-                    //Debugging purposes
-                    System.out.println(ultraSoundFront);
                 }
 
                 @Override
