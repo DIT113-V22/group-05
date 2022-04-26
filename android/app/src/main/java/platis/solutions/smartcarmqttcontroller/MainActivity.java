@@ -7,7 +7,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -35,10 +37,41 @@ public class MainActivity extends AppCompatActivity {
     private boolean isConnected = false;
     private ImageView mCameraView;
 
+    //Variables for the seekbar
+    Button submitButton;
+    SeekBar simpleSeekBar;
+    private static int adjust;
+    int throttleSpeed = 0;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //On initiate views
+        simpleSeekBar = (SeekBar)findViewById(R.id.simpleSeekBar); // initiate the Seekbar
+
+        simpleSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progressChangedValue = 0;
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                progressChangedValue = progress;
+                adjust = progressChangedValue;
+                drive(adjust, STRAIGHT_ANGLE, "Adjust speed");
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Toast.makeText(MainActivity.this, "Seek bar progress is :" + progressChangedValue,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
         mMqttClient = new MqttClient(getApplicationContext(), MQTT_SERVER, TAG);
         mCameraView = findViewById(R.id.imageView);
 
@@ -144,14 +177,23 @@ public class MainActivity extends AppCompatActivity {
 
             return;
         }
+        if(MOVEMENT_SPEED < 0) {
+            MOVEMENT_SPEED = 0 - adjust;
+        }else{
+            MOVEMENT_SPEED = adjust;
+        }
+        throttleSpeed = MOVEMENT_SPEED;
         Log.i(TAG, actionDescription);
         mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
-
+        MOVEMENT_SPEED = 0;
     }
 
     public void moveForward(View view) {
         drive(MOVEMENT_SPEED, STRAIGHT_ANGLE, "Moving forward");
+    }
+    public void adjustSpeed(View view){
+        drive(MOVEMENT_SPEED-adjust, STRAIGHT_ANGLE, "Adjust speed");
     }
 
     public void moveForwardLeft(View view) {
@@ -167,9 +209,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void moveBackward(View view) {
-        drive(-MOVEMENT_SPEED, STRAIGHT_ANGLE, "Moving backward");
+        drive(MOVEMENT_SPEED = -1, STRAIGHT_ANGLE, "Moving backward");
     }
 
+
+    //This listener will activate if there are any changed made in the SeekBar
+    public void onProgressChanged (SeekBar seekBar, int progresValue, boolean fromUser) {
+
+    }
+    //Whenever a user touches or drags the seekbar then this method will will automatically be called
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+    //Whenever a user stops touching the seekbar then this method will be called
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    //Testing how the seekBar works
+    /*
+    // GEt the maximum value of the seekbar
+    void getMax(){
+        //Gauge Seekbar variables
+        SeekBar simpleSeekBar = (SeekBar) findViewById(R.id.simpleSeekBar); // initiate the Seek bar
+
+        int maxValue=simpleSeekBar.getMax(); // get maximum value of the Seek bar
+    }
+
+    void getProgres(){
+        SeekBar simpleSeekBar=(SeekBar)findViewById(R.id.simpleSeekBar); // initiate the Seek bar
+
+        int seekBarValue= simpleSeekBar.getProgress(); // get progress value from the Seek bar
+    }
+
+     */
 
     public void mqttConnectionStatus(boolean isConnected){
 
