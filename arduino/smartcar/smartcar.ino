@@ -24,17 +24,18 @@ DifferentialControl control(leftMotor, rightMotor);
 SimpleCar car(control);
 
 const auto oneSecond = 1UL;
-#ifdef __SMCE__
+#ifdef __SMCE__ //Four simulator
 const auto triggerPin = 6;
 const auto echoPin = 7;
 const auto mqttBrokerUrl = "127.0.0.1";
-#else
+#else           //for car
 const auto triggerPin = 33;
 const auto echoPin = 32;
 const auto mqttBrokerUrl = "192.168.0.40";
 #endif
-const auto maxDistance = 200;
+const auto maxDistance = 100;
 SR04 front(arduinoRuntime, triggerPin, echoPin, maxDistance);
+
 
 std::vector<char> frameBuffer;
 
@@ -99,18 +100,7 @@ void loop()
         {
             previousTransmission = currentTime;
             const auto distance = front.getDistance();
-            if (distance <= 75 && distance != 0)//stop zone
-            {
-                if (canDrive)//check whether you're in the stop zone
-                {
-                    car.setSpeed(0);
-                    Serial.println("Emergency stop");
-                }
-                canDrive = false;//so the car can move in the stop soon
-            } else {
-                canDrive = true;//so the car will stop again if it hits the stop zone
-                Serial.println("emergency stop reestablished");
-            }
+            forwardDriveAutoBreak(distance);
             Serial.println(distance);
             mqtt.publish("/smartcar/ultrasound/front", String(distance));
         }
@@ -119,4 +109,19 @@ void loop()
         delay(1);
 #endif
     }
+}
+
+void forwardDriveAutoBreak(auto distance)
+{
+     if (distance <= 75 && distance != 0)//stop zone
+             {
+                if (canDrive)//check whether you're in the stop zone
+                {
+                    car.setSpeed(0);
+                    Serial.println("Emergency stop");
+                }
+                canDrive = false;//so the car can move in the stop soon
+            } else {
+                canDrive = true;//so the car will stop again if it hits the stop zone
+             }
 }
