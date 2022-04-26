@@ -1,12 +1,18 @@
 package platis.solutions.smartcarmqttcontroller;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -35,6 +41,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean isConnected = false;
     private ImageView mCameraView;
 
+    // variables for contact dialogue popup
+    private AlertDialog.Builder dialogBuilder;
+    private AlertDialog dialog;
+    private EditText newcontactpopup_firstname, newcontactpopup_lastname, newcontactpopup_mobile, newcontactpopup_email;
+    private Button newcontactpopup_cancel, newcontactpopup_save;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +58,57 @@ public class MainActivity extends AppCompatActivity {
         connectToMqttBroker();
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+       getMenuInflater().inflate(R.menu.first_menu,menu);
+       return true;
+    }
+
+    //If click on menu one, new contact dialogue will open.
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.menu1){
+            createNewContactDialog();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Method for creating a new contact
+    public void createNewContactDialog(){
+        dialogBuilder = new AlertDialog.Builder(this);
+        final View contactPopupView = getLayoutInflater().inflate(R.layout.popup, null);
+        newcontactpopup_firstname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_firstname);
+        newcontactpopup_lastname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_lastname);
+        newcontactpopup_mobile = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_mobile);
+        newcontactpopup_email = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_email);
+
+        newcontactpopup_save = (Button) contactPopupView.findViewById(R.id.saveButton);
+        newcontactpopup_cancel = (Button) contactPopupView.findViewById(R.id.cancelButton);
+
+        dialogBuilder.setView(contactPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
+
+        newcontactpopup_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //define save button here
+            }
+        });
+
+        newcontactpopup_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //define cancel button
+                dialog.dismiss();
+            }
+        });
+    }
+
 
     @Override
     protected void onResume() {
