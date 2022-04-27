@@ -23,7 +23,15 @@ DifferentialControl control(leftMotor, rightMotor);
 
 SimpleCar car(control);
 
+//infrared sensor//
+const int SIDE_FRONT_PIN = 0;//? why 0 not A0
+GP2Y0A02 sideFrontIR(arduinoRuntime,
+    SIDE_FRONT_PIN); // measure frontDistances between 25 and 120 centimeters
+
+
 const auto oneSecond = 1UL;
+
+//ultrasounds sensor//
 #ifdef __SMCE__ //Four simulator
 const auto triggerPin = 6;
 const auto echoPin = 7;
@@ -33,8 +41,10 @@ const auto triggerPin = 33;
 const auto echoPin = 32;
 const auto mqttBrokerUrl = "192.168.0.40";
 #endif
-const auto maxDistance = 100;
-SR04 front(arduinoRuntime, triggerPin, echoPin, maxDistance);
+const auto maxfrontDistance = 100;
+SR04 front(arduinoRuntime, triggerPin, echoPin, maxfrontDistance);
+
+
 
 
 std::vector<char> frameBuffer;
@@ -99,10 +109,15 @@ void loop()
         if (currentTime - previousTransmission >= oneSecond)
         {
             previousTransmission = currentTime;
-            const auto distance = front.getDistance();
-            forwardDriveAutoBreak(distance);
-            Serial.println(distance);
-            mqtt.publish("/smartcar/ultrasound/front", String(distance));
+            const auto frontDistance = front.getDistance();
+            const auto frontInraredDis = sideFrontIR.getDistance();
+            
+            forwardDriveAutoBreak(frontDistance);
+            forwardDriveAutoBreakIR(frontInraredDis);
+            //when both active git stuck
+
+            Serial.println(frontDistance);
+            mqtt.publish("/smartcar/ultrasound/front", String(frontDistance));
         }
 #ifdef __SMCE__
         // Avoid over-using the CPU if we are running in the emulator
@@ -111,9 +126,24 @@ void loop()
     }
 }
 
-void forwardDriveAutoBreak(auto distance)
+void forwardDriveAutoBreak(auto frontDistance)
 {
-     if (distance <= 75 && distance != 0)//stop zone
+     if (frontDistance <= 90 && frontDistance != 0)//stop zone
+             {
+                if (canDrive)//check whether you're in the stop zone
+                {
+                    car.setSpeed(0);
+                    Serial.println("Emergency stop");
+                }
+                canDrive = false;//so the car can move in the stop soon
+            } else {
+                canDrive = true;//so the car will stop again if it hits the stop zone
+             }
+}
+
+void forwardDriveAutoBreakIR(auto frontInraredDis)
+{
+     if (frontInraredDis <= 30 && frontInraredDis != 0)//stop zone
              {
                 if (canDrive)//check whether you're in the stop zone
                 {
