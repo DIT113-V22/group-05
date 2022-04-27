@@ -191,11 +191,11 @@ public class MainActivity extends AppCompatActivity {
         }else{
             MOVEMENT_SPEED = adjust;
         }
+        //The movementSpeed that has been adjusted will now be added to the throttlespeed
         throttleSpeed = MOVEMENT_SPEED;
         Log.i(TAG, actionDescription);
         mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
-        throttleSpeed = 0;
     }
 
     public void moveForward(View view) {
