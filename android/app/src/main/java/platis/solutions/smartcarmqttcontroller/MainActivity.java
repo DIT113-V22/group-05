@@ -41,14 +41,13 @@ public class MainActivity extends AppCompatActivity {
     Button submitButton;
     SeekBar simpleSeekBar;
     private static int adjust;
-    int throttleSpeed = 0;
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         //On initiate views
         simpleSeekBar = (SeekBar)findViewById(R.id.simpleSeekBar); // initiate the Seekbar
 
@@ -177,8 +176,18 @@ public class MainActivity extends AppCompatActivity {
 
             return;
         }
-        if(MOVEMENT_SPEED < 0) {
-            MOVEMENT_SPEED = 0 - adjust;
+        //Changing the speed using the adjust variable from the seekbar slider.
+        //Adjust is the variable where the seekbar is, add or remove that from the current speed
+        if(actionDescription == "Moving backward"){
+            MOVEMENT_SPEED = -adjust;
+        }else if (actionDescription == "Stopping"){
+            MOVEMENT_SPEED = 0;
+        }else if (actionDescription == "Moving forward"){
+            MOVEMENT_SPEED = adjust;
+        }else if (actionDescription == "Moving forward left"){
+            MOVEMENT_SPEED = adjust;
+        }else if (actionDescription == "Moving forward right"){
+            MOVEMENT_SPEED = adjust;
         }else{
             MOVEMENT_SPEED = adjust;
         }
@@ -186,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, actionDescription);
         mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
-        MOVEMENT_SPEED = 0;
+        throttleSpeed = 0;
     }
 
     public void moveForward(View view) {
@@ -205,44 +214,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void moveForwardRight(View view) {
-        drive(MOVEMENT_SPEED, STEERING_ANGLE, "Moving forward left");
+        drive(MOVEMENT_SPEED, STEERING_ANGLE, "Moving forward right");
     }
 
     public void moveBackward(View view) {
-        drive(MOVEMENT_SPEED = -1, STRAIGHT_ANGLE, "Moving backward");
+        drive(MOVEMENT_SPEED, STRAIGHT_ANGLE, "Moving backward");
     }
 
-
-    //This listener will activate if there are any changed made in the SeekBar
-    public void onProgressChanged (SeekBar seekBar, int progresValue, boolean fromUser) {
-
-    }
-    //Whenever a user touches or drags the seekbar then this method will will automatically be called
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-    //Whenever a user stops touching the seekbar then this method will be called
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    //Testing how the seekBar works
-    /*
-    // GEt the maximum value of the seekbar
-    void getMax(){
-        //Gauge Seekbar variables
-        SeekBar simpleSeekBar = (SeekBar) findViewById(R.id.simpleSeekBar); // initiate the Seek bar
-
-        int maxValue=simpleSeekBar.getMax(); // get maximum value of the Seek bar
-    }
-
-    void getProgres(){
-        SeekBar simpleSeekBar=(SeekBar)findViewById(R.id.simpleSeekBar); // initiate the Seek bar
-
-        int seekBarValue= simpleSeekBar.getProgress(); // get progress value from the Seek bar
-    }
-
-     */
 
     public void mqttConnectionStatus(boolean isConnected){
 
@@ -253,7 +231,5 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.imageView_connected).setVisibility(View.VISIBLE);
             findViewById(R.id.imageView_no_connection).setVisibility(View.GONE);
         }
-
-
     }
 }
