@@ -22,6 +22,8 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "SmartcarMqttController";
     private static final String EXTERNAL_MQTT_BROKER = "aerostun.dev";
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mMqttClient = new MqttClient(getApplicationContext(), MQTT_SERVER, TAG);
         mCameraView = findViewById(R.id.imageView);
-
+        Objects.requireNonNull(getSupportActionBar()).setTitle("SAFETY FIRST");  // provide compatibility to all the versions
         connectToMqttBroker();
 
     }
