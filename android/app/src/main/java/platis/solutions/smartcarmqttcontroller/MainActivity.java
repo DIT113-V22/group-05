@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -22,7 +23,12 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.util.ArrayList;
 import java.util.Objects;
+
+import platis.solutions.smartcarmqttcontroller.Adapter.ItemAdapter;
+import platis.solutions.smartcarmqttcontroller.Data.DataBaseHandler;
+import platis.solutions.smartcarmqttcontroller.Model.Item;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "SmartcarMqttController";
@@ -48,6 +54,13 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog dialog;
     private EditText newcontactpopup_firstname, newcontactpopup_lastname, newcontactpopup_mobile, newcontactpopup_email;
     private Button newcontactpopup_cancel, newcontactpopup_save;
+
+    //Database
+    private ArrayList<Item> mainActivity_list = new ArrayList<>();
+    private Item item;
+    private ItemAdapter itemAdapter;
+    private DataBaseHandler db;
+    private ListView listview;
 
 
     @Override
@@ -91,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         newcontactpopup_save = (Button) contactPopupView.findViewById(R.id.saveButton);
         newcontactpopup_cancel = (Button) contactPopupView.findViewById(R.id.cancelButton);
 
+
         dialogBuilder.setView(contactPopupView);
         dialog = dialogBuilder.create();
         dialog.show();
@@ -99,9 +113,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //define save button here
-
-
-
+                saveToDataBase();
+                refreshData();
             }
         });
 
@@ -112,6 +125,45 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+    }
+
+
+    //Method for saving data to database
+    private void saveToDataBase(){
+
+        db = new DataBaseHandler(getApplicationContext());
+
+        Item item = new Item();
+        String value = newcontactpopup_firstname.getText().toString();
+
+        item.setInput(value);
+        db.Save(item);
+
+        System.out.println(db);
+
+    }
+
+    //Refresh data
+    private void refreshData(){
+        mainActivity_list.clear();
+
+        db = new DataBaseHandler(getApplicationContext());
+
+        final ArrayList<Item> ItemFromDB = db.getallItems();
+        db.close();
+
+        for (int i = 0; i < ItemFromDB.size(); i++ ){
+
+            String valueRecorded = ItemFromDB.get(i).getInput();
+
+            item.setInput(valueRecorded);
+
+            mainActivity_list.add(item);
+        }
+
+        itemAdapter = new ItemAdapter(MainActivity.this, R.layout.popup, mainActivity_list);
+        listview.setAdapter(itemAdapter);
+        itemAdapter.notifyDataSetChanged();
     }
 
 
