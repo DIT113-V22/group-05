@@ -126,7 +126,7 @@ void loop()
     }
 }
 
-void forwardDriveAutoBreak(auto frontDistance)
+void forwardDriveAutoBreak(long frontDistance)
 {
      if (frontDistance <= 90 && frontDistance != 0)//stop zone
              {
@@ -141,7 +141,7 @@ void forwardDriveAutoBreak(auto frontDistance)
              }
 }
 
-void forwardDriveAutoBreakIR(auto frontInraredDis)
+void forwardDriveAutoBreakIR(long frontInraredDis)
 {
      if (frontInraredDis <= 30 && frontInraredDis != 0)//stop zone
              {
