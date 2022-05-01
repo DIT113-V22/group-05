@@ -18,6 +18,18 @@
             android:layout_weight="0.3"
             android:contentDescription="cameraView" />
 
+        <ToggleButton
+            android:textOn="Enabled"
+            android:textOff="Disabled"
+            android:id="@+id/toggleButton1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/button_toggle"
+            android:padding="10dp"
+            android:textColor="#FAFAFA"
+            android:textSize="12pt" />
+
         <Button
             android:id="@+id/button11"
             android:layout_width="match_parent"

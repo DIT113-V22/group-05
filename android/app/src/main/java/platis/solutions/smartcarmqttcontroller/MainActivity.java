@@ -2,13 +2,16 @@ package platis.solutions.smartcarmqttcontroller;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -23,6 +26,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String MQTT_SERVER = "tcp://" + LOCALHOST + ":1883";
     private static final String THROTTLE_CONTROL = "/smartcar/control/throttle";
     private static final String STEERING_CONTROL = "/smartcar/control/steering";
+
+    private static final String SAFETY_SYSTEMS = "/smartcar/safetysystem";
+
     private static int MOVEMENT_SPEED = 40;
     private static final int IDLE_SPEED = 0;
     private static final int STRAIGHT_ANGLE = 0;
@@ -43,6 +49,20 @@ public class MainActivity extends AppCompatActivity {
         mCameraView = findViewById(R.id.imageView);
 
         connectToMqttBroker();
+
+        ToggleButton toggle = findViewById(R.id.toggleButton1);
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {//Publish a message depending on which value the button has
+                if (b){
+                    Toast.makeText(getApplicationContext(), "Safety system enabled", Toast.LENGTH_SHORT).show();
+                    mMqttClient.publish(SAFETY_SYSTEMS, "true", QOS, null);
+                }else{
+                    Toast.makeText(getApplicationContext(), "Safety system disabled", Toast.LENGTH_SHORT).show();
+                    mMqttClient.publish(SAFETY_SYSTEMS, "false", QOS, null);
+                }
+            }
+        });
 
     }
 
@@ -183,4 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
+
 }

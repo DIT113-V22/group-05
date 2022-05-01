@@ -12,6 +12,7 @@ MQTTClient mqtt;
 WiFiClient net;
 
 bool canDrive = true;
+bool safetySystem;
 
 const char ssid[] = "***";
 const char pass[] = "****";
@@ -31,7 +32,7 @@ const auto mqttBrokerUrl = "127.0.0.1";
 #else
 const auto triggerPin = 33;
 const auto echoPin = 32;
-const auto mqttBrokerUrl = "192.168.0.40";
+const auto mqttBrokerUrl = "localhost";
 #endif
 const auto maxDistance = 200;
 SR04 front(arduinoRuntime, triggerPin, echoPin, maxDistance);
@@ -67,12 +68,19 @@ void setup()
     }
 
     mqtt.subscribe("/smartcar/control/#", 1);
+    mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
                    {
     if (topic == "/smartcar/control/throttle") {
-      car.setSpeed(message.toInt());
+        car.setSpeed(message.toInt());
     } else if (topic == "/smartcar/control/steering") {
-      car.setAngle(message.toInt());
+        car.setAngle(message.toInt());
+    } else if (topic == "/smartcar/safetysystem") {
+        if (message == "false"){  //Update the boolean depending on the message received from app
+            safetySystem = false;
+        }else{
+            safetySystem = true;
+        }
     } else {
       Serial.println(topic + " " + message);
     } });
@@ -80,6 +88,7 @@ void setup()
 
 void loop()
 {
+
     if (mqtt.connected())
     {
         mqtt.loop();
@@ -99,19 +108,24 @@ void loop()
         {
             previousTransmission = currentTime;
             const auto distance = front.getDistance();
-            if (distance <= 75 && distance != 0)//stop zone
-            {
-                if (canDrive)//check whether you're in the stop zone
+            if (safetySystem){ //check if the safety system is enabled
+                if (distance <= 75 && distance != 0) // stop zone
                 {
-                    car.setSpeed(0);
-                    Serial.println("Emergency stop");
+                    if (canDrive) // check whether you're in the stop zone
+                    {
+                        car.setSpeed(0);
+                        Serial.println("Emergency stop");
+                    }
+                    canDrive = false; // so the car can move in the stop soon
                 }
-                canDrive = false;//so the car can move in the stop soon
-            } else {
-                canDrive = true;//so the car will stop again if it hits the stop zone
-                Serial.println("emergency stop reestablished");
+                else
+                {
+                    canDrive = true; // so the car will stop again if it hits the stop zone
+                    // Serial.println("emergency stop reestablished");
+                }
             }
-            Serial.println(distance);
+
+            // Serial.println(distance);
             mqtt.publish("/smartcar/ultrasound/front", String(distance));
         }
 #ifdef __SMCE__
