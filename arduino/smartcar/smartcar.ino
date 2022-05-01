@@ -24,9 +24,15 @@ DifferentialControl control(leftMotor, rightMotor);
 SimpleCar car(control);
 
 //infrared sensor//
-const int SIDE_FRONT_PIN = 0;//? why 0 not A0
-GP2Y0A02 sideFrontIR(arduinoRuntime,
-    SIDE_FRONT_PIN); // measure frontDistances between 25 and 120 centimeters
+const int frontIRPin = 0;
+const int leftIRPin = 1;
+const int rightIRPin = 2;
+const int backIRPin = 3;
+GP2Y0A02 frontIR(arduinoRuntime, frontIRPin); 
+GP2Y0A02 leftIR(arduinoRuntime, leftIRPin); 
+GP2Y0A02 rightIR(arduinoRuntime, rightIRPin); 
+GP2Y0A02 backIR(arduinoRuntime, backIRPin); 
+    //measure frontUltDiss between 25 and 120 centimeters
 
 
 const auto oneSecond = 1UL;
@@ -41,8 +47,8 @@ const auto triggerPin = 33;
 const auto echoPin = 32;
 const auto mqttBrokerUrl = "192.168.0.40";
 #endif
-const auto maxfrontDistance = 100;
-SR04 front(arduinoRuntime, triggerPin, echoPin, maxfrontDistance);
+const auto maxfrontUltDis = 100;
+SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxfrontUltDis);
 
 
 
@@ -109,15 +115,13 @@ void loop()
         if (currentTime - previousTransmission >= oneSecond)
         {
             previousTransmission = currentTime;
-            const auto frontDistance = front.getDistance();
-            const auto frontInraredDis = sideFrontIR.getDistance();
+            const auto frontUltDis = frontUlt.getDistance();
+            const auto frontIRDis = frontIR.getDistance();
             
-            forwardDriveAutoBreak(frontDistance);
-            forwardDriveAutoBreakIR(frontInraredDis);
-            //when both active git stuck
-
-            Serial.println(frontDistance);
-            mqtt.publish("/smartcar/ultrasound/front", String(frontDistance));
+            forwardDriveAutoBreak(frontUltDis,frontIRDis);
+            
+            Serial.println(frontUltDis);
+            mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));
         }
 #ifdef __SMCE__
         // Avoid over-using the CPU if we are running in the emulator
@@ -126,9 +130,9 @@ void loop()
     }
 }
 
-void forwardDriveAutoBreak(long frontDistance)
+void forwardDriveAutoBreak(long frontUltDis, long frontIRDis)
 {
-     if (frontDistance <= 90 && frontDistance != 0)//stop zone
+     if (frontUltDis <= 30 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0)//stop zone
              {
                 if (canDrive)//check whether you're in the stop zone
                 {
@@ -140,20 +144,3 @@ void forwardDriveAutoBreak(long frontDistance)
                 canDrive = true;//so the car will stop again if it hits the stop zone
              }
 }
-
-void forwardDriveAutoBreakIR(long frontInraredDis)
-{
-     if (frontInraredDis <= 30 && frontInraredDis != 0)//stop zone
-             {
-                if (canDrive)//check whether you're in the stop zone
-                {
-                    car.setSpeed(0);
-                    Serial.println("Emergency stop");
-                }
-                canDrive = false;//so the car can move in the stop soon
-            } else {
-                canDrive = true;//so the car will stop again if it hits the stop zone
-             }
-}
-
-//test
