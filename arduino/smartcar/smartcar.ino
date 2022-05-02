@@ -31,8 +31,8 @@ const int backIRPin = 3;
 GP2Y0A02 frontIR(arduinoRuntime, frontIRPin); 
 GP2Y0A02 leftIR(arduinoRuntime, leftIRPin); 
 GP2Y0A02 rightIR(arduinoRuntime, rightIRPin); 
-GP2Y0A02 backIR(arduinoRuntime, backIRPin); 
-    //measure frontUltDiss between 25 and 120 centimeters
+GP2Y0A21 backIR(arduinoRuntime, backIRPin); 
+    //measure infrared between 0 and 40
 
 
 const auto oneSecond = 1UL;
@@ -117,8 +117,12 @@ void loop()
             previousTransmission = currentTime;
             const auto frontUltDis = frontUlt.getDistance();
             const auto frontIRDis = frontIR.getDistance();
+            const auto leftIRDis = leftIR.getDistance();
+            const auto rightIRDis = rightIR.getDistance();
+            const auto backIRDis = backIR.getDistance();
             
-            forwardDriveAutoBreak(frontUltDis,frontIRDis);
+            stopZoneAutoBreak(frontUltDis, frontIRDis, backIRDis);
+            // backwardDriveAutoBreak(backIRDis);
             
             Serial.println(frontUltDis);
             mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));
@@ -130,17 +134,17 @@ void loop()
     }
 }
 
-void forwardDriveAutoBreak(long frontUltDis, long frontIRDis)
+void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
 {
-     if (frontUltDis <= 30 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0)//stop zone
-             {
-                if (canDrive)//check whether you're in the stop zone
-                {
-                    car.setSpeed(0);
-                    Serial.println("Emergency stop");
-                }
-                canDrive = false;//so the car can move in the stop soon
-            } else {
-                canDrive = true;//so the car will stop again if it hits the stop zone
-             }
+     if (frontUltDis <= 40 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0 || backIRDis <= 30 && backIRDis != 0)//stop zone
+         {
+            if (canDrive)//check whether you're in the stop zone
+            {
+                car.setSpeed(0);
+                Serial.println("Emergency stop1");
+            }
+            canDrive = false;//so the car can move in the stop soon
+        } else {
+            canDrive = true;//so the car will stop again if it hits the stop zone
+        }
 }
