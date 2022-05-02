@@ -5,6 +5,8 @@ import android.content.Context;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.*;
 
+import java.nio.charset.StandardCharsets;
+
 // Adapted from: https://medium.com/swlh/android-and-mqtt-a-simple-guide-cb0cbba1931c
 
 public class MqttClient {
@@ -22,6 +24,7 @@ public class MqttClient {
         options.setPassword(password.toCharArray());
         options.setAutomaticReconnect(true);
         options.setCleanSession(true);
+
 
         try {
             mMqttAndroidClient.connect(options, null, connectionCallback);

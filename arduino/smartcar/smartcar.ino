@@ -63,13 +63,16 @@ void setup()
         Serial.print(".");
         delay(1000);
     }
-
+    
+    mqtt.subscribe("/smartcar/connectionLost", 1);
+    
+    
     mqtt.subscribe("/smartcar/control/#", 1);
     mqtt.onMessage([](String topic, String message)
-                   {
+      {
     if (topic == "/smartcar/control/throttle") {
       car.setSpeed(message.toInt());
-    } else if (topic == "/smartcar/control/steering") {
+    }else if (topic == "/smartcar/control/steering") {
       car.setAngle(message.toInt());
     } else {
       Serial.println(topic + " " + message);
@@ -110,4 +113,13 @@ void loop()
         delay(1);
 #endif
     }
+    if (!mqtt.connected()){
+      lastWill();
+    }
+    
+    }
+
+void lastWill(){
+Serial.println("Connection lost: The car will be driven to safety");
+car.setSpeed(0);
 }
