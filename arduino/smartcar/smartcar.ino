@@ -11,6 +11,8 @@
 MQTTClient mqtt;
 WiFiClient net;
 
+bool canDrive = true;
+
 const char ssid[] = "***";
 const char pass[] = "****";
 
@@ -21,19 +23,34 @@ DifferentialControl control(leftMotor, rightMotor);
 
 SimpleCar car(control);
 
+//infrared sensor//
+const int frontIRPin = 0;
+const int leftIRPin = 1;
+const int rightIRPin = 2;
+const int backIRPin = 3;
+GP2Y0A02 frontIR(arduinoRuntime, frontIRPin); 
+GP2Y0A02 leftIR(arduinoRuntime, leftIRPin); 
+GP2Y0A02 rightIR(arduinoRuntime, rightIRPin); 
+GP2Y0A21 backIR(arduinoRuntime, backIRPin); 
+    //measure infrared between 0 and 40
+
+
 const auto oneSecond = 1UL;
-#ifdef __SMCE__
+
+//ultrasounds sensor//
+#ifdef __SMCE__ //Four simulator
 const auto triggerPin = 6;
 const auto echoPin = 7;
 const auto mqttBrokerUrl = "127.0.0.1";
-#else
+#else           //for car
 const auto triggerPin = 33;
 const auto echoPin = 32;
 const auto mqttBrokerUrl = "192.168.0.40";
 #endif
-const auto maxDistance = 200;
+
 int speed;
-SR04 front(arduinoRuntime, triggerPin, echoPin, maxDistance);
+const auto maxfrontUltDis = 100;
+SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxfrontUltDis);
 
 std::vector<char> frameBuffer;
 
@@ -101,14 +118,17 @@ void loop()
         if (currentTime - previousTransmission >= oneSecond)
         {
             previousTransmission = currentTime;
-            const auto distance = front.getDistance();
-            if (distance <= 200 && distance != 0)
-            {
-                car.setSpeed(0);
-                Serial.println("Emergency stop");
-            }
-            Serial.println(distance);
-            mqtt.publish("/smartcar/ultrasound/front", String(distance));
+            const auto frontUltDis = frontUlt.getDistance();
+            const auto frontIRDis = frontIR.getDistance();
+            const auto leftIRDis = leftIR.getDistance();
+            const auto rightIRDis = rightIR.getDistance();
+            const auto backIRDis = backIR.getDistance();
+            
+            stopZoneAutoBreak(frontUltDis, frontIRDis, backIRDis);
+            // backwardDriveAutoBreak(backIRDis);
+            
+            Serial.println(frontUltDis);
+            mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));
         }
 #ifdef __SMCE__
         // Avoid over-using the CPU if we are running in the emulator
@@ -121,7 +141,7 @@ void loop()
 
     }
     
-    }
+}
 
 //If the connection breaks, this method will be called
 void lastWill(){
@@ -142,4 +162,17 @@ void smoothStop(){
     car.setSpeed(0); // then it will come to a complete stop  
   }
   car.setSpeed(0);
+}
+
+void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis){
+    if (frontUltDis <= 40 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0 || backIRDis <= 30 && backIRDis != 0){//stop zone
+        if (canDrive)//check whether you're in the stop zone
+        {
+            car.setSpeed(0);
+            Serial.println("Emergency stop1");
+        }
+        canDrive = false;//so the car can move in the stop soon
+    } else {
+        canDrive = true;//so the car will stop again if it hits the stop zone
+    }
 }
