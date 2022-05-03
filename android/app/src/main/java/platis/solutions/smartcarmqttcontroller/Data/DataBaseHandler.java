@@ -49,7 +49,6 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
         db.insert(Constants.TABLE_NAME, null, values);
 
-
     };
 
     public ArrayList<Item>getallItems () {

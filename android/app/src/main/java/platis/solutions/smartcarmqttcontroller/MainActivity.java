@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private ItemAdapter itemAdapter;
     private DataBaseHandler db;
     private ListView listview;
+    private TextView contact_info_first_name;
 
 
     @Override
@@ -109,12 +111,15 @@ public class MainActivity extends AppCompatActivity {
         dialog = dialogBuilder.create();
         dialog.show();
 
+        contact_info_first_name = (TextView)findViewById(R.id.savedcontactpopup_firstname);
+
         newcontactpopup_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //define save button here
                 saveToDataBase();
                 refreshData();
+                //showSavedContact();
             }
         });
 
@@ -126,6 +131,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    //method for showing saved contact
+
+    //public void showSavedContact(){
+        //final View savedContact = getLayoutInflater().inflate(R.layout.contact_info, null);
+        //savedcontactpopup_firstname = (TextView) savedContact.findViewById(R.id.savedcontactpopup_firstname);
+    //}
 
 
     //Method for saving data to database
@@ -139,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
         item.setInput(value);
         db.Save(item);
 
-        System.out.println(db);
 
     }
 
