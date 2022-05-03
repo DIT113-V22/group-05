@@ -125,10 +125,10 @@ void loop()
 
 //If the connection breaks, this method will be called
 void lastWill(){
-  if(speed>10){
+  if(speed>10){ //Car slows down if speed is greater than 10
 smoothStop();
   }else{
-    car.setSpeed(0);
+    car.setSpeed(0); //Car just stops if speed is lower than 10
   }
   
 }
