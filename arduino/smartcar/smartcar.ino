@@ -148,3 +148,5 @@ void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
             canDrive = true;//so the car will stop again if it hits the stop zone
         }
 }
+
+//basic obstacle avoidance test done
