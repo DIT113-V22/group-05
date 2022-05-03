@@ -11,6 +11,7 @@
 MQTTClient mqtt;
 WiFiClient net;
 
+bool avoidanceFunction = true;
 bool canDrive = true;
 
 const char ssid[] = "***";
@@ -121,8 +122,11 @@ void loop()
             const auto rightIRDis = rightIR.getDistance();
             const auto backIRDis = backIR.getDistance();
             
-            stopZoneAutoBreak(frontUltDis, frontIRDis, backIRDis);
-            // backwardDriveAutoBreak(backIRDis);
+            if (avoidanceFunction)
+            {
+                stopZoneAutoBreak(frontUltDis, frontIRDis, backIRDis);
+                autoIncomingAvoidance();
+            }
             
             Serial.println(frontUltDis);
             mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));
@@ -149,4 +153,7 @@ void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
         }
 }
 
-//basic obstacle avoidance test done
+void autoIncomingAvoidance()
+{
+
+}
