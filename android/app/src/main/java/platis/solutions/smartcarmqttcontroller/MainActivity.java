@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private MqttClient mMqttClient;
     private boolean isConnected = false;
     private ImageView mCameraView;
-    private static boolean check = true;
+    private static boolean movingForwards = true;
 
     //Variables for the seekbar
     Button submitButton;
@@ -181,12 +181,12 @@ public class MainActivity extends AppCompatActivity {
         //Changing the speed using the adjust variable from the seekbar slider.
         //Adjust is the variable where the seekbar is, add or remove that from the current speed
         if(actionDescription == "Moving backward"){
-            check = false;
+            movingForwards = false;
             movementSpeed = adjust;
         }else if (actionDescription == "Stopping"){
             movementSpeed = 0;
         }else if (actionDescription == "Moving forward"){
-            check = true;
+            movingForwards = true;
             movementSpeed = adjust;
         }else if (actionDescription == "Moving forward left"){
             movementSpeed = adjust;
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         //The movementSpeed that has been adjusted will now be added to the throttlespeed
         throttleSpeed = movementSpeed;
         Log.i(TAG, actionDescription);
-        if(check) {
+        if(movingForwards) {
             mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
         }else{
             mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(-throttleSpeed), QOS, null);
