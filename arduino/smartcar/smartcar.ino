@@ -123,19 +123,23 @@ void loop()
     
     }
 
+//If the connection breaks, this method will be called
 void lastWill(){
   if(speed>10){
 smoothStop();
+  }else{
+    car.setSpeed(0);
   }
+  
 }
-
+//A method for slowing down, can be used in other methods
 void smoothStop(){
  if (speed>3){
-    car.setSpeed(speed * 0.9);
+    car.setSpeed(speed * 0.9); //0.9 is the fraction it will multiple the speed with, hence slowing down
         delay(100);
     speed = speed * 0.9;
   }else{
-    car.setSpeed(0);
+    car.setSpeed(0); // then it will come to a complete stop  
   }
   car.setSpeed(0);
 }
