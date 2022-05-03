@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String MQTT_SERVER = "tcp://" + LOCALHOST + ":1883";
     private static final String THROTTLE_CONTROL = "/smartcar/control/throttle";
     private static final String STEERING_CONTROL = "/smartcar/control/steering";
-    private static int MOVEMENT_SPEED = 40;
+    private static int movementSpeed = 0;
     private static final int IDLE_SPEED = 0;
     private static final int STRAIGHT_ANGLE = 0;
     private static final int STEERING_ANGLE = 50;
@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private MqttClient mMqttClient;
     private boolean isConnected = false;
     private ImageView mCameraView;
+    private static boolean check = true;
 
     //Variables for the seekbar
     Button submitButton;
@@ -55,9 +56,9 @@ public class MainActivity extends AppCompatActivity {
             int progressChangedValue = 0;
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                progressChangedValue = progress;
-                adjust = progressChangedValue;
-                drive(adjust, STRAIGHT_ANGLE, "Adjust speed");
+                    progressChangedValue = progress;
+                    adjust = progressChangedValue;
+                    drive(adjust, STRAIGHT_ANGLE, "Adjust speed");
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -180,34 +181,37 @@ public class MainActivity extends AppCompatActivity {
         //Changing the speed using the adjust variable from the seekbar slider.
         //Adjust is the variable where the seekbar is, add or remove that from the current speed
         if(actionDescription == "Moving backward"){
-            MOVEMENT_SPEED = -adjust;
+            check = false;
+            movementSpeed = adjust;
         }else if (actionDescription == "Stopping"){
-            MOVEMENT_SPEED = 0;
+            movementSpeed = 0;
         }else if (actionDescription == "Moving forward"){
-            MOVEMENT_SPEED = adjust;
+            check = true;
+            movementSpeed = adjust;
         }else if (actionDescription == "Moving forward left"){
-            MOVEMENT_SPEED = adjust;
+            movementSpeed = adjust;
         }else if (actionDescription == "Moving forward right"){
-            MOVEMENT_SPEED = adjust;
+            movementSpeed = adjust;
         }else{
-            MOVEMENT_SPEED = adjust;
+            movementSpeed = adjust;
         }
         //The movementSpeed that has been adjusted will now be added to the throttlespeed
-        throttleSpeed = MOVEMENT_SPEED;
+        throttleSpeed = movementSpeed;
         Log.i(TAG, actionDescription);
-        mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
+        if(check) {
+            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
+        }else{
+            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(-throttleSpeed), QOS, null);
+        }
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
     }
 
     public void moveForward(View view) {
-        drive(MOVEMENT_SPEED, STRAIGHT_ANGLE, "Moving forward");
-    }
-    public void adjustSpeed(View view){
-        drive(MOVEMENT_SPEED-adjust, STRAIGHT_ANGLE, "Adjust speed");
+        drive(movementSpeed, STRAIGHT_ANGLE, "Moving forward");
     }
 
     public void moveForwardLeft(View view) {
-        drive(MOVEMENT_SPEED, -STEERING_ANGLE, "Moving forward left");
+        drive(movementSpeed, -STEERING_ANGLE, "Moving forward left");
     }
 
     public void stop(View view) {
@@ -215,11 +219,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void moveForwardRight(View view) {
-        drive(MOVEMENT_SPEED, STEERING_ANGLE, "Moving forward right");
+        drive(movementSpeed, STEERING_ANGLE, "Moving forward right");
     }
 
     public void moveBackward(View view) {
-        drive(MOVEMENT_SPEED, STRAIGHT_ANGLE, "Moving backward");
+        drive(movementSpeed, STRAIGHT_ANGLE, "Moving backward");
     }
 
 
