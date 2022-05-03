@@ -32,6 +32,7 @@ const auto echoPin = 32;
 const auto mqttBrokerUrl = "192.168.0.40";
 #endif
 const auto maxDistance = 200;
+int speed;
 SR04 front(arduinoRuntime, triggerPin, echoPin, maxDistance);
 
 std::vector<char> frameBuffer;
@@ -71,7 +72,8 @@ void setup()
     mqtt.onMessage([](String topic, String message)
       {
     if (topic == "/smartcar/control/throttle") {
-      car.setSpeed(message.toInt());
+     car.setSpeed(message.toInt());
+     speed = (message.toInt());
     }else if (topic == "/smartcar/control/steering") {
       car.setAngle(message.toInt());
     } else {
@@ -112,14 +114,28 @@ void loop()
         // Avoid over-using the CPU if we are running in the emulator
         delay(1);
 #endif
-    }
-    if (!mqtt.connected()){
-      lastWill();
+    }else{
+            lastWill();
+     // Avoid over-using the CPU if we are running in the emulator
+        delay(1);
+
     }
     
     }
 
 void lastWill(){
-Serial.println("Connection lost: The car will be driven to safety");
-car.setSpeed(0);
+  if(speed>10){
+smoothStop();
+  }
+}
+
+void smoothStop(){
+ if (speed>3){
+    car.setSpeed(speed * 0.9);
+        delay(100);
+    speed = speed * 0.9;
+  }else{
+    car.setSpeed(0);
+  }
+  car.setSpeed(0);
 }
