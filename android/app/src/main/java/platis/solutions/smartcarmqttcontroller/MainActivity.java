@@ -7,7 +7,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -23,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String MQTT_SERVER = "tcp://" + LOCALHOST + ":1883";
     private static final String THROTTLE_CONTROL = "/smartcar/control/throttle";
     private static final String STEERING_CONTROL = "/smartcar/control/steering";
-    private static int MOVEMENT_SPEED = 40;
+    private static int movementSpeed = 0;
     private static final int IDLE_SPEED = 0;
     private static final int STRAIGHT_ANGLE = 0;
     private static final int STEERING_ANGLE = 50;
@@ -34,11 +36,42 @@ public class MainActivity extends AppCompatActivity {
     private MqttClient mMqttClient;
     private boolean isConnected = false;
     private ImageView mCameraView;
+    private static boolean movingForwards = true;
+
+    //Variables for the seekbar
+    Button submitButton;
+    SeekBar simpleSeekBar;
+    private static int adjust;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //On initiate views
+        simpleSeekBar = (SeekBar)findViewById(R.id.simpleSeekBar); // initiate the Seekbar
+
+        simpleSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progressChangedValue = 0;
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    progressChangedValue = progress;
+                    adjust = progressChangedValue;
+                    drive(adjust, STRAIGHT_ANGLE, "Adjust speed");
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Toast.makeText(MainActivity.this, "Seek bar progress is :" + progressChangedValue,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
         mMqttClient = new MqttClient(getApplicationContext(), MQTT_SERVER, TAG);
         mCameraView = findViewById(R.id.imageView);
 
@@ -99,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
                     mqttConnectionStatus(isConnected);
 
                     final String connectionLost = "Connection to MQTT broker lost";
+
                     Log.w(TAG, connectionLost);
                     Toast.makeText(getApplicationContext(), connectionLost, Toast.LENGTH_SHORT).show();
                 }
@@ -144,18 +178,40 @@ public class MainActivity extends AppCompatActivity {
 
             return;
         }
+        //Changing the speed using the adjust variable from the seekbar slider.
+        //Adjust is the variable where the seekbar is, add or remove that from the current speed
+        if(actionDescription == "Moving backward"){
+            movingForwards = false;
+            movementSpeed = adjust;
+        }else if (actionDescription == "Stopping"){
+            movementSpeed = 0;
+        }else if (actionDescription == "Moving forward"){
+            movingForwards = true;
+            movementSpeed = adjust;
+        }else if (actionDescription == "Moving forward left"){
+            movementSpeed = adjust;
+        }else if (actionDescription == "Moving forward right"){
+            movementSpeed = adjust;
+        }else{
+            movementSpeed = adjust;
+        }
+        //The movementSpeed that has been adjusted will now be added to the throttlespeed
+        throttleSpeed = movementSpeed;
         Log.i(TAG, actionDescription);
-        mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
+        if(movingForwards) {
+            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
+        }else{
+            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(-throttleSpeed), QOS, null);
+        }
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
-
     }
 
     public void moveForward(View view) {
-        drive(MOVEMENT_SPEED, STRAIGHT_ANGLE, "Moving forward");
+        drive(movementSpeed, STRAIGHT_ANGLE, "Moving forward");
     }
 
     public void moveForwardLeft(View view) {
-        drive(MOVEMENT_SPEED, -STEERING_ANGLE, "Moving forward left");
+        drive(movementSpeed, -STEERING_ANGLE, "Moving forward left");
     }
 
     public void stop(View view) {
@@ -163,11 +219,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void moveForwardRight(View view) {
-        drive(MOVEMENT_SPEED, STEERING_ANGLE, "Moving forward left");
+        drive(movementSpeed, STEERING_ANGLE, "Moving forward right");
     }
 
     public void moveBackward(View view) {
-        drive(-MOVEMENT_SPEED, STRAIGHT_ANGLE, "Moving backward");
+        drive(movementSpeed, STRAIGHT_ANGLE, "Moving backward");
     }
 
 
@@ -180,7 +236,5 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.imageView_connected).setVisibility(View.VISIBLE);
             findViewById(R.id.imageView_no_connection).setVisibility(View.GONE);
         }
-
-
     }
 }

@@ -47,11 +47,10 @@ const auto triggerPin = 33;
 const auto echoPin = 32;
 const auto mqttBrokerUrl = "192.168.0.40";
 #endif
+
+int speed;
 const auto maxfrontUltDis = 100;
 SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxfrontUltDis);
-
-
-
 
 std::vector<char> frameBuffer;
 
@@ -82,13 +81,17 @@ void setup()
         Serial.print(".");
         delay(1000);
     }
-
+    
+    mqtt.subscribe("/smartcar/connectionLost", 1);
+    
+    
     mqtt.subscribe("/smartcar/control/#", 1);
     mqtt.onMessage([](String topic, String message)
-                   {
+      {
     if (topic == "/smartcar/control/throttle") {
-      car.setSpeed(message.toInt());
-    } else if (topic == "/smartcar/control/steering") {
+     car.setSpeed(message.toInt());
+     speed = (message.toInt());
+    }else if (topic == "/smartcar/control/steering") {
       car.setAngle(message.toInt());
     } else {
       Serial.println(topic + " " + message);
@@ -131,22 +134,45 @@ void loop()
         // Avoid over-using the CPU if we are running in the emulator
         delay(1);
 #endif
+    }else{
+            lastWill();
+     // Avoid over-using the CPU if we are running in the emulator
+        delay(1);
+
+    }
+    
+}
+
+//If the connection breaks, this method will be called
+void lastWill(){
+  if(speed>10){ //Car slows down if speed is greater than 10
+smoothStop();
+  }else{
+    car.setSpeed(0); //Car just stops if speed is lower than 10
+  }
+  
+}
+//A method for slowing down, can be used in other methods
+void smoothStop(){
+ if (speed>3){
+    car.setSpeed(speed * 0.9); //0.9 is the fraction it will multiple the speed with, hence slowing down
+        delay(100);
+    speed = speed * 0.9;
+  }else{
+    car.setSpeed(0); // then it will come to a complete stop  
+  }
+  car.setSpeed(0);
+}
+
+void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis){
+    if (frontUltDis <= 40 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0 || backIRDis <= 30 && backIRDis != 0){//stop zone
+        if (canDrive)//check whether you're in the stop zone
+        {
+            car.setSpeed(0);
+            Serial.println("Emergency stop1");
+        }
+        canDrive = false;//so the car can move in the stop soon
+    } else {
+        canDrive = true;//so the car will stop again if it hits the stop zone
     }
 }
-
-void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
-{
-     if (frontUltDis <= 40 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0 || backIRDis <= 30 && backIRDis != 0)//stop zone
-         {
-            if (canDrive)//check whether you're in the stop zone
-            {
-                car.setSpeed(0);
-                Serial.println("Emergency stop1");
-            }
-            canDrive = false;//so the car can move in the stop soon
-        } else {
-            canDrive = true;//so the car will stop again if it hits the stop zone
-        }
-}
-
-//basic obstacle avoidance test done
