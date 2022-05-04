@@ -23,21 +23,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ID = "ID";
 
     public DataBaseHelper(@Nullable Context context) {
-        super(context, "contact.db", null, 1);
+        super(context, "contact_test.db", null, 1);
     }
 
     //this is called the first time a database is accessed. There should be code in here to create a new database.
     @Override
     public void onCreate(SQLiteDatabase db) {
         String createTableStatement = "CREATE TABLE " + CONTACT_TABLE + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_CONTACT_FIRSTNAME + " TEXT, " + COLUMN_CONTACT_LASTNAME + " TEXT, " + COLUMN_CONTACT_PHONE_NUMBER + " INT, " + COLUMN_CONTACT_EMAIL + " TEXT)";
-        onUpgrade(db,-1,0);
         db.execSQL(createTableStatement);
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-        db.execSQL("DROP TABLE IF EXISTS " + CONTACT_TABLE);
+        //db.execSQL("DROP TABLE IF EXISTS " + CONTACT_TABLE);
     }
 
 
