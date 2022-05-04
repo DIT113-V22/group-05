@@ -11,8 +11,11 @@
 MQTTClient mqtt;
 WiFiClient net;
 
-bool avoidanceFunction = true;
+bool safetyFeatures = true;
 bool canDrive = true;
+
+bool activeAvoidance = false;
+//bool inMotion = false;
 
 const char ssid[] = "***";
 const char pass[] = "****";
@@ -122,10 +125,13 @@ void loop()
             const auto rightIRDis = rightIR.getDistance();
             const auto backIRDis = backIR.getDistance();
             
-            if (avoidanceFunction)
+            if (safetyFeatures)
             {
+                if (!activeAvoidance)
+                {
                 stopZoneAutoBreak(frontUltDis, frontIRDis, backIRDis);
-                autoIncomingAvoidance();
+                }
+                incomingAvoidancethreshold(frontUltDis, frontIRDis, backIRDis);
             }
             
             Serial.println(frontUltDis);
@@ -140,7 +146,7 @@ void loop()
 
 void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
 {
-     if (frontUltDis <= 40 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0 || backIRDis <= 30 && backIRDis != 0)//stop zone
+     if (frontUltDis <= 40 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0 || backIRDis <= 40 && backIRDis != 0)//stop zone
          {
             if (canDrive)//check whether you're in the stop zone
             {
@@ -153,7 +159,26 @@ void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
         }
 }
 
-void autoIncomingAvoidance()
+void incomingAvoidancethreshold(long frontUltDis, long frontIRDis, long backIRDis)
 {
-
+    if (frontUltDis <= 20 && frontUltDis != 0 || frontIRDis <= 20 && frontIRDis != 0)//Ford threshold
+    {
+        car.setSpeed(0);
+        car.setSpeed(-10);
+        Serial.println("backing up");
+        activeAvoidance = true;
+    } else if (backIRDis <= 20 && backIRDis != 0)
+    {
+        car.setSpeed(0);
+        car.setSpeed(10);
+        Serial.println("moving forward");
+        activeAvoidance = true;
+    } else if (backIRDis == 0 && frontIRDis == 0 && activeAvoidance)
+    {
+        car.setSpeed(0);
+        activeAvoidance = false;
+    }
+    
+    
+      
 }
