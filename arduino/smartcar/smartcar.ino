@@ -46,7 +46,7 @@ const auto mqttBrokerUrl = "127.0.0.1";
 #else           //for car
 const auto triggerPin = 33;
 const auto echoPin = 32;
-const auto mqttBrokerUrl = "localhost";
+const auto mqttBrokerUrl = "192.168.0.40";
 #endif
 
 int speed;
