@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -24,12 +25,10 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
-import platis.solutions.smartcarmqttcontroller.Adapter.ItemAdapter;
-import platis.solutions.smartcarmqttcontroller.Data.DataBaseHandler;
-import platis.solutions.smartcarmqttcontroller.Model.Item;
+import platis.solutions.smartcarmqttcontroller.Data.DataBaseHelper;
+import platis.solutions.smartcarmqttcontroller.Model.EmergencyContact;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "SmartcarMqttController";
@@ -57,12 +56,10 @@ public class MainActivity extends AppCompatActivity {
     private Button newcontactpopup_cancel, newcontactpopup_save;
 
     //Database
-    private ArrayList<Item> mainActivity_list = new ArrayList<>();
-    private Item item;
-    private ItemAdapter itemAdapter;
-    private DataBaseHandler db;
-    private ListView listview;
-    private TextView contact_info_first_name;
+
+    ArrayAdapter customerArrayAdapter;
+    DataBaseHelper dataBaseHelper;
+    ListView emergency_contacts;
 
 
     @Override
@@ -91,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         if(id == R.id.menu1){
             createNewContactDialog();
         }
+        if(id == R.id.menu2){
+            showContacts();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -106,20 +106,38 @@ public class MainActivity extends AppCompatActivity {
         newcontactpopup_save = (Button) contactPopupView.findViewById(R.id.saveButton);
         newcontactpopup_cancel = (Button) contactPopupView.findViewById(R.id.cancelButton);
 
+        dataBaseHelper = new DataBaseHelper(MainActivity.this);
+        //ShowCustomerOnListView(dataBaseHelper);
+
 
         dialogBuilder.setView(contactPopupView);
         dialog = dialogBuilder.create();
         dialog.show();
 
-        contact_info_first_name = (TextView)findViewById(R.id.savedcontactpopup_firstname);
 
         newcontactpopup_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //define save button here
-                saveToDataBase();
-                refreshData();
-                //showSavedContact();
+
+                EmergencyContact contactModel;
+
+                try {
+                    contactModel = new EmergencyContact(-1, newcontactpopup_firstname.getText().toString(),newcontactpopup_lastname.getText().toString(),Integer.parseInt(newcontactpopup_mobile.getText().toString()),newcontactpopup_email.getText().toString());
+                    Toast.makeText(MainActivity.this, contactModel.toString(), Toast.LENGTH_SHORT).show();
+
+                } catch(Exception e){
+                    Toast.makeText(MainActivity.this, "Error creating customer", Toast.LENGTH_SHORT).show();
+                    contactModel = new EmergencyContact(-1, "error","error",0,"error");
+                }
+
+                DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
+
+                boolean success = dataBaseHelper.addOne(contactModel);
+
+                Toast.makeText(MainActivity.this, "Success = " + success, Toast.LENGTH_SHORT).show();
+                //ShowCustomerOnListView(dataBaseHelper);
+
             }
         });
 
@@ -132,49 +150,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    //method for showing saved contact
+    public void showContacts(){
 
-    //public void showSavedContact(){
-        //final View savedContact = getLayoutInflater().inflate(R.layout.contact_info, null);
-        //savedcontactpopup_firstname = (TextView) savedContact.findViewById(R.id.savedcontactpopup_firstname);
-    //}
+      //??
 
-
-    //Method for saving data to database
-    private void saveToDataBase(){
-
-        db = new DataBaseHandler(getApplicationContext());
-
-        Item item = new Item();
-        String value = newcontactpopup_firstname.getText().toString();
-
-        item.setInput(value);
-        db.Save(item);
-
-
-    }
-
-    //Refresh data
-    private void refreshData(){
-        mainActivity_list.clear();
-
-        db = new DataBaseHandler(getApplicationContext());
-
-        final ArrayList<Item> ItemFromDB = db.getallItems();
-        db.close();
-
-        for (int i = 0; i < ItemFromDB.size(); i++ ){
-
-            String valueRecorded = ItemFromDB.get(i).getInput();
-
-            item.setInput(valueRecorded);
-
-            mainActivity_list.add(item);
-        }
-
-        itemAdapter = new ItemAdapter(MainActivity.this, R.layout.popup, mainActivity_list);
-        listview.setAdapter(itemAdapter);
-        itemAdapter.notifyDataSetChanged();
     }
 
 
@@ -314,5 +293,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private void ShowCustomerOnListView(DataBaseHelper dataBaseHelper2) {
+        customerArrayAdapter = new ArrayAdapter<EmergencyContact>(MainActivity.this, android.R.layout.simple_expandable_list_item_1, dataBaseHelper2.getEveryone());
+        emergency_contacts.setAdapter(customerArrayAdapter);
     }
 }

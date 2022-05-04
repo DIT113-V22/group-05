@@ -9,4 +9,11 @@
 
         />
 
+    <item
+        android:id="@+id/menu2"
+        app:showAsAction="never"
+        android:title="View emergency contacts"
+
+        />
+
 </menu>
