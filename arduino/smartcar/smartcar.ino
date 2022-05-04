@@ -13,7 +13,6 @@ WiFiClient net;
 
 bool safetyFeatures = true;
 bool canDrive = true;
-bool safetySystem;
 
 bool activeAvoidance = false;
 //bool inMotion = false;
@@ -100,9 +99,9 @@ void setup()
         car.setAngle(message.toInt());
     } else if (topic == "/smartcar/safetysystem") {
         if (message == "false"){  //Update the boolean depending on the message received from app
-            safetySystem = false;
+            safetyFeatures = false;
         }else{
-            safetySystem = true;
+            safetyFeatures = true;
         }
     } else {
       Serial.println(topic + " " + message);
