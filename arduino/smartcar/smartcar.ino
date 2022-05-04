@@ -12,6 +12,7 @@ MQTTClient mqtt;
 WiFiClient net;
 
 bool canDrive = true;
+bool safetySystem;
 
 const char ssid[] = "***";
 const char pass[] = "****";
@@ -86,13 +87,19 @@ void setup()
     
     
     mqtt.subscribe("/smartcar/control/#", 1);
+    mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
       {
     if (topic == "/smartcar/control/throttle") {
-     car.setSpeed(message.toInt());
-     speed = (message.toInt());
-    }else if (topic == "/smartcar/control/steering") {
-      car.setAngle(message.toInt());
+        car.setSpeed(message.toInt());
+    } else if (topic == "/smartcar/control/steering") {
+        car.setAngle(message.toInt());
+    } else if (topic == "/smartcar/safetysystem") {
+        if (message == "false"){  //Update the boolean depending on the message received from app
+            safetySystem = false;
+        }else{
+            safetySystem = true;
+        }
     } else {
       Serial.println(topic + " " + message);
     } });
@@ -100,6 +107,7 @@ void setup()
 
 void loop()
 {
+
     if (mqtt.connected())
     {
         mqtt.loop();
@@ -118,17 +126,21 @@ void loop()
         if (currentTime - previousTransmission >= oneSecond)
         {
             previousTransmission = currentTime;
+
             const auto frontUltDis = frontUlt.getDistance();
             const auto frontIRDis = frontIR.getDistance();
             const auto leftIRDis = leftIR.getDistance();
             const auto rightIRDis = rightIR.getDistance();
             const auto backIRDis = backIR.getDistance();
             
-            stopZoneAutoBreak(frontUltDis, frontIRDis, backIRDis);
-            // backwardDriveAutoBreak(backIRDis);
-            
+            if (safetySystem){ //check if the safety system is enabled
+                stopZoneAutoBreak(frontUltDis, frontIRDis, backIRDis);
+                // backwardDriveAutoBreak(backIRDis);
+            }
+
             Serial.println(frontUltDis);
             mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));
+
         }
 #ifdef __SMCE__
         // Avoid over-using the CPU if we are running in the emulator
