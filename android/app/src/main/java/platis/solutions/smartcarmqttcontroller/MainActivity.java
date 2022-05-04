@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -53,13 +54,13 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     private EditText newcontactpopup_firstname, newcontactpopup_lastname, newcontactpopup_mobile, newcontactpopup_email;
-    private Button newcontactpopup_cancel, newcontactpopup_save;
+    private Button newcontactpopup_cancel, newcontactpopup_save, view_contacts;
 
     //Database
 
     ArrayAdapter customerArrayAdapter;
     DataBaseHelper dataBaseHelper;
-    ListView emergency_contacts;
+    ListView lv_contactList;
 
 
     @Override
@@ -106,9 +107,6 @@ public class MainActivity extends AppCompatActivity {
         newcontactpopup_save = (Button) contactPopupView.findViewById(R.id.saveButton);
         newcontactpopup_cancel = (Button) contactPopupView.findViewById(R.id.cancelButton);
 
-        dataBaseHelper = new DataBaseHelper(MainActivity.this);
-        //ShowCustomerOnListView(dataBaseHelper);
-
 
         dialogBuilder.setView(contactPopupView);
         dialog = dialogBuilder.create();
@@ -138,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Success = " + success, Toast.LENGTH_SHORT).show();
                 //ShowCustomerOnListView(dataBaseHelper);
 
+                dialog.dismiss();
+
             }
         });
 
@@ -151,8 +151,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showContacts(){
+        Intent intent = new Intent(this, EmergencyContacts.class);
+        startActivity(intent);
+        lv_contactList = findViewById(R.id.lv_contactList);
+        DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
+        ShowCustomerOnListView(dataBaseHelper);
+    }
 
-      //??
+    private void ShowCustomerOnListView(DataBaseHelper dataBaseHelper2) {
+        customerArrayAdapter = new ArrayAdapter<EmergencyContact>(MainActivity.this, android.R.layout.simple_expandable_list_item_1, dataBaseHelper2.getEveryone());
+        lv_contactList.setAdapter(customerArrayAdapter);
 
     }
 
@@ -292,11 +300,6 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.imageView_no_connection).setVisibility(View.GONE);
         }
 
-
     }
 
-    private void ShowCustomerOnListView(DataBaseHelper dataBaseHelper2) {
-        customerArrayAdapter = new ArrayAdapter<EmergencyContact>(MainActivity.this, android.R.layout.simple_expandable_list_item_1, dataBaseHelper2.getEveryone());
-        emergency_contacts.setAdapter(customerArrayAdapter);
-    }
 }
