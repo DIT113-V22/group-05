@@ -75,13 +75,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         mMqttClient = new MqttClient(getApplicationContext(), MQTT_SERVER, TAG);
         mCameraView = findViewById(R.id.imageView);
 
         connectToMqttBroker();
 
+        //This is the toggle button object to create the on and off switch for the automatic stopping features
         ToggleButton toggle = findViewById(R.id.toggleButton1);
+        
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {//Publish a message depending on which value the button has
@@ -94,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     @Override
@@ -179,12 +179,9 @@ public class MainActivity extends AppCompatActivity {
                 public void deliveryComplete(IMqttDeliveryToken token) {
                     Log.d(TAG, "Message delivered");
                 }
-
-
             });
         }
         mqttConnectionStatus(isConnected);
-
     }
 
     void drive(int throttleSpeed, int steeringAngle, String actionDescription) {
@@ -193,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
             final String notConnected = "Not connected (yet)";
             Log.e(TAG, notConnected);
             Toast.makeText(getApplicationContext(), notConnected, Toast.LENGTH_SHORT).show();
-
+            
             return;
         }
         //Changing the speed using the adjust variable from the seekbar slider.
@@ -244,7 +241,6 @@ public class MainActivity extends AppCompatActivity {
         drive(movementSpeed, STRAIGHT_ANGLE, "Moving backward");
     }
 
-
     public void mqttConnectionStatus(boolean isConnected){
 
         if(!isConnected){
@@ -256,5 +252,3 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-
-
