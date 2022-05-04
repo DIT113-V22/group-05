@@ -51,11 +51,10 @@ const auto triggerPin = 33;
 const auto echoPin = 32;
 const auto mqttBrokerUrl = "192.168.0.40";
 #endif
+
+int speed;
 const auto maxfrontUltDis = 100;
 SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxfrontUltDis);
-
-
-
 
 std::vector<char> frameBuffer;
 
@@ -86,13 +85,17 @@ void setup()
         Serial.print(".");
         delay(1000);
     }
-
+    
+    mqtt.subscribe("/smartcar/connectionLost", 1);
+    
+    
     mqtt.subscribe("/smartcar/control/#", 1);
     mqtt.onMessage([](String topic, String message)
-                   {
+      {
     if (topic == "/smartcar/control/throttle") {
-      car.setSpeed(message.toInt());
-    } else if (topic == "/smartcar/control/steering") {
+     car.setSpeed(message.toInt());
+     speed = (message.toInt());
+    }else if (topic == "/smartcar/control/steering") {
       car.setAngle(message.toInt());
     } else {
       Serial.println(topic + " " + message);
@@ -141,8 +144,15 @@ void loop()
         // Avoid over-using the CPU if we are running in the emulator
         delay(1);
 #endif
+    }else{
+            lastWill();
+     // Avoid over-using the CPU if we are running in the emulator
+        delay(1);
+
     }
+    
 }
+
 
 void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
 {
@@ -177,8 +187,25 @@ void incomingAvoidancethreshold(long frontUltDis, long frontIRDis, long backIRDi
     {
         car.setSpeed(0);
         activeAvoidance = false;
-    }
-    
-    
-      
+    } 
+}
+
+void lastWill(){
+  if(speed>10){ //Car slows down if speed is greater than 10
+smoothStop();
+  }else{
+    car.setSpeed(0); //Car just stops if speed is lower than 10
+  }
+  
+}
+//A method for slowing down, can be used in other methods
+void smoothStop(){
+ if (speed>3){
+    car.setSpeed(speed * 0.9); //0.9 is the fraction it will multiple the speed with, hence slowing down
+        delay(100);
+    speed = speed * 0.9;
+  }else{
+    car.setSpeed(0); // then it will come to a complete stop  
+  }
+  car.setSpeed(0);
 }
