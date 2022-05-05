@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -151,18 +150,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showContacts(){
-        Intent intent = new Intent(this, EmergencyContacts.class);
+        Intent intent = new Intent(this, ContactList.class);
         startActivity(intent);
         lv_contactList = findViewById(R.id.lv_contactList);
-        DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
-        ShowCustomerOnListView(dataBaseHelper);
+        //DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
+        //ShowCustomerOnListView(dataBaseHelper);
     }
 
-    private void ShowCustomerOnListView(DataBaseHelper dataBaseHelper2) {
-        customerArrayAdapter = new ArrayAdapter<EmergencyContact>(MainActivity.this, android.R.layout.simple_expandable_list_item_1, dataBaseHelper2.getEveryone());
-        lv_contactList.setAdapter(customerArrayAdapter);
+    //private void ShowCustomerOnListView(DataBaseHelper dataBaseHelper2) {
+        //customerArrayAdapter = new ArrayAdapter<EmergencyContact>(MainActivity.this, android.R.layout.simple_expandable_list_item_1, dataBaseHelper2.getEveryone());
+        //lv_contactList.setAdapter(customerArrayAdapter);
 
-    }
+    //}
 
 
     @Override
