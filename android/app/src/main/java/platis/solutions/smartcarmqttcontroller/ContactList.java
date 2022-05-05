@@ -4,9 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import platis.solutions.smartcarmqttcontroller.Data.DataBaseHelper;
 import platis.solutions.smartcarmqttcontroller.Model.EmergencyContact;
@@ -15,6 +17,7 @@ public class ContactList extends AppCompatActivity {
 
     private Button view_contacts;
 
+    //Database
     ArrayAdapter customerArrayAdapter;
     DataBaseHelper dataBaseHelper;
     ListView lv_contactList;
@@ -37,6 +40,16 @@ public class ContactList extends AppCompatActivity {
                 DataBaseHelper dataBaseHelper = new DataBaseHelper(ContactList.this);
                 ShowCustomerOnListView(dataBaseHelper);
 
+            }
+        });
+
+        lv_contactList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int postion, long l) {
+                EmergencyContact clickedCustomer = (EmergencyContact) parent.getItemAtPosition(postion);
+                dataBaseHelper.deleteOne(clickedCustomer);
+                ShowCustomerOnListView(dataBaseHelper);
+                Toast.makeText(ContactList.this, "Deleted " + clickedCustomer.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
