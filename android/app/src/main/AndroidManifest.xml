@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartcarMqttController">
         <activity
-            android:name=".EmergencyContacts"
+            android:name=".ContactList"
             android:exported="false" />
         <activity android:name=".MainActivity">
             <intent-filter>
