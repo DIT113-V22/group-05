@@ -143,7 +143,7 @@ void loop()
                 {
                 stopZoneAutoBreak(frontUltDis, frontIRDis, backIRDis);
                 }
-                incomingAvoidancethreshold(frontUltDis, frontIRDis, backIRDis);
+                incomingAvoidanceThreshold(frontUltDis, frontIRDis, backIRDis);
             }
             
 
