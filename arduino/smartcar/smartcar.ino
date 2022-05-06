@@ -225,6 +225,7 @@ void incomingAvoidanceThreshold(long frontUltDis, long frontIRDis, long backIRDi
     } 
 }
 
+//This method will be called when the connection breaks from the broker 
 void lastWill(){
   if(speed>10){ //Car slows down if speed is greater than 10
 smoothStop();
