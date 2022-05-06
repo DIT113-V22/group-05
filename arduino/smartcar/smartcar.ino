@@ -11,7 +11,7 @@
 MQTTClient mqtt;
 WiFiClient net;
 
-bool safetyFeatures = false;
+bool safetyFeatures = false; //Shows if all the safety features are active or not active
 bool canDrive = true;
 
 bool activeAvoidance = false;
@@ -137,7 +137,7 @@ void loop()
             const auto backIRDis = backIR.getDistance();
             
 
-            if (safetyFeatures)
+            if (safetyFeatures) //check if the safety system is enabled
             {
                 if (!activeAvoidance)
                 {
@@ -180,6 +180,7 @@ void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
         }
 }
 
+//Threshold means to close to an object/ different thresholds means level of closeness
 void incomingAvoidanceThreshold(long frontUltDis, long frontIRDis, long backIRDis)
 {
     if (frontUltDis <= 30 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0)//Ford threshold 1
@@ -194,7 +195,7 @@ void incomingAvoidanceThreshold(long frontUltDis, long frontIRDis, long backIRDi
         car.setSpeed(-60);
         Serial.println("backing up level 2");
         activeAvoidance = true;
-    } else if (frontUltDis <= 90 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0)//Ford threshold 3this
+    } else if (frontUltDis <= 90 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0)//Ford threshold 3
     {
         car.setSpeed(0);
         car.setSpeed(-30);
