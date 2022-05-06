@@ -137,7 +137,7 @@ void loop()
             const auto backIRDis = backIR.getDistance();
             
 
-            if (safetyFeatures)
+            if (safetyFeatures)//check if the safety system is enabled
             {
                 if (!activeAvoidance)
                 {
@@ -167,12 +167,12 @@ void loop()
 
 void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
 {
-     if (frontUltDis <= 40 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0 || backIRDis <= 40 && backIRDis != 0)//stop zone
+     if (frontUltDis <= 100 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0 || backIRDis <= 40 && backIRDis != 0)//stop zone
          {
             if (canDrive)//check whether you're in the stop zone
             {
                 car.setSpeed(0);
-                Serial.println("Emergency stop1");
+                Serial.println("Emergency stop 1");
             }
             canDrive = false;//so the car can move in the stop soon
         } else {
@@ -180,27 +180,53 @@ void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
         }
 }
 
-void incomingAvoidancethreshold(long frontUltDis, long frontIRDis, long backIRDis)
+//Threshold means to close to an object/ different thresholds means level of closeness
+void incomingAvoidanceThreshold(long frontUltDis, long frontIRDis, long backIRDis)
 {
-    if (frontUltDis <= 20 && frontUltDis != 0 || frontIRDis <= 20 && frontIRDis != 0)//Ford threshold
+    if (frontUltDis <= 30 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0)//Ford threshold 1
     {
         car.setSpeed(0);
-        car.setSpeed(-10);
-        Serial.println("backing up");
+        car.setSpeed(-90);
+        Serial.println("backing up level 1");
         activeAvoidance = true;
-    } else if (backIRDis <= 20 && backIRDis != 0)
+    } else if (frontUltDis <= 60 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0)//Ford threshold 2
     {
         car.setSpeed(0);
-        car.setSpeed(10);
-        Serial.println("moving forward");
+        car.setSpeed(-60);
+        Serial.println("backing up level 2");
         activeAvoidance = true;
-    } else if (backIRDis == 0 && frontIRDis == 0 && activeAvoidance)
+    } else if (frontUltDis <= 90 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0)//Ford threshold 3
+    {
+        car.setSpeed(0);
+        car.setSpeed(-30);
+        Serial.println("backing up level 3");
+        activeAvoidance = true;
+    } else if (backIRDis <= 10 && backIRDis != 0)//back threshold 1
+    {
+        car.setSpeed(0);
+        car.setSpeed(40);
+        Serial.println("moving forward level 1");
+        activeAvoidance = true;
+    } else if (backIRDis <= 20 && backIRDis != 0)//back threshold 2
+    {
+        car.setSpeed(0);
+        car.setSpeed(30);
+        Serial.println("moving forward level 2");
+        activeAvoidance = true;
+    } else if (backIRDis <= 30 && backIRDis != 0)//back threshold 3
+    {
+        car.setSpeed(0);
+        car.setSpeed(20);
+        Serial.println("moving forward level 3");
+        activeAvoidance = true;
+    } else if (frontUltDis == 0 && frontIRDis == 0 && backIRDis == 0 && activeAvoidance)
     {
         car.setSpeed(0);
         activeAvoidance = false;
     } 
 }
 
+//This method will be called when the connection breaks from the broker 
 void lastWill(){
   if(speed>10){ //Car slows down if speed is greater than 10
 smoothStop();
@@ -209,6 +235,7 @@ smoothStop();
   }
   
 }
+
 //A method for slowing down, can be used in other methods
 void smoothStop(){
  if (speed>3){
