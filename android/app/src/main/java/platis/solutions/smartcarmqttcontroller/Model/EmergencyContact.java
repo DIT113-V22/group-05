@@ -22,13 +22,11 @@ public class EmergencyContact {
 
     @Override
     public String toString() {
-        return "EmergencyContact{" +
-                "id=" + id +
-                ", first_name='" + first_name + '\'' +
-                ", last_name='" + last_name + '\'' +
-                ", email='" + email + '\'' +
-                ", phone_number='" + phone_number + '\'' +
-                '}';
+        return
+                "First name: '" + first_name + '\'' +
+                ", Last name: '" + last_name + '\'' +
+                ", email: '" + email + '\'' +
+                ", Phone number: '" + phone_number + '\'';
     }
 
     public int getId() {

@@ -53,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     private EditText newcontactpopup_firstname, newcontactpopup_lastname, newcontactpopup_mobile, newcontactpopup_email;
-    private Button newcontactpopup_cancel, newcontactpopup_save, view_contacts;
+    private Button newcontactpopup_cancel, newcontactpopup_save;
+
     ListView lv_contactList;
 
 
@@ -74,22 +75,24 @@ public class MainActivity extends AppCompatActivity {
        return true;
     }
 
-    //If click on menu one, new contact dialogue will open.
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         int id = item.getItemId();
 
         if(id == R.id.menu1){
+            //Contact creation
             createNewContactDialog();
         }
         if(id == R.id.menu2){
-            showContacts();
+            //Viewing contacts
+            openContactActivity();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    // Method for creating a new contact
+    // Method for opening the popup window for the new emergency contact.
     public void createNewContactDialog(){
         dialogBuilder = new AlertDialog.Builder(this);
         final View contactPopupView = getLayoutInflater().inflate(R.layout.popup, null);
@@ -110,9 +113,10 @@ public class MainActivity extends AppCompatActivity {
         newcontactpopup_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //define save button here
 
                 EmergencyContact contactModel;
+
+                //Throws exception if added contact information does not meet requirements.
 
                 try {
                     contactModel = new EmergencyContact(-1, newcontactpopup_firstname.getText().toString(),newcontactpopup_lastname.getText().toString(),Integer.parseInt(newcontactpopup_mobile.getText().toString()),newcontactpopup_email.getText().toString());
@@ -127,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
                 boolean success = dataBaseHelper.addOne(contactModel);
 
-                Toast.makeText(MainActivity.this, "Success = " + success, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Contact Added", Toast.LENGTH_SHORT).show();
                 //ShowCustomerOnListView(dataBaseHelper);
 
                 dialog.dismiss();
@@ -144,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void showContacts(){
+    public void openContactActivity(){
         Intent intent = new Intent(this, ContactList.class);
         startActivity(intent);
         lv_contactList = findViewById(R.id.lv_contactList);
