@@ -10,7 +10,7 @@
         android:id="@+id/newListicon"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:background="@drawable/ic_baseline_face_24"
+        android:background="@drawable/ic_baseline_local_hospital_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -68,7 +68,7 @@
         app:layout_constraintTop_toBottomOf="@+id/newcontactpopup_mobile"
         tools:layout_editor_absoluteX="0dp"
         android:textSize="24sp"
-        android:hint="email"
+        android:hint="Email"
         android:textAlignment="center"
         android:gravity="center_horizontal"
 
