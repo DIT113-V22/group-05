@@ -92,8 +92,10 @@ void setup()
       {
     if (topic == "/smartcar/control/throttle") {
         car.setSpeed(message.toInt());
+        Serial.println(message + "Felix " );
     } else if (topic == "/smartcar/control/steering") {
         car.setAngle(message.toInt());
+        Serial.println(message + "Albin " );
     } else if (topic == "/smartcar/safetysystem") {
         if (message == "false"){  //Update the boolean depending on the message received from app
             safetySystem = false;
@@ -138,7 +140,7 @@ void loop()
                 // backwardDriveAutoBreak(backIRDis);
             }
 
-            Serial.println(frontUltDis);
+            //Serial.println(frontUltDis);
             mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));
 
         }

@@ -21,7 +21,7 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener{
     private static final String TAG = "SmartcarMqttController";
     private static final String EXTERNAL_MQTT_BROKER = "aerostun.dev";
     private static final String LOCALHOST = "10.0.2.2";
@@ -51,7 +51,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Instantiate the joystick
+        JoystickView joystick = new JoystickView(this);
         setContentView(R.layout.activity_main);
+
 
         //On initiate views
         simpleSeekBar = (SeekBar)findViewById(R.id.simpleSeekBar); // initiate the Seekbar
@@ -184,6 +187,9 @@ public class MainActivity extends AppCompatActivity {
         mqttConnectionStatus(isConnected);
     }
 
+    //This method is not being used other than for the speed adjuster, which is irrelevant
+    //with the joystick being in place. However, it will be used later on for the option
+    //of having buttons later on in the project in the menu bar
     void drive(int throttleSpeed, int steeringAngle, String actionDescription) {
         if (!isConnected) {
 
@@ -195,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
         }
         //Changing the speed using the adjust variable from the seekbar slider.
         //Adjust is the variable where the seekbar is, add or remove that from the current speed
+
         if(actionDescription == "Moving backward"){
             movingForwards = false;
             movementSpeed = adjust;
@@ -210,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
         }else{
             movementSpeed = adjust;
         }
+
         //The movementSpeed that has been adjusted will now be added to the throttlespeed
         throttleSpeed = movementSpeed;
         Log.i(TAG, actionDescription);
@@ -221,28 +229,8 @@ public class MainActivity extends AppCompatActivity {
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
     }
 
-    public void moveForward(View view) {
-        drive(movementSpeed, STRAIGHT_ANGLE, "Moving forward");
-    }
-
-    public void moveForwardLeft(View view) {
-        drive(movementSpeed, -STEERING_ANGLE, "Moving forward left");
-    }
-
-    public void stop(View view) {
-        drive(IDLE_SPEED, STRAIGHT_ANGLE, "Stopping");
-    }
-
-    public void moveForwardRight(View view) {
-        drive(movementSpeed, STEERING_ANGLE, "Moving forward right");
-    }
-
-    public void moveBackward(View view) {
-        drive(movementSpeed, STRAIGHT_ANGLE, "Moving backward");
-    }
 
     public void mqttConnectionStatus(boolean isConnected){
-
         if(!isConnected){
             findViewById(R.id.imageView_no_connection).setVisibility(View.VISIBLE);
             findViewById(R.id.imageView_connected).setVisibility(View.GONE);
@@ -251,4 +239,14 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.imageView_no_connection).setVisibility(View.GONE);
         }
     }
-}
+
+    @Override
+    public void onJoystickMoved(float xPercent, float yPercent, int id) {
+        xPercent = xPercent * 70;
+        yPercent = -yPercent * 100;
+
+        mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
+        mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
+      }
+    }
+
