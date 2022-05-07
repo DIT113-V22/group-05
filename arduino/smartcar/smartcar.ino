@@ -12,6 +12,7 @@ MQTTClient mqtt;
 WiFiClient net;
 
 bool canDrive = true;
+bool safetySystem;
 
 const char ssid[] = "***";
 const char pass[] = "****";
@@ -23,18 +24,34 @@ DifferentialControl control(leftMotor, rightMotor);
 
 SimpleCar car(control);
 
+//infrared sensor//
+const int frontIRPin = 0;
+const int leftIRPin = 1;
+const int rightIRPin = 2;
+const int backIRPin = 3;
+GP2Y0A02 frontIR(arduinoRuntime, frontIRPin); 
+GP2Y0A02 leftIR(arduinoRuntime, leftIRPin); 
+GP2Y0A02 rightIR(arduinoRuntime, rightIRPin); 
+GP2Y0A21 backIR(arduinoRuntime, backIRPin); 
+    //measure infrared between 0 and 40
+
+
 const auto oneSecond = 1UL;
-#ifdef __SMCE__
+
+//ultrasounds sensor//
+#ifdef __SMCE__ //Four simulator
 const auto triggerPin = 6;
 const auto echoPin = 7;
 const auto mqttBrokerUrl = "127.0.0.1";
-#else
+#else           //for car
 const auto triggerPin = 33;
 const auto echoPin = 32;
 const auto mqttBrokerUrl = "192.168.0.40";
 #endif
-const auto maxDistance = 200;
-SR04 front(arduinoRuntime, triggerPin, echoPin, maxDistance);
+
+int speed;
+const auto maxfrontUltDis = 100;
+SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxfrontUltDis);
 
 std::vector<char> frameBuffer;
 
@@ -65,14 +82,24 @@ void setup()
         Serial.print(".");
         delay(1000);
     }
-
+    
+    mqtt.subscribe("/smartcar/connectionLost", 1);
+    
+    
     mqtt.subscribe("/smartcar/control/#", 1);
+    mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
-                   {
+      {
     if (topic == "/smartcar/control/throttle") {
-      car.setSpeed(message.toInt());
+        car.setSpeed(message.toInt());
     } else if (topic == "/smartcar/control/steering") {
-      car.setAngle(message.toInt());
+        car.setAngle(message.toInt());
+    } else if (topic == "/smartcar/safetysystem") {
+        if (message == "false"){  //Update the boolean depending on the message received from app
+            safetySystem = false;
+        }else{
+            safetySystem = true;
+        }
     } else {
       Serial.println(topic + " " + message);
     } });
@@ -80,6 +107,7 @@ void setup()
 
 void loop()
 {
+
     if (mqtt.connected())
     {
         mqtt.loop();
@@ -98,25 +126,65 @@ void loop()
         if (currentTime - previousTransmission >= oneSecond)
         {
             previousTransmission = currentTime;
-            const auto distance = front.getDistance();
-            if (distance <= 75 && distance != 0)//stop zone
-            {
-                if (canDrive)//check whether you're in the stop zone
-                {
-                    car.setSpeed(0);
-                    Serial.println("Emergency stop");
-                }
-                canDrive = false;//so the car can move in the stop soon
-            } else {
-                canDrive = true;//so the car will stop again if it hits the stop zone
-                Serial.println("emergency stop reestablished");
+
+            const auto frontUltDis = frontUlt.getDistance();
+            const auto frontIRDis = frontIR.getDistance();
+            const auto leftIRDis = leftIR.getDistance();
+            const auto rightIRDis = rightIR.getDistance();
+            const auto backIRDis = backIR.getDistance();
+            
+            if (safetySystem){ //check if the safety system is enabled
+                stopZoneAutoBreak(frontUltDis, frontIRDis, backIRDis);
+                // backwardDriveAutoBreak(backIRDis);
             }
-            Serial.println(distance);
-            mqtt.publish("/smartcar/ultrasound/front", String(distance));
+
+            Serial.println(frontUltDis);
+            mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));
+
         }
 #ifdef __SMCE__
         // Avoid over-using the CPU if we are running in the emulator
         delay(1);
 #endif
+    }else{
+            lastWill();
+     // Avoid over-using the CPU if we are running in the emulator
+        delay(1);
+
+    }
+    
+}
+
+//If the connection breaks, this method will be called
+void lastWill(){
+  if(speed>10){ //Car slows down if speed is greater than 10
+smoothStop();
+  }else{
+    car.setSpeed(0); //Car just stops if speed is lower than 10
+  }
+  
+}
+//A method for slowing down, can be used in other methods
+void smoothStop(){
+ if (speed>3){
+    car.setSpeed(speed * 0.9); //0.9 is the fraction it will multiple the speed with, hence slowing down
+        delay(100);
+    speed = speed * 0.9;
+  }else{
+    car.setSpeed(0); // then it will come to a complete stop  
+  }
+  car.setSpeed(0);
+}
+
+void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis){
+    if (frontUltDis <= 40 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0 || backIRDis <= 30 && backIRDis != 0){//stop zone
+        if (canDrive)//check whether you're in the stop zone
+        {
+            car.setSpeed(0);
+            Serial.println("Emergency stop1");
+        }
+        canDrive = false;//so the car can move in the stop soon
+    } else {
+        canDrive = true;//so the car will stop again if it hits the stop zone
     }
 }
