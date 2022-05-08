@@ -1,13 +1,24 @@
 package platis.solutions.smartcarmqttcontroller;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.CompoundButton;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,6 +31,11 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.util.Objects;
+
+import platis.solutions.smartcarmqttcontroller.Data.DataBaseHelper;
+import platis.solutions.smartcarmqttcontroller.Model.EmergencyContact;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "SmartcarMqttController";
@@ -46,6 +62,14 @@ public class MainActivity extends AppCompatActivity {
     Button submitButton;
     SeekBar simpleSeekBar;
     private static int adjust;
+
+
+    // variables for contact dialogue popup
+    private AlertDialog.Builder dialogBuilder;
+    private AlertDialog dialog;
+    private EditText newcontactpopup_firstname, newcontactpopup_lastname, newcontactpopup_mobile, newcontactpopup_email;
+    private Button newcontactpopup_cancel, newcontactpopup_save;
+    ListView lv_contactList;
 
 
     @Override
@@ -77,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
         mMqttClient = new MqttClient(getApplicationContext(), MQTT_SERVER, TAG);
         mCameraView = findViewById(R.id.imageView);
-
+        Objects.requireNonNull(getSupportActionBar()).setTitle("SAFETY FIRST");  // provide compatibility to all the versions
         connectToMqttBroker();
 
         //This is the toggle button object to create the on and off switch for the automatic stopping features
@@ -96,6 +120,92 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+       getMenuInflater().inflate(R.menu.first_menu,menu);
+       return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.menu1){
+            //Contact creation
+            createNewContactDialog();
+        }
+        if(id == R.id.menu2){
+            //Viewing contacts
+            openContactActivity();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Method for opening the popup window for the new emergency contact.
+    public void createNewContactDialog(){
+        dialogBuilder = new AlertDialog.Builder(this);
+        final View contactPopupView = getLayoutInflater().inflate(R.layout.popup, null);
+        newcontactpopup_firstname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_firstname);
+        newcontactpopup_lastname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_lastname);
+        newcontactpopup_mobile = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_mobile);
+        newcontactpopup_email = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_email);
+
+        newcontactpopup_save = (Button) contactPopupView.findViewById(R.id.saveButton);
+        newcontactpopup_cancel = (Button) contactPopupView.findViewById(R.id.cancelButton);
+
+
+        dialogBuilder.setView(contactPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
+
+
+        newcontactpopup_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                EmergencyContact contactModel;
+
+                //Throws exception if added contact information does not meet requirements.
+
+                try {
+                    contactModel = new EmergencyContact(-1, newcontactpopup_firstname.getText().toString(),newcontactpopup_lastname.getText().toString(),Integer.parseInt(newcontactpopup_mobile.getText().toString()),newcontactpopup_email.getText().toString());
+                    Toast.makeText(MainActivity.this, contactModel.toString(), Toast.LENGTH_SHORT).show();
+
+                } catch(Exception e){
+                    Toast.makeText(MainActivity.this, "Error creating customer", Toast.LENGTH_SHORT).show();
+                    contactModel = new EmergencyContact(-1, "error","error",0,"error");
+                }
+
+                DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
+
+                boolean success = dataBaseHelper.addOne(contactModel);
+
+                Toast.makeText(MainActivity.this, "Contact Added", Toast.LENGTH_SHORT).show();
+                //ShowCustomerOnListView(dataBaseHelper);
+
+                dialog.dismiss();
+
+            }
+        });
+
+        newcontactpopup_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //define cancel button
+                dialog.dismiss();
+            }
+        });
+    }
+
+    public void openContactActivity(){
+        Intent intent = new Intent(this, ContactList.class);
+        startActivity(intent);
+        lv_contactList = findViewById(R.id.lv_contactList);
+    }
+
 
     @Override
     protected void onResume() {
@@ -250,5 +360,11 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.imageView_connected).setVisibility(View.VISIBLE);
             findViewById(R.id.imageView_no_connection).setVisibility(View.GONE);
         }
+
     }
+
 }
+
+
+
+
