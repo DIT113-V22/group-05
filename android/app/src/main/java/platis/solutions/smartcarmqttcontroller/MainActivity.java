@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         JoystickView joystick = new JoystickView(this);
         setContentView(R.layout.activity_main);
 
-
+        /*
         //On initiate views
         simpleSeekBar = (SeekBar)findViewById(R.id.simpleSeekBar); // initiate the Seekbar
 
@@ -102,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         Toast.LENGTH_SHORT).show();
             }
         });
+
+         */
 
         mMqttClient = new MqttClient(getApplicationContext(), MQTT_SERVER, TAG);
         mCameraView = findViewById(R.id.imageView);
