@@ -2,7 +2,6 @@ package platis.solutions.smartcarmqttcontroller;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -10,8 +9,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private ImageView mCameraView;
     private static boolean movingForwards = true;
 
+
     //Variables for the seekbar
     Button submitButton;
     SeekBar simpleSeekBar;
@@ -58,14 +60,12 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
         //On initiate views
         simpleSeekBar = (SeekBar)findViewById(R.id.simpleSeekBar); // initiate the Seekbar
-
         simpleSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progressChangedValue = 0;
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     progressChangedValue = progress;
                     adjust = progressChangedValue;
-                    drive(adjust, STRAIGHT_ANGLE, "Adjust speed");
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     @Override
     protected void onResume() {
         super.onResume();
-
         connectToMqttBroker();
     }
 
@@ -129,9 +128,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     isConnected = true;
-
                     mqttConnectionStatus(isConnected);
-
                     final String successfulConnection = "Connected to MQTT broker";
                     Log.i(TAG, successfulConnection);
                     Toast.makeText(getApplicationContext(), successfulConnection, Toast.LENGTH_SHORT).show();
@@ -149,11 +146,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                 @Override
                 public void connectionLost(Throwable cause) {
                     isConnected = false;
-
                     mqttConnectionStatus(isConnected);
-
                     final String connectionLost = "Connection to MQTT broker lost";
-
                     Log.w(TAG, connectionLost);
                     Toast.makeText(getApplicationContext(), connectionLost, Toast.LENGTH_SHORT).show();
                 }
@@ -192,16 +186,14 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     //of having buttons later on in the project in the menu bar
     void drive(int throttleSpeed, int steeringAngle, String actionDescription) {
         if (!isConnected) {
-
             final String notConnected = "Not connected (yet)";
             Log.e(TAG, notConnected);
             Toast.makeText(getApplicationContext(), notConnected, Toast.LENGTH_SHORT).show();
-            
             return;
         }
+
         //Changing the speed using the adjust variable from the seekbar slider.
         //Adjust is the variable where the seekbar is, add or remove that from the current speed
-
         if(actionDescription == "Moving backward"){
             movingForwards = false;
             movementSpeed = adjust;
@@ -245,8 +237,14 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         xPercent = xPercent * 70;
         yPercent = -yPercent * 100;
 
-        mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
-        mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
-      }
+        if(movingForwards) {
+            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
+            mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
+        }else{
+            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(0), QOS, null);
+            mMqttClient.publish(STEERING_CONTROL, Integer.toString(0), QOS, null);
+        }
     }
+}
+
 

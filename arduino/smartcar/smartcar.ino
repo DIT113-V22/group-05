@@ -92,10 +92,8 @@ void setup()
       {
     if (topic == "/smartcar/control/throttle") {
         car.setSpeed(message.toInt());
-        Serial.println(message + "Felix " );
     } else if (topic == "/smartcar/control/steering") {
         car.setAngle(message.toInt());
-        Serial.println(message + "Albin " );
     } else if (topic == "/smartcar/safetysystem") {
         if (message == "false"){  //Update the boolean depending on the message received from app
             safetySystem = false;
@@ -179,7 +177,7 @@ void smoothStop(){
 }
 
 void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis){
-    if (frontUltDis <= 40 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0 || backIRDis <= 30 && backIRDis != 0){//stop zone
+    if (frontUltDis <= 100 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0 || backIRDis <= 30 && backIRDis != 0){//stop zone
         if (canDrive)//check whether you're in the stop zone
         {
             car.setSpeed(0);
