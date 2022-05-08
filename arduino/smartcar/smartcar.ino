@@ -10,9 +10,13 @@
 
 MQTTClient mqtt;
 WiFiClient net;
-
+ 
+//This is for the toggle button, to activate the safety features
+bool safetyFeatures = true;
 bool canDrive = true;
-bool safetySystem;
+
+bool activeAvoidance = false;
+//bool inMotion = false;
 
 const char ssid[] = "***";
 const char pass[] = "****";
@@ -96,9 +100,9 @@ void setup()
         car.setAngle(message.toInt());
     } else if (topic == "/smartcar/safetysystem") {
         if (message == "false"){  //Update the boolean depending on the message received from app
-            safetySystem = false;
+            safetyFeatures = false;
         }else{
-            safetySystem = true;
+            safetyFeatures = true;
         }
     } else {
       Serial.println(topic + " " + message);
@@ -133,10 +137,16 @@ void loop()
             const auto rightIRDis = rightIR.getDistance();
             const auto backIRDis = backIR.getDistance();
             
-            if (safetySystem){ //check if the safety system is enabled
+
+            if (safetyFeatures)//check if the safety system is enabled
+            {
+                if (!activeAvoidance)
+                {
                 stopZoneAutoBreak(frontUltDis, frontIRDis, backIRDis);
-                // backwardDriveAutoBreak(backIRDis);
+                }
+                incomingAvoidanceThreshold(frontUltDis, frontIRDis, backIRDis);
             }
+            
 
             Serial.println(frontUltDis);
             mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));
@@ -155,7 +165,70 @@ void loop()
     
 }
 
-//If the connection breaks, this method will be called
+
+void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
+{
+     if (frontUltDis <= 100 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0 || backIRDis <= 40 && backIRDis != 0)//stop zone
+         {
+            if (canDrive)//check whether you're in the stop zone
+            {
+                car.setSpeed(0);
+                Serial.println("Emergency stop 1");
+            }
+            canDrive = false;//so the car can move in the stop zone
+        } else {
+            canDrive = true;//so the car will stop again if it hits the stop zone
+        }
+}
+
+//Threshold stands for when the car is too close to a certain 
+//obstacle and we use threshold because there are multiple thresholds
+void incomingAvoidanceThreshold(long frontUltDis, long frontIRDis, long backIRDis)
+{
+    if (frontUltDis <= 30 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0)//forward obstacle threshold 1
+    {
+        car.setSpeed(0);
+        car.setSpeed(-90);
+        Serial.println("backing up level 1");
+        activeAvoidance = true;
+    } else if (frontUltDis <= 60 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0)//forward obstacle threshold 2
+    {
+        car.setSpeed(0);
+        car.setSpeed(-60);
+        Serial.println("backing up level 2");
+        activeAvoidance = true;
+    } else if (frontUltDis <= 90 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0)//forward obstacle threshold 3
+    {
+        car.setSpeed(0);
+        car.setSpeed(-30);
+        Serial.println("backing up level 3");
+        activeAvoidance = true;
+    } else if (backIRDis <= 10 && backIRDis != 0)//backwards obstacle threshold 1
+    {
+        car.setSpeed(0);
+        car.setSpeed(40);
+        Serial.println("moving forward level 1");
+        activeAvoidance = true;
+    } else if (backIRDis <= 20 && backIRDis != 0)//backwards obstacle threshold 2
+    {
+        car.setSpeed(0);
+        car.setSpeed(30);
+        Serial.println("moving forward level 2");
+        activeAvoidance = true;
+    } else if (backIRDis <= 30 && backIRDis != 0)//backwards obstacle threshold 3
+    {
+        car.setSpeed(0);
+        car.setSpeed(20);
+        Serial.println("moving forward level 3");
+        activeAvoidance = true;
+    } else if (frontUltDis == 0 && frontIRDis == 0 && backIRDis == 0 && activeAvoidance)
+    {
+        car.setSpeed(0);
+        activeAvoidance = false;
+    } 
+}
+
+//This method will be called when the connection breaks from the broker 
 void lastWill(){
   if(speed>10){ //Car slows down if speed is greater than 10
 smoothStop();
@@ -164,6 +237,7 @@ smoothStop();
   }
   
 }
+
 //A method for slowing down, can be used in other methods
 void smoothStop(){
  if (speed>3){
@@ -174,17 +248,4 @@ void smoothStop(){
     car.setSpeed(0); // then it will come to a complete stop  
   }
   car.setSpeed(0);
-}
-
-void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis){
-    if (frontUltDis <= 40 && frontUltDis != 0 || frontIRDis <= 30 && frontIRDis != 0 || backIRDis <= 30 && backIRDis != 0){//stop zone
-        if (canDrive)//check whether you're in the stop zone
-        {
-            car.setSpeed(0);
-            Serial.println("Emergency stop1");
-        }
-        canDrive = false;//so the car can move in the stop soon
-    } else {
-        canDrive = true;//so the car will stop again if it hits the stop zone
-    }
 }
