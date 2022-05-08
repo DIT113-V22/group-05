@@ -148,7 +148,7 @@ void loop()
             }
             
 
-            Serial.println(frontUltDis);
+            //Serial.println(frontUltDis);
             mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));
 
         }

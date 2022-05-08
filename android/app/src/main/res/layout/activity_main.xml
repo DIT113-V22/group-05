@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,13 +15,11 @@
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
-            android:layout_height="206dp"
+            android:layout_height="150dp"
             android:layout_weight="0.3"
             android:contentDescription="cameraView" />
 
         <ToggleButton
-            android:textOn="Enabled"
-            android:textOff="Disabled"
             android:id="@+id/toggleButton1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,7 +27,10 @@
             android:background="@drawable/button_toggle"
             android:padding="10dp"
             android:textColor="#FAFAFA"
+            android:textOff="Disabled"
+            android:textOn="Enabled"
             android:textSize="12pt" />
+
 
         <SeekBar
             android:id="@+id/simpleSeekBar"
@@ -43,69 +45,17 @@
             android:progress="0"
             android:progressDrawable="@drawable/custom_progress" />
 
-
-        <Button
-            android:id="@+id/button11"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.3"
-            android:textSize="12pt"
-            android:textColor="#FAFAFA"
-            android:backgroundTint="#275370"
-            android:onClick="moveForward"
-            android:text="Forward" />
+            android:orientation="horizontal" >
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.3"
-            android:orientation="horizontal">
+            <platis.solutions.smartcarmqttcontroller.JoystickView
+                android:id="@+id/testJoystick"
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
 
-            <Button
-                android:id="@+id/button15"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:textSize="10pt"
-                android:textColor="#FAFAFA"
-                android:backgroundTint="#275370"
-                android:onClick="moveForwardLeft"
-                android:text="Left" />
 
-            <Button
-                android:id="@+id/button14"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textSize="10pt"
-                android:textColor="#FAFAFA"
-                android:backgroundTint="#212121"
-                android:onClick="stop"
-                android:text="Stop" />
-
-            <Button
-                android:id="@+id/button13"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:textSize="10pt"
-                android:textColor="#FAFAFA"
-                android:backgroundTint="#275370"
-                android:onClick="moveForwardRight"
-                android:text="Right" />
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/button12"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.3"
-            android:textSize="12pt"
-            android:textColor="#FAFAFA"
-            android:backgroundTint="#275370"
-            android:onClick="moveBackward"
-            android:text="Backward" />
-
-        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.1"
@@ -123,8 +73,8 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
-                    android:visibility="gone"
-                    android:src="@drawable/no_connection" />
+                    android:src="@drawable/no_connection"
+                    android:visibility="gone" />
 
                 <ImageView
                     android:id="@+id/imageView_connected"
@@ -134,12 +84,11 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
-                    android:visibility="gone"
-                    android:src="@drawable/connected" />
+                    android:src="@drawable/connected"
+                    android:visibility="gone" />
 
             </RelativeLayout>
 
-        </LinearLayout>
 
 
     </LinearLayout>
