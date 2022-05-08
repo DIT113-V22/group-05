@@ -103,10 +103,7 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
                 //and make the car stop
                 drawJoystick(centerX, centerY);
                 joystickCallback.onJoystickMoved(0, 0, getId());
-                //Added a second one as it seems it responds even better with two joystickCallback
-                joystickCallback.onJoystickMoved(0, 0, getId());
             }
-
         }
         return true;
     }

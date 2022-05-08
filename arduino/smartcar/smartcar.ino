@@ -146,7 +146,6 @@ void loop()
                 }
                 incomingAvoidanceThreshold(frontUltDis, frontIRDis, backIRDis);
             }
-            
 
             //Serial.println(frontUltDis);
             mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));
