@@ -175,13 +175,14 @@ void stopZoneAutoBreak(long frontUltDis, long frontIRDis, long backIRDis)
                 car.setSpeed(0);
                 Serial.println("Emergency stop 1");
             }
-            canDrive = false;//so the car can move in the stop soon
+            canDrive = false;//so the car can move in the stop zone
         } else {
             canDrive = true;//so the car will stop again if it hits the stop zone
         }
 }
 
-//Threshold means to close to an object/ different thresholds means level of closeness
+//Threshold stands for when the car is too close to a certain 
+//obstacle and we use threshold because there are multiple thresholds
 void incomingAvoidanceThreshold(long frontUltDis, long frontIRDis, long backIRDis)
 {
     if (frontUltDis <= 30 && frontUltDis != 0 || frontIRDis <= 40 && frontIRDis != 0)//forward obstacle threshold 1
