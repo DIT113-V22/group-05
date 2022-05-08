@@ -352,12 +352,14 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
     }
 
-
+//When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
+//I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
     @Override
     public void onJoystickMoved(float xPercent, float yPercent, int id) {
         xPercent = xPercent * 70;
         yPercent = -yPercent * 100;
 
+        //Here it will publish the yPercent and xPercent as ThrottleSpeed and SteeringAngle to the smartCar
         mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
         mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
       }
