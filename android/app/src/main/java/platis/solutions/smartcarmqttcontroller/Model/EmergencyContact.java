@@ -23,10 +23,9 @@ public class EmergencyContact {
     @Override
     public String toString() {
         return
-                "First name: '" + first_name + '\'' +
-                ", Last name: '" + last_name + '\'' +
-                ", email: '" + email + '\'' +
-                ", Phone number: '" + phone_number + '\'';
+                "Name: " + first_name + " " +  last_name + "\n" +
+                "Email: " + email + "\n" +
+                "Phone number: " + phone_number;
     }
 
     public int getId() {

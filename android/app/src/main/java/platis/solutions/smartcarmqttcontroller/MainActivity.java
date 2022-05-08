@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog dialog;
     private EditText newcontactpopup_firstname, newcontactpopup_lastname, newcontactpopup_mobile, newcontactpopup_email;
     private Button newcontactpopup_cancel, newcontactpopup_save;
-
     ListView lv_contactList;
 
 
