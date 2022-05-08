@@ -92,7 +92,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 
         }else{
-            //failure. do not add anything to the list
+            //failure. do not add anything to the list.
         }
 
         //close both the cursor and db when done
