@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private static final String STEERING_CONTROL = "/smartcar/control/steering";
     private static final String SAFETY_SYSTEMS = "/smartcar/safetysystem";
     private static int movementSpeed = 0;
+    //These will be used when we will have the option to use buttons instead of a joystick. So we will keep these as comments for now 
     // private static final int IDLE_SPEED = 0;
     // private static final int STRAIGHT_ANGLE = 0;
     // private static final int STEERING_ANGLE = 50;
