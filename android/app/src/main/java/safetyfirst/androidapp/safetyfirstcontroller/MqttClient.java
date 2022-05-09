@@ -1,11 +1,9 @@
-package platis.solutions.smartcarmqttcontroller;
+package safetyfirst.androidapp.safetyfirstcontroller;
 
 import android.content.Context;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.*;
-
-import java.nio.charset.StandardCharsets;
 
 // Adapted from: https://medium.com/swlh/android-and-mqtt-a-simple-guide-cb0cbba1931c
 

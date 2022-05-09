@@ -39,7 +39,7 @@
 
             ]]>
 
-        <platis.solutions.smartcarmqttcontroller.JoystickView
+        <safetyfirst.androidapp.safetyfirstcontroller.JoystickView
                 android:id="@+id/testJoystick"
                 android:layout_width="match_parent"
                 android:layout_height="300dp" />
