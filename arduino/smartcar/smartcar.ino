@@ -12,6 +12,7 @@ MQTTClient mqtt;
 WiFiClient net;
  
 //This is for the toggle button, to activate the safety features
+//This is changed to false to sync with the app better
 bool safetyFeatures = false;
 bool canDrive = true;
 
