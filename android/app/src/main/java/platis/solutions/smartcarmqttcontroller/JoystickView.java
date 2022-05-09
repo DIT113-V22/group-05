@@ -96,7 +96,7 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
                     float constrainedX = centerX + (e.getX()-centerX)*ratio;
                     float constrainedY = centerY + (e.getY()-centerY)*ratio;
                     drawJoystick(constrainedX,constrainedY);
-                    joystickCallback.onJoystickMoved((constrainedX-centerX)/baseRadius,(constrainedY-centerY)/baseRadius,getId());
+                    joystickCallback.onJoystickMoved(((constrainedX-centerX)/baseRadius),((constrainedY-centerY)/baseRadius),getId());
                 }
             }else {
                 //If there is no interaction with the joystick area then it will relocate to the center

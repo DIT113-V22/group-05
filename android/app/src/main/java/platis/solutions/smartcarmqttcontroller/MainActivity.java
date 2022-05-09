@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
         //This is the toggle button object to create the on and off switch for the automatic stopping features
         ToggleButton toggle = findViewById(R.id.toggleButton1);
-        
+
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {//Publish a message depending on which value the button has
@@ -302,19 +302,19 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     //This method is not being used other than for the speed adjuster, which is irrelevant
     //with the joystick being in place. However, it will be used later on for the option
     //of having buttons later on in the project in the menu bar
-    /*
+
     void drive(int throttleSpeed, int steeringAngle, String actionDescription) {
         if (!isConnected) {
 
             final String notConnected = "Not connected (yet)";
             Log.e(TAG, notConnected);
             Toast.makeText(getApplicationContext(), notConnected, Toast.LENGTH_SHORT).show();
-            
+
             return;
         }
         //Changing the speed using the adjust variable from the seekbar slider.
         //Adjust is the variable where the seekbar is, add or remove that from the current speed
-
+/*
 
         if(actionDescription == "Moving backward"){
             movingForwards = false;
@@ -332,6 +332,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             movementSpeed = adjust;
         }
 
+ */
+
         //The movementSpeed that has been adjusted will now be added to the throttlespeed
         throttleSpeed = movementSpeed;
         Log.i(TAG, actionDescription);
@@ -343,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
     }
 
-     */
+
 
 
     public void mqttConnectionStatus(boolean isConnected){
@@ -360,14 +362,14 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 //I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
     @Override
     public void onJoystickMoved(float xPercent, float yPercent, int id) {
-        xPercent = xPercent * 25;
-        yPercent = -yPercent * 50;
+
+        xPercent = xPercent * 80;
+        yPercent = (-yPercent) * 100;
 
         //Here it will publish the yPercent and xPercent as ThrottleSpeed and SteeringAngle to the smartCar
         mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
         mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
-        xPercent = 0;
-        yPercent = 0;
+
       }
     }
 
