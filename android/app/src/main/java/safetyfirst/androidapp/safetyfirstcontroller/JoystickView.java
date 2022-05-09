@@ -1,4 +1,4 @@
-package platis.solutions.smartcarmqttcontroller;
+package safetyfirst.androidapp.safetyfirstcontroller;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -96,17 +96,14 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
                     float constrainedX = centerX + (e.getX()-centerX)*ratio;
                     float constrainedY = centerY + (e.getY()-centerY)*ratio;
                     drawJoystick(constrainedX,constrainedY);
-                    joystickCallback.onJoystickMoved((constrainedX-centerX)/baseRadius,(constrainedY-centerY)/baseRadius,getId());
+                    joystickCallback.onJoystickMoved(((constrainedX-centerX)/baseRadius),((constrainedY-centerY)/baseRadius),getId());
                 }
             }else {
                 //If there is no interaction with the joystick area then it will relocate to the center
                 //and make the car stop
                 drawJoystick(centerX, centerY);
                 joystickCallback.onJoystickMoved(0, 0, getId());
-                //Added a second one as it seems it responds even better with two joystickCallback
-                joystickCallback.onJoystickMoved(0, 0, getId());
             }
-
         }
         return true;
     }

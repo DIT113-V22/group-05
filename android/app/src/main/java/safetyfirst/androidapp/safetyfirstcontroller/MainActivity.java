@@ -1,11 +1,9 @@
-package platis.solutions.smartcarmqttcontroller;
+package safetyfirst.androidapp.safetyfirstcontroller;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -14,14 +12,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.CompoundButton;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -33,8 +28,8 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.util.Objects;
 
-import platis.solutions.smartcarmqttcontroller.Data.DataBaseHelper;
-import platis.solutions.smartcarmqttcontroller.Model.EmergencyContact;
+import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
+import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
 
 public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener{
 
@@ -47,9 +42,10 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private static final String STEERING_CONTROL = "/smartcar/control/steering";
     private static final String SAFETY_SYSTEMS = "/smartcar/safetysystem";
     private static int movementSpeed = 0;
-    private static final int IDLE_SPEED = 0;
-    private static final int STRAIGHT_ANGLE = 0;
-    private static final int STEERING_ANGLE = 50;
+    //These will be used when we will have the option to use buttons instead of a joystick. So we will keep these as comments for now 
+    // private static final int IDLE_SPEED = 0;
+    // private static final int STRAIGHT_ANGLE = 0;
+    // private static final int STEERING_ANGLE = 50;
     private static final int QOS = 1;
     private static final int IMAGE_WIDTH = 320;
     private static final int IMAGE_HEIGHT = 240;
@@ -60,9 +56,9 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private static boolean movingForwards = true;
 
     //Variables for the seekbar
-    Button submitButton;
-    SeekBar simpleSeekBar;
-    private static int adjust;
+    //Button submitButton;
+    //SeekBar simpleSeekBar;
+    //private static int adjust;
 
 
     // variables for contact dialogue popup
@@ -112,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
         //This is the toggle button object to create the on and off switch for the automatic stopping features
         ToggleButton toggle = findViewById(R.id.toggleButton1);
-        
+
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {//Publish a message depending on which value the button has
@@ -216,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     @Override
     protected void onResume() {
         super.onResume();
-
         connectToMqttBroker();
     }
 
@@ -279,9 +274,9 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         final byte[] payload = message.getPayload();
                         final int[] colors = new int[IMAGE_WIDTH * IMAGE_HEIGHT];
                         for (int ci = 0; ci < colors.length; ++ci) {
-                            final byte r = payload[3 * ci];
-                            final byte g = payload[3 * ci + 1];
-                            final byte b = payload[3 * ci + 2];
+                            final int r = payload[3 * ci] & 0xFF;
+                            final int g = payload[3 * ci + 1] & 0xFF;
+                            final int b = payload[3 * ci + 2] & 0xFF;
                             colors[ci] = Color.rgb(r, g, b);
                         }
                         bm.setPixels(colors, 0, IMAGE_WIDTH, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -303,17 +298,19 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     //This method is not being used other than for the speed adjuster, which is irrelevant
     //with the joystick being in place. However, it will be used later on for the option
     //of having buttons later on in the project in the menu bar
+
     void drive(int throttleSpeed, int steeringAngle, String actionDescription) {
         if (!isConnected) {
 
             final String notConnected = "Not connected (yet)";
             Log.e(TAG, notConnected);
             Toast.makeText(getApplicationContext(), notConnected, Toast.LENGTH_SHORT).show();
-            
+
             return;
         }
         //Changing the speed using the adjust variable from the seekbar slider.
         //Adjust is the variable where the seekbar is, add or remove that from the current speed
+/*
 
         if(actionDescription == "Moving backward"){
             movingForwards = false;
@@ -331,6 +328,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             movementSpeed = adjust;
         }
 
+ */
+
         //The movementSpeed that has been adjusted will now be added to the throttlespeed
         throttleSpeed = movementSpeed;
         Log.i(TAG, actionDescription);
@@ -343,6 +342,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     }
 
 
+
+
     public void mqttConnectionStatus(boolean isConnected){
         if(!isConnected){
             findViewById(R.id.imageView_no_connection).setVisibility(View.VISIBLE);
@@ -351,19 +352,20 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             findViewById(R.id.imageView_connected).setVisibility(View.VISIBLE);
             findViewById(R.id.imageView_no_connection).setVisibility(View.GONE);
         }
-
     }
 
 //When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
 //I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
     @Override
     public void onJoystickMoved(float xPercent, float yPercent, int id) {
-        xPercent = xPercent * 70;
-        yPercent = -yPercent * 100;
+
+        xPercent = xPercent * 80;
+        yPercent = (-yPercent) * 100;
 
         //Here it will publish the yPercent and xPercent as ThrottleSpeed and SteeringAngle to the smartCar
         mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
         mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
+
       }
     }
 

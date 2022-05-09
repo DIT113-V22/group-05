@@ -1,4 +1,4 @@
-package platis.solutions.smartcarmqttcontroller;
+package safetyfirst.androidapp.safetyfirstcontroller;
 
 import org.junit.Test;
 

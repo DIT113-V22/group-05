@@ -12,7 +12,8 @@ MQTTClient mqtt;
 WiFiClient net;
  
 //This is for the toggle button, to activate the safety features
-bool safetyFeatures = true;
+//This is changed to false to sync with the app better
+bool safetyFeatures = false;
 bool canDrive = true;
 
 bool activeAvoidance = false;
@@ -94,6 +95,7 @@ void setup()
     mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
       {
+    Serial.println(message);
     if (topic == "/smartcar/control/throttle") {
         car.setSpeed(message.toInt());
     } else if (topic == "/smartcar/control/steering") {
@@ -117,14 +119,16 @@ void loop()
         mqtt.loop();
         const auto currentTime = millis();
 #ifdef __SMCE__
-        static auto previousFrame = 0UL;
-        if (currentTime - previousFrame >= 65)
+static auto previousFrame = 0UL;
+//Decreased the camera fps, this will make the joystick much better 
+        if (currentTime - previousFrame >= 1200) //It used to be 65 
         {
             previousFrame = currentTime;
             Camera.readFrame(frameBuffer.data());
             mqtt.publish("/smartcar/camera", frameBuffer.data(), frameBuffer.size(),
                          false, 0);
         }
+
 #endif
         static auto previousTransmission = 0UL;
         if (currentTime - previousTransmission >= oneSecond)
@@ -138,7 +142,7 @@ void loop()
             const auto backIRDis = backIR.getDistance();
             
 
-            if (safetyFeatures)//check if the safety system is enabled
+        if (safetyFeatures)//check if the safety system is enabled
             {
                 if (!activeAvoidance)
                 {
@@ -146,7 +150,7 @@ void loop()
                 }
                 incomingAvoidanceThreshold(frontUltDis, frontIRDis, backIRDis);
             }
-            
+
 
             //Serial.println(frontUltDis);
             mqtt.publish("/smartcar/ultrasound/front", String(frontUltDis));

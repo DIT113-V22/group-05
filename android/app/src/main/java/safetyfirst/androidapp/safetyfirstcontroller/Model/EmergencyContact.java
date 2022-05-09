@@ -1,4 +1,4 @@
-package platis.solutions.smartcarmqttcontroller.Model;
+package safetyfirst.androidapp.safetyfirstcontroller.Model;
 
 public class EmergencyContact {
 
