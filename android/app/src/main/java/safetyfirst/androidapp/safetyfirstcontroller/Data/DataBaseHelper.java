@@ -1,4 +1,4 @@
-package platis.solutions.smartcarmqttcontroller.Data;
+package safetyfirst.androidapp.safetyfirstcontroller.Data;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import platis.solutions.smartcarmqttcontroller.Model.EmergencyContact;
+import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
 

@@ -1,4 +1,4 @@
-package platis.solutions.smartcarmqttcontroller;
+package safetyfirst.androidapp.safetyfirstcontroller;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,8 +11,8 @@ import android.widget.Toast;
 
 import java.util.Objects;
 
-import platis.solutions.smartcarmqttcontroller.Data.DataBaseHelper;
-import platis.solutions.smartcarmqttcontroller.Model.EmergencyContact;
+import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
+import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
 
 public class ContactList extends AppCompatActivity {
 

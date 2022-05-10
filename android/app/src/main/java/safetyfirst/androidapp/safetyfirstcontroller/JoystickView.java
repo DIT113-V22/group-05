@@ -1,4 +1,4 @@
-package platis.solutions.smartcarmqttcontroller;
+package safetyfirst.androidapp.safetyfirstcontroller;
 
 import android.content.Context;
 import android.graphics.Canvas;
