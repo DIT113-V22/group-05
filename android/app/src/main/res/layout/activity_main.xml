@@ -31,6 +31,7 @@
             android:textOn="Enabled"
             android:textSize="12pt" />
 
+
         <safetyfirst.androidapp.safetyfirstcontroller.JoystickView
                 android:id="@+id/testJoystick"
                 android:layout_width="match_parent"
