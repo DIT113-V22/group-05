@@ -26,8 +26,19 @@ ArduinoRuntime arduinoRuntime;
 BrushedMotor leftMotor(arduinoRuntime, smartcarlib::pins::v2::leftMotorPins);
 BrushedMotor rightMotor(arduinoRuntime, smartcarlib::pins::v2::rightMotorPins);
 DifferentialControl control(leftMotor, rightMotor);
+ 
+GY50 gyroscope(arduinoRuntime, 37);
+const auto pulsesPerMeter = 600;
+DirectionlessOdometer leftOdometer(
+    arduinoRuntime, smartcarlib::pins::v2::leftOdometerPin, []() { leftOdometer.update(); },
+    pulsesPerMeter);
+DirectionlessOdometer rightOdometer(
+    arduinoRuntime, smartcarlib::pins::v2::rightOdometerPin, []() { rightOdometer.update();
+}, pulsesPerMeter);
+ 
+SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
 
-SimpleCar car(control);
+
 
 // infrared sensor
 const int frontIRPin = 0;
@@ -139,6 +150,8 @@ void loop()
         }
 #endif
         if (safetyFeatures) // check if the safety system is enabled
+                            //safetyFeatures && frontUltDis <= 150 || safetyFeatures && backIRDis <= 40
+                            //Also check if sensors are in range to avoid going through all checks if they aren't
         {
             if (!activeAvoidance)
             {
