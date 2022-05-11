@@ -127,6 +127,7 @@ void loop()
         mqtt.loop();
 
         const auto currentTime = millis();
+#ifdef __SMCE__
         static auto previousFrame = 0UL;
         if (currentTime - previousFrame >= 40) // 40 basically being a latency here, 
                                                //larger number meaning fewer camera frames published per second
@@ -136,6 +137,7 @@ void loop()
             mqtt.publish("/smartcar/camera", frameBuffer.data(), frameBuffer.size(),
                          false, 0);
         }
+#endif
         if (safetyFeatures) // check if the safety system is enabled
         {
             if (!activeAvoidance)
