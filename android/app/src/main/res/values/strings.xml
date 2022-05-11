@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SafetyFirstController</string>
+    <string name="delete_contact" />
+    <string name="delete_contact_button">DELETE</string>
 </resources>
