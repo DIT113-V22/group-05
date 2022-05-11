@@ -181,25 +181,47 @@ void stopZoneAutoBreak(long frontUltDis, long backIRDis)
 // obstacle and we use threshold because there are multiple thresholds
 void incomingAvoidanceThreshold(long frontUltDis, long backIRDis)
 {
-    if (frontUltDis <= 60 && frontUltDis != 0) // forward obstacle threshold 2
+    if (frontUltDis <= 30 && frontUltDis != 0)//forward obstacle threshold 1
+    {
+        car.setSpeed(0);
+        car.setSpeed(-90);
+        Serial.println("backing up level 1");
+        activeAvoidance = true;
+    } else if (frontUltDis <= 60 && frontUltDis != 0)//forward obstacle threshold 2
     {
         car.setSpeed(0);
         car.setSpeed(-60);
         Serial.println("backing up level 2");
         activeAvoidance = true;
-    }
-    else if (backIRDis <= 30 && backIRDis != 0) // backwards obstacle threshold 3
+    } else if (frontUltDis <= 90 && frontUltDis != 0)//forward obstacle threshold 3
+    {
+        car.setSpeed(0);
+        car.setSpeed(-30);
+        Serial.println("backing up level 3");
+        activeAvoidance = true;
+    } else if (backIRDis <= 10 && backIRDis != 0)//backwards obstacle threshold 1
+    {
+        car.setSpeed(0);
+        car.setSpeed(40);
+        Serial.println("moving forward level 1");
+        activeAvoidance = true;
+    } else if (backIRDis <= 20 && backIRDis != 0)//backwards obstacle threshold 2
+    {
+        car.setSpeed(0);
+        car.setSpeed(30);
+        Serial.println("moving forward level 2");
+        activeAvoidance = true;
+    } else if (backIRDis <= 30 && backIRDis != 0)//backwards obstacle threshold 3
     {
         car.setSpeed(0);
         car.setSpeed(20);
         Serial.println("moving forward level 3");
         activeAvoidance = true;
-    }
-    else if (frontUltDis == 0 && backIRDis == 0 && activeAvoidance)
+    } else if (frontUltDis == 0 && backIRDis == 0 && activeAvoidance)
     {
         car.setSpeed(0);
         activeAvoidance = false;
-    }
+    } 
 }
 
 // This method will be called when the connection breaks from the broker
