@@ -7,11 +7,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -67,6 +69,10 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private EditText newcontactpopup_firstname, newcontactpopup_lastname, newcontactpopup_mobile, newcontactpopup_email;
     private Button newcontactpopup_cancel, newcontactpopup_save;
     ListView lv_contactList;
+
+    //call emergency contact
+    View buttonCall;
+    ArrayAdapter contactArrayAdapter;
 
 
     @Override
@@ -143,6 +149,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             //Viewing contacts
             openContactActivity();
         }
+        if(id == R.id.menu3){
+            //Viewing contacts
+            callEmergencyContact();
+
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -206,6 +217,22 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         Intent intent = new Intent(this, ContactList.class);
         startActivity(intent);
         lv_contactList = findViewById(R.id.lv_contactList);
+    }
+
+
+    public void callEmergencyContact(){
+        buttonCall = findViewById(R.id.menu3);
+
+        buttonCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:1223345"));
+                startActivity(intent);
+
+            }
+        });
+
     }
 
 
@@ -341,9 +368,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
     }
 
-
-
-
+    //Mqtt connection status icon
     public void mqttConnectionStatus(boolean isConnected){
         if(!isConnected){
             findViewById(R.id.imageView_no_connection).setVisibility(View.VISIBLE);
