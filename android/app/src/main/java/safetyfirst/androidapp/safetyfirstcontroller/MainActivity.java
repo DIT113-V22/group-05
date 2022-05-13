@@ -15,13 +15,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.CompoundButton;
-import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -68,13 +66,12 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     // variables for contact dialogue popup
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText newcontactpopup_firstname, newcontactpopup_lastname, newcontactpopup_mobile, newcontactpopup_email;
-    private Button newcontactpopup_cancel, newcontactpopup_save;
+    private EditText newContactPopupFirstname, newContactPopupLastname, newContactPopupMobile, newContactPopupEmail;
+    private Button newContactPopupCancel, newContactPopupSave;
     ListView lv_contactList;
 
     //call emergency contact
     View buttonCall;
-    ArrayAdapter contactArrayAdapter;
 
 
 
@@ -132,138 +129,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-       getMenuInflater().inflate(R.menu.first_menu,menu);
-       return true;
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        int id = item.getItemId();
-
-        if(id == R.id.menu1){
-            //Contact creation
-            createNewContactDialog();
-        }
-        if(id == R.id.menu2){
-            //Viewing contacts
-            openContactActivity();
-        }
-        if(id == R.id.menu3){
-            //Viewing contacts
-            callEmergencyContact();
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    // Method for opening the popup window for the new emergency contact.
-    public void createNewContactDialog(){
-        dialogBuilder = new AlertDialog.Builder(this);
-        final View contactPopupView = getLayoutInflater().inflate(R.layout.popup, null);
-        newcontactpopup_firstname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_firstname);
-        newcontactpopup_lastname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_lastname);
-        newcontactpopup_mobile = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_mobile);
-        newcontactpopup_email = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_email);
-
-        newcontactpopup_save = (Button) contactPopupView.findViewById(R.id.saveButton);
-        newcontactpopup_cancel = (Button) contactPopupView.findViewById(R.id.cancelButton);
-
-
-        dialogBuilder.setView(contactPopupView);
-        dialog = dialogBuilder.create();
-        dialog.show();
-
-
-        newcontactpopup_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                EmergencyContact contactModel;
-
-                //Throws exception if added contact information does not meet requirements.
-
-                try {
-                    contactModel = new EmergencyContact(-1, newcontactpopup_firstname.getText().toString(),newcontactpopup_lastname.getText().toString(),Integer.parseInt(newcontactpopup_mobile.getText().toString()),newcontactpopup_email.getText().toString());
-                    Toast.makeText(MainActivity.this, contactModel.toString(), Toast.LENGTH_SHORT).show();
-
-                } catch(Exception e){
-                    Toast.makeText(MainActivity.this, "Error creating customer", Toast.LENGTH_SHORT).show();
-                    contactModel = new EmergencyContact(-1, "error","error",0,"error");
-                }
-
-                DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
-
-                boolean success = dataBaseHelper.addOne(contactModel);
-
-                Toast.makeText(MainActivity.this, "Contact Added", Toast.LENGTH_SHORT).show();
-                //ShowCustomerOnListView(dataBaseHelper);
-
-                dialog.dismiss();
-
-            }
-        });
-
-        newcontactpopup_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //define cancel button
-                dialog.dismiss();
-            }
-        });
-    }
-
-    public void openContactActivity(){
-        Intent intent = new Intent(this, ContactList.class);
-        startActivity(intent);
-        lv_contactList = findViewById(R.id.lv_contactList);
-    }
-
-
-    /*public void callEmergencyContact(){
-        buttonCall = findViewById(R.id.menu3);
-
-        buttonCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:1223345"));
-                startActivity(intent);
-
-            }
-        });
-
-    }
-
-    */
-
-
-    public void callEmergencyContact(){
-        buttonCall = findViewById(R.id.menu3);
-        DataBaseHelper phone_number_data = new DataBaseHelper(this);
-
-        buttonCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                String query = "SELECT CONTACT_PHONE_NUMBER FROM CONTACT_TABLE ORDER BY CONTACT_PHONE_NUMBER DESC LIMIT 1";
-                SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
-                Cursor result = dbs.rawQuery(query, null);
-                result.moveToFirst();
-                int phone_number = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
-                intent.setData(Uri.parse("tel:" + phone_number));
-                startActivity(intent);
-
-            }
-        });
-
-    }
-
-
-
+    
     @Override
     protected void onResume() {
         super.onResume();
@@ -420,5 +286,131 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
 
       }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.first_menu,menu);
+        return true;
     }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.menu1){
+            //Contact creation
+            createNewContactDialog();
+        }
+        if(id == R.id.menu2){
+            //Viewing contacts
+            openContactActivity();
+        }
+        if(id == R.id.menu3){
+            //Viewing contacts
+            callEmergencyContact();
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Method for opening the popup window for the new emergency contact.
+    public void createNewContactDialog(){
+        dialogBuilder = new AlertDialog.Builder(this);
+        final View contactPopupView = getLayoutInflater().inflate(R.layout.popup, null);
+        newContactPopupFirstname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_firstname);
+        newContactPopupLastname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_lastname);
+        newContactPopupMobile = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_mobile);
+        newContactPopupEmail = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_email);
+
+        newContactPopupSave = (Button) contactPopupView.findViewById(R.id.saveButton);
+        newContactPopupCancel = (Button) contactPopupView.findViewById(R.id.cancelButton);
+
+
+        dialogBuilder.setView(contactPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
+
+
+        newContactPopupSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                EmergencyContact contactModel;
+
+                //Throws exception if added contact information does not meet requirements.
+
+                try {
+                    contactModel = new EmergencyContact(-1, newContactPopupFirstname.getText().toString(), newContactPopupLastname.getText().toString(),Integer.parseInt(newContactPopupMobile.getText().toString()), newContactPopupEmail.getText().toString());
+                    Toast.makeText(MainActivity.this, contactModel.toString(), Toast.LENGTH_SHORT).show();
+
+                } catch(Exception e){
+                    Toast.makeText(MainActivity.this, "Error creating customer", Toast.LENGTH_SHORT).show();
+                    contactModel = new EmergencyContact(-1, "error","error",0,"error");
+                }
+
+                DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
+
+                boolean success = dataBaseHelper.addOne(contactModel);
+
+                Toast.makeText(MainActivity.this, "Contact Added", Toast.LENGTH_SHORT).show();
+                //ShowCustomerOnListView(dataBaseHelper);
+
+                dialog.dismiss();
+
+            }
+        });
+
+        newContactPopupCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //define cancel button
+                dialog.dismiss();
+            }
+        });
+    }
+
+    public void openContactActivity(){
+        Intent intent = new Intent(this, ContactList.class);
+        startActivity(intent);
+        lv_contactList = findViewById(R.id.lv_contactList);
+    }
+
+
+    public void callEmergencyContact(){
+        buttonCall = findViewById(R.id.menu3);
+        DataBaseHelper phone_number_data = new DataBaseHelper(this);
+
+        buttonCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try {
+                    String query = "SELECT CONTACT_PHONE_NUMBER FROM CONTACT_TABLE ORDER BY CONTACT_PHONE_NUMBER DESC LIMIT 1";
+                    SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
+                    Cursor result = dbs.rawQuery(query, null);
+                    result.moveToFirst();
+                    int phone_number = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    intent.setData(Uri.parse("tel:" + phone_number));
+                    startActivity(intent);
+
+                }catch(Exception e) {
+                    Toast.makeText(MainActivity.this, "No emergency contact added", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+    }
+
+
+
+
+
+
+    }
+
+
 
