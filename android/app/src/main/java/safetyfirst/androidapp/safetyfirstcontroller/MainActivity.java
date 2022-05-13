@@ -5,6 +5,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     //call emergency contact
     View buttonCall;
     ArrayAdapter contactArrayAdapter;
+
 
 
     @Override
@@ -220,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     }
 
 
-    public void callEmergencyContact(){
+    /*public void callEmergencyContact(){
         buttonCall = findViewById(R.id.menu3);
 
         buttonCall.setOnClickListener(new View.OnClickListener() {
@@ -234,6 +237,31 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         });
 
     }
+
+    */
+
+
+    public void callEmergencyContact(){
+        buttonCall = findViewById(R.id.menu3);
+        DataBaseHelper phone_number_data = new DataBaseHelper(this);
+
+        buttonCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                String query = "SELECT CONTACT_PHONE_NUMBER FROM CONTACT_TABLE ORDER BY CONTACT_PHONE_NUMBER DESC LIMIT 1";
+                SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
+                Cursor result = dbs.rawQuery(query, null);
+                result.moveToFirst();
+                int phone_number = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
+                intent.setData(Uri.parse("tel:" + phone_number));
+                startActivity(intent);
+
+            }
+        });
+
+    }
+
 
 
     @Override
