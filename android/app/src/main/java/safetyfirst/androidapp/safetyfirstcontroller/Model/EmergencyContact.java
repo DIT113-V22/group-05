@@ -1,15 +1,17 @@
 package safetyfirst.androidapp.safetyfirstcontroller.Model;
 
+import java.util.regex.Pattern;
+
 public class EmergencyContact {
 
     private int id;
     private String first_name;
     private String last_name;
     private String email;
-    private int phone_number;
+    private long phone_number;
 
 
-    public EmergencyContact(int id, String first_name, String last_name, int phone_number, String email) {
+    public EmergencyContact(int id, String first_name, String last_name, long phone_number, String email) {
         this.id = id;
         this.first_name = first_name;
         this.last_name = last_name;
@@ -19,6 +21,7 @@ public class EmergencyContact {
 
     public EmergencyContact() {
     }
+
 
     @Override
     public String toString() {
@@ -60,11 +63,17 @@ public class EmergencyContact {
         this.email = email;
     }
 
-    public int getPhone_number() {
+    public long getPhone_number() {
         return phone_number;
     }
 
-    public void setPhone_number(int phone_number) {
+    public void setPhone_number(long phone_number) {
         this.phone_number = phone_number;
+    }
+
+    public static boolean patternMatches(String emailAddress, String regexPattern) {
+        return Pattern.compile(regexPattern)
+                .matcher(emailAddress)
+                .matches();
     }
 }

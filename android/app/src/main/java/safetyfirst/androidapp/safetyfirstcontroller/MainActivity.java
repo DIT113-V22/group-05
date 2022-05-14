@@ -338,24 +338,25 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             public void onClick(View view) {
 
                 EmergencyContact contactModel;
+                String regexPattern = "^(.+)@(\\S+)$";
 
                 //Throws exception if added contact information does not meet requirements.
 
                 try {
-                    contactModel = new EmergencyContact(-1, newContactPopupFirstname.getText().toString(), newContactPopupLastname.getText().toString(),Integer.parseInt(newContactPopupMobile.getText().toString()), newContactPopupEmail.getText().toString());
-                    Toast.makeText(MainActivity.this, contactModel.toString(), Toast.LENGTH_SHORT).show();
+                    if(EmergencyContact.patternMatches(newContactPopupEmail.getText().toString(), regexPattern)){
+                        contactModel = new EmergencyContact(-1, newContactPopupFirstname.getText().toString(), newContactPopupLastname.getText().toString(),Integer.parseInt(newContactPopupMobile.getText().toString()), newContactPopupEmail.getText().toString());
+                        Toast.makeText(MainActivity.this, contactModel.toString(), Toast.LENGTH_SHORT).show();
+                        DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
+                        boolean success = dataBaseHelper.addOne(contactModel);
+                        Toast.makeText(MainActivity.this, "Contact Added", Toast.LENGTH_SHORT).show();
+                    }else{
+                        throw new Exception();
+                    }
 
                 } catch(Exception e){
                     Toast.makeText(MainActivity.this, "Error creating customer", Toast.LENGTH_SHORT).show();
                     contactModel = new EmergencyContact(-1, "error","error",0,"error");
                 }
-
-                DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
-
-                boolean success = dataBaseHelper.addOne(contactModel);
-
-                Toast.makeText(MainActivity.this, "Contact Added", Toast.LENGTH_SHORT).show();
-                //ShowCustomerOnListView(dataBaseHelper);
 
                 dialog.dismiss();
 

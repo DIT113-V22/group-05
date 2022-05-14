@@ -29,7 +29,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     //this is called the first time a database is accessed. There should be code in here to create a new database.
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTableStatement = "CREATE TABLE " + CONTACT_TABLE + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_CONTACT_FIRSTNAME + " TEXT, " + COLUMN_CONTACT_LASTNAME + " TEXT, " + COLUMN_CONTACT_PHONE_NUMBER + " INT, " + COLUMN_CONTACT_EMAIL + " TEXT)";
+        String createTableStatement = "CREATE TABLE " + CONTACT_TABLE + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_CONTACT_FIRSTNAME + " TEXT, " + COLUMN_CONTACT_LASTNAME + " TEXT, " + COLUMN_CONTACT_PHONE_NUMBER + " LONG, " + COLUMN_CONTACT_EMAIL + " TEXT)";
         db.execSQL(createTableStatement);
 
     }
