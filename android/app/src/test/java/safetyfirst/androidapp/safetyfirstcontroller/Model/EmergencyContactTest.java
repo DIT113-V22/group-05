@@ -25,6 +25,7 @@ public class EmergencyContactTest {
 
     }
 
+    //Testing for correct email input.
     @Test
     public void testUsingSimpleRegex() {
 

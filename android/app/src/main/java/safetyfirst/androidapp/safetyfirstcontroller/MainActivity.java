@@ -29,6 +29,8 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
 import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
@@ -312,6 +314,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             callEmergencyContact();
 
         }
+        if(id == R.id.menu4){
+            //Viewing contacts
+            sendMessageEmergencyContact();
+
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -354,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                     }
 
                 } catch(Exception e){
-                    Toast.makeText(MainActivity.this, "Error creating customer", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Error creating contact", Toast.LENGTH_SHORT).show();
                     contactModel = new EmergencyContact(-1, "error","error",0,"error");
                 }
 
@@ -403,6 +410,49 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
             }
         });
+
+    }
+
+    public void sendMessageEmergencyContact(){
+        buttonCall = findViewById(R.id.menu4);
+        DataBaseHelper phone_number_data = new DataBaseHelper(this);
+
+        buttonCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try {
+                    String query = "SELECT CONTACT_PHONE_NUMBER FROM CONTACT_TABLE ORDER BY CONTACT_PHONE_NUMBER DESC LIMIT 1";
+                    SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
+                    Cursor result = dbs.rawQuery(query, null);
+                    result.moveToFirst();
+                    int phone_number = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
+                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                    intent.setData(Uri.parse("sms:" + phone_number));
+                    startActivity(intent);
+
+                }catch(Exception e) {
+                    Toast.makeText(MainActivity.this, "No emergency contact added", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+    }
+
+    public void crashPopup(){
+        dialogBuilder = new AlertDialog.Builder(this);
+        final View contactPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                //what you want to do
+            }
+        }, 0, 1000);//wait 0 ms before doing the action and do it evry 1000ms (1second)
+
+        timer.cancel();//stop the time
 
     }
 
