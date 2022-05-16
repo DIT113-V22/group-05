@@ -52,15 +52,16 @@ SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
 const auto oneSecond = 1UL;
 
 //start of ultra sensor//
-const auto triggerPin3 = 15;
-const auto echoPin3 = 3;
-#ifdef __SMCE__ // Four simulator
 const auto triggerPin = 6;
 const auto echoPin = 7;
 const auto triggerPin1 = 10;
 const auto echoPin1 = 1;
 const auto triggerPin2 = 11;
 const auto echoPin2 = 2;
+const auto triggerPin3 = 15;
+const auto echoPin3 = 3;
+#ifdef __SMCE__ // Four simulator
+
 const auto mqttBrokerUrl = "127.0.0.1";
 #else // for car
 const auto triggerPin = 33;
