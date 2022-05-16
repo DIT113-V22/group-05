@@ -386,57 +386,45 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     }
 
 
-    public void callEmergencyContact(){
-        buttonCall = findViewById(R.id.menu3);
+
+    public void sendMessageEmergencyContact(){
+
         DataBaseHelper phone_number_data = new DataBaseHelper(this);
 
-        buttonCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        try {
+            String query = "SELECT CONTACT_PHONE_NUMBER FROM CONTACT_TABLE ORDER BY CONTACT_PHONE_NUMBER DESC LIMIT 1";
+            SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
+            Cursor result = dbs.rawQuery(query, null);
+            result.moveToFirst();
+            int phone_number = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("sms:" + phone_number));
+            startActivity(intent);
 
-                try {
-                    String query = "SELECT CONTACT_PHONE_NUMBER FROM CONTACT_TABLE ORDER BY CONTACT_PHONE_NUMBER DESC LIMIT 1";
-                    SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
-                    Cursor result = dbs.rawQuery(query, null);
-                    result.moveToFirst();
-                    int phone_number = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
-                    Intent intent = new Intent(Intent.ACTION_DIAL);
-                    intent.setData(Uri.parse("tel:" + phone_number));
-                    startActivity(intent);
-
-                }catch(Exception e) {
-                    Toast.makeText(MainActivity.this, "No emergency contact added", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
+        }catch(Exception e) {
+            Toast.makeText(MainActivity.this, "No emergency contact added", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
-    public void sendMessageEmergencyContact(){
-        buttonCall = findViewById(R.id.menu4);
+
+    public void callEmergencyContact(){
+
         DataBaseHelper phone_number_data = new DataBaseHelper(this);
 
-        buttonCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        try {
+            String query = "SELECT CONTACT_PHONE_NUMBER FROM CONTACT_TABLE ORDER BY CONTACT_PHONE_NUMBER DESC LIMIT 1";
+            SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
+            Cursor result = dbs.rawQuery(query, null);
+            result.moveToFirst();
+            int phone_number = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:" + phone_number));
+            startActivity(intent);
 
-                try {
-                    String query = "SELECT CONTACT_PHONE_NUMBER FROM CONTACT_TABLE ORDER BY CONTACT_PHONE_NUMBER DESC LIMIT 1";
-                    SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
-                    Cursor result = dbs.rawQuery(query, null);
-                    result.moveToFirst();
-                    int phone_number = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
-                    Intent intent = new Intent(Intent.ACTION_SENDTO);
-                    intent.setData(Uri.parse("sms:" + phone_number));
-                    startActivity(intent);
-
-                }catch(Exception e) {
-                    Toast.makeText(MainActivity.this, "No emergency contact added", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
+        }catch(Exception e) {
+            Toast.makeText(MainActivity.this, "No emergency contact added", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
