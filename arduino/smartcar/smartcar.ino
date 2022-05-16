@@ -35,18 +35,18 @@ BrushedMotor leftMotor(arduinoRuntime, smartcarlib::pins::v2::leftMotorPins);
 BrushedMotor rightMotor(arduinoRuntime, smartcarlib::pins::v2::rightMotorPins);
 DifferentialControl control(leftMotor, rightMotor);
  
-// GY50 gyroscope(arduinoRuntime, 37);
-// const auto pulsesPerMeter = 600;
-// DirectionlessOdometer leftOdometer(
-//     arduinoRuntime, smartcarlib::pins::v2::leftOdometerPin, []() { leftOdometer.update(); },
-//     pulsesPerMeter);
-// DirectionlessOdometer rightOdometer(
-//     arduinoRuntime, smartcarlib::pins::v2::rightOdometerPin, []() { rightOdometer.update();
-// }, pulsesPerMeter);
-//
-//SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
+GY50 gyroscope(arduinoRuntime, 37);
+const auto pulsesPerMeter = 600;
+DirectionlessOdometer leftOdometer(
+    arduinoRuntime, smartcarlib::pins::v2::leftOdometerPin, []() { leftOdometer.update(); },
+    pulsesPerMeter);
+DirectionlessOdometer rightOdometer(
+    arduinoRuntime, smartcarlib::pins::v2::rightOdometerPin, []() { rightOdometer.update();
+}, pulsesPerMeter);
 
-SimpleCar car(control);
+SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
+
+//SimpleCar car(control);
 
 // infrared sensor
 const int frontIRPin = 0;
@@ -142,9 +142,27 @@ void loop()
 
     if (mqtt.connected())
     {
-        frontUltDis = frontUlt.getDistance();
+        if (car.getSpeed() > 0)
+        {
+            driveForward = true;
+        }
+        else
+        {
+            driveForward = false;
+        }
+        
+        
+        if (driveForward)
+        {
+            frontUltDis = frontUlt.getDistance();
+        }
+        
+        
         backIRDis = backIR.getDistance();
 
+        Serial.println(frontUltDis);
+
+        
         mqtt.loop();
 
         const auto currentTime = millis();
