@@ -11,13 +11,22 @@
 MQTTClient mqtt;
 WiFiClient net;
 
+
 // This is for the toggle button, to activate the safety features
 // This is changed to false to sync with the app better
 bool safetyFeatures = false;
-bool canDrive = true;
 
+//stopZoneAutoBreak
+bool canDrive = true;
+bool DriveForwards = false;
+bool Drivebackwards = false;
+
+//incomingAvoidanceThreshold
 bool activeAvoidance = false;
-// bool inMotion = false;
+
+//controls which sensors active during the loops for the simulator car
+int loopControl = 1;
+
 
 const char ssid[] = "***";
 const char pass[] = "****";
@@ -27,16 +36,18 @@ BrushedMotor leftMotor(arduinoRuntime, smartcarlib::pins::v2::leftMotorPins);
 BrushedMotor rightMotor(arduinoRuntime, smartcarlib::pins::v2::rightMotorPins);
 DifferentialControl control(leftMotor, rightMotor);
  
-GY50 gyroscope(arduinoRuntime, 37);
-const auto pulsesPerMeter = 600;
-DirectionlessOdometer leftOdometer(
-    arduinoRuntime, smartcarlib::pins::v2::leftOdometerPin, []() { leftOdometer.update(); },
-    pulsesPerMeter);
-DirectionlessOdometer rightOdometer(
-    arduinoRuntime, smartcarlib::pins::v2::rightOdometerPin, []() { rightOdometer.update();
-}, pulsesPerMeter);
+// GY50 gyroscope(arduinoRuntime, 37);
+// const auto pulsesPerMeter = 600;
+// DirectionlessOdometer leftOdometer(
+//     arduinoRuntime, smartcarlib::pins::v2::leftOdometerPin, []() { leftOdometer.update(); },
+//     pulsesPerMeter);
+// DirectionlessOdometer rightOdometer(
+//     arduinoRuntime, smartcarlib::pins::v2::rightOdometerPin, []() { rightOdometer.update();
+// }, pulsesPerMeter);
  
-SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
+// SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
+
+SimpleCar car(control);
 
 const auto oneSecond = 1UL;
 
@@ -131,24 +142,45 @@ void setup()
 
 void loop()
 {
-
+    
     if (mqtt.connected())
     {
-        //frontUltDis = frontUlt.getDistance();
-        
+        loopControl = loopControl + 1;
 
+        if (loopControl == 1)
+        {
+            frontUltDis = frontUlt.getDistance();
+            
+        }
+        else if (loopControl == 2)
+        {
+            leftUltDDis = leftUlt.getDistance();
+            
+        }
+        else if (loopControl == 3)
+        {
+            rightUltDDis = rightUlt.getDistance();
+            
+        }
+        else if (loopControl == 4)
+        {
+            backUltDDis = backUlt.getDistance();
+            loopControl = 0;
+        }
         
-        //leftUltDDis = leftUlt.getDistance();
-        //rightUltDDis = rightUlt.getDistance();
-        backUltDDis = backUlt.getDistance();
-
-        //Serial.println(frontUltDis);
-        //Serial.println(leftUltDDis);
-        //Serial.println(rightUltDDis);
+        //Prince out for different ultra sensors and the control
+        Serial.print("F sensor: ");
+        Serial.println(frontUltDis);
+        Serial.print("L sensor: ");
+        Serial.println(leftUltDDis);
+        Serial.print("R sensor: ");
+        Serial.println(rightUltDDis);
+        Serial.print("B sensor: ");
         Serial.println(backUltDDis);
+        Serial.print("loop: ");
+        Serial.println(loopControl);
 
 
-        frontUltDis = frontUlt.getDistance();
         mqtt.loop();
 
         const auto currentTime = millis();
@@ -186,6 +218,39 @@ void loop()
         delay(1);
     }
 }
+
+// This method will be called when the connection breaks from the broker
+void lastWill()
+{
+    if (speed > 10)
+    { // Car slows down if speed is greater than 10
+        smoothStop();
+    }
+    else
+    {
+        car.setSpeed(0); // Car just stops if speed is lower than 10
+    }
+}
+
+// A method for slowing down, can be used in other methods
+void smoothStop()
+{
+    if (speed > 3)
+    {
+        car.setSpeed(speed * 0.9); // 0.9 is the fraction it will multiple the speed with, hence slowing down
+        delay(100);
+        speed = speed * 0.9;
+    }
+    else
+    {
+        car.setSpeed(0); // then it will come to a complete stop
+    }
+    car.setSpeed(0);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                            //all safetyFeatures methods//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // void stopZoneAutoBreak(long frontUltDis, long backIRDis)
 // {
@@ -250,32 +315,3 @@ void loop()
 //         activeAvoidance = false;
 //     } 
 // }
-
-// This method will be called when the connection breaks from the broker
-void lastWill()
-{
-    if (speed > 10)
-    { // Car slows down if speed is greater than 10
-        smoothStop();
-    }
-    else
-    {
-        car.setSpeed(0); // Car just stops if speed is lower than 10
-    }
-}
-
-// A method for slowing down, can be used in other methods
-void smoothStop()
-{
-    if (speed > 3)
-    {
-        car.setSpeed(speed * 0.9); // 0.9 is the fraction it will multiple the speed with, hence slowing down
-        delay(100);
-        speed = speed * 0.9;
-    }
-    else
-    {
-        car.setSpeed(0); // then it will come to a complete stop
-    }
-    car.setSpeed(0);
-}
