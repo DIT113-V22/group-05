@@ -45,10 +45,10 @@ const int frontIRPin = 0;
 const int leftIRPin = 1;
 const int rightIRPin = 2;
 const int backIRPin = 3;
-GP2Y0A02 frontIR(arduinoRuntime, frontIRPin);
-GP2Y0A02 leftIR(arduinoRuntime, leftIRPin);
-GP2Y0A02 rightIR(arduinoRuntime, rightIRPin);
-GP2Y0A21 backIR(arduinoRuntime, backIRPin);
+// GP2Y0A02 frontIR(arduinoRuntime, frontIRPin);
+// GP2Y0A02 leftIR(arduinoRuntime, leftIRPin);
+// GP2Y0A02 rightIR(arduinoRuntime, rightIRPin);
+// GP2Y0A21 backIR(arduinoRuntime, backIRPin);
 // measure infrared between 0 and 40
 
 const auto oneSecond = 1UL;
@@ -57,6 +57,12 @@ const auto oneSecond = 1UL;
 #ifdef __SMCE__ // Four simulator
 const auto triggerPin = 6;
 const auto echoPin = 7;
+const auto triggerPin1 = 10;
+const auto echoPin1 = 1;
+const auto triggerPin2 = 11;
+const auto echoPin2 = 2;
+const auto triggerPin3 = 15;
+const auto echoPin3 = 3;
 const auto mqttBrokerUrl = "127.0.0.1";
 #else // for car
 const auto triggerPin = 33;
@@ -68,15 +74,24 @@ int speed;
 const auto maxfrontUltDis = 150;
 SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxfrontUltDis);
 
+const auto maxfrontUltDis1 = 150;
+SR04 LUlt(arduinoRuntime, triggerPin1, echoPin1, maxfrontUltDis1);
+
+const auto maxfrontUltDis2 = 150;
+SR04 RUlt(arduinoRuntime, triggerPin2, echoPin2, maxfrontUltDis2);
+
+const auto maxfrontUltDis3 = 150;
+SR04 BUlt(arduinoRuntime, triggerPin3, echoPin3, maxfrontUltDis3);
+
 //Camera
 std::vector<char> frameBuffer;
 
 //Inizialize variables for sens0or data
 int frontUltDis;
 int frontIRDis;
-int leftIRDis;
-int rightIRDis;
-int backIRDis;
+int LUltDDis;
+int RUltDDis;
+int BUltDDis;
 
 void setup()
 {
@@ -132,9 +147,18 @@ void loop()
 
     if (mqtt.connected())
     {
-        frontUltDis = frontUlt.getDistance();
-        backIRDis = backIR.getDistance();
+        // frontUltDis = frontUlt.getDistance();
+        // backIRDis = backIR.getDistance();
 
+        //test
+        LUltDDis = LUlt.getDistance();
+        RUltDDis = RUlt.getDistance();
+        BUltDDis = BUlt.getDistance();
+
+        Serial.println(BUltDDis);
+
+
+        frontUltDis = frontUlt.getDistance();
         mqtt.loop();
 
         const auto currentTime = millis();
@@ -153,11 +177,11 @@ void loop()
                             //safetyFeatures && frontUltDis <= 150 || safetyFeatures && backIRDis <= 40
                             //Also check if sensors are in range to avoid going through all checks if they aren't
         {
-            if (!activeAvoidance)
-            {
-                stopZoneAutoBreak(frontUltDis, backIRDis);
-            }
-            incomingAvoidanceThreshold(frontUltDis, backIRDis);
+            // if (!activeAvoidance)
+            // {
+            //     stopZoneAutoBreak(frontUltDis, backIRDis);
+            // }
+            // incomingAvoidanceThreshold(frontUltDis, backIRDis);
         }
 
 #ifdef __SMCE__
@@ -173,69 +197,69 @@ void loop()
     }
 }
 
-void stopZoneAutoBreak(long frontUltDis, long backIRDis)
-{
-    if (frontUltDis <= 100 && frontUltDis != 0 || backIRDis <= 40 && backIRDis != 0) // stop zone
-    {
-        if (canDrive) // check whether you're in the stop zone
-        {
-            car.setSpeed(0);
-            Serial.println("Emergency stop 1");
-        }
-        canDrive = false; // so the car can move in the stop zone
-    }
-    else
-    {
-        canDrive = true; // so the car will stop again if it hits the stop zone
-    }
-}
+// void stopZoneAutoBreak(long frontUltDis, long backIRDis)
+// {
+//     if (frontUltDis <= 100 && frontUltDis != 0 || backIRDis <= 40 && backIRDis != 0) // stop zone
+//     {
+//         if (canDrive) // check whether you're in the stop zone
+//         {
+//             car.setSpeed(0);
+//             Serial.println("Emergency stop 1");
+//         }
+//         canDrive = false; // so the car can move in the stop zone
+//     }
+//     else
+//     {
+//         canDrive = true; // so the car will stop again if it hits the stop zone
+//     }
+// }
 
-// Threshold stands for when the car is too close to a certain
-// obstacle and we use threshold because there are multiple thresholds
-void incomingAvoidanceThreshold(long frontUltDis, long backIRDis)
-{
-    if (frontUltDis <= 30 && frontUltDis != 0)//forward obstacle threshold 1
-    {
-        car.setSpeed(0);
-        car.setSpeed(-90);
-        Serial.println("backing up level 1");
-        activeAvoidance = true;
-    } else if (frontUltDis <= 60 && frontUltDis != 0)//forward obstacle threshold 2
-    {
-        car.setSpeed(0);
-        car.setSpeed(-60);
-        Serial.println("backing up level 2");
-        activeAvoidance = true;
-    } else if (frontUltDis <= 90 && frontUltDis != 0)//forward obstacle threshold 3
-    {
-        car.setSpeed(0);
-        car.setSpeed(-30);
-        Serial.println("backing up level 3");
-        activeAvoidance = true;
-    } else if (backIRDis <= 10 && backIRDis != 0)//backwards obstacle threshold 1
-    {
-        car.setSpeed(0);
-        car.setSpeed(40);
-        Serial.println("moving forward level 1");
-        activeAvoidance = true;
-    } else if (backIRDis <= 20 && backIRDis != 0)//backwards obstacle threshold 2
-    {
-        car.setSpeed(0);
-        car.setSpeed(30);
-        Serial.println("moving forward level 2");
-        activeAvoidance = true;
-    } else if (backIRDis <= 30 && backIRDis != 0)//backwards obstacle threshold 3
-    {
-        car.setSpeed(0);
-        car.setSpeed(20);
-        Serial.println("moving forward level 3");
-        activeAvoidance = true;
-    } else if (frontUltDis == 0 && backIRDis == 0 && activeAvoidance)
-    {
-        car.setSpeed(0);
-        activeAvoidance = false;
-    } 
-}
+// // Threshold stands for when the car is too close to a certain
+// // obstacle and we use threshold because there are multiple thresholds
+// void incomingAvoidanceThreshold(long frontUltDis, long backIRDis)
+// {
+//     if (frontUltDis <= 30 && frontUltDis != 0)//forward obstacle threshold 1
+//     {
+//         car.setSpeed(0);
+//         car.setSpeed(-90);
+//         Serial.println("backing up level 1");
+//         activeAvoidance = true;
+//     } else if (frontUltDis <= 60 && frontUltDis != 0)//forward obstacle threshold 2
+//     {
+//         car.setSpeed(0);
+//         car.setSpeed(-60);
+//         Serial.println("backing up level 2");
+//         activeAvoidance = true;
+//     } else if (frontUltDis <= 90 && frontUltDis != 0)//forward obstacle threshold 3
+//     {
+//         car.setSpeed(0);
+//         car.setSpeed(-30);
+//         Serial.println("backing up level 3");
+//         activeAvoidance = true;
+//     } else if (backIRDis <= 10 && backIRDis != 0)//backwards obstacle threshold 1
+//     {
+//         car.setSpeed(0);
+//         car.setSpeed(40);
+//         Serial.println("moving forward level 1");
+//         activeAvoidance = true;
+//     } else if (backIRDis <= 20 && backIRDis != 0)//backwards obstacle threshold 2
+//     {
+//         car.setSpeed(0);
+//         car.setSpeed(30);
+//         Serial.println("moving forward level 2");
+//         activeAvoidance = true;
+//     } else if (backIRDis <= 30 && backIRDis != 0)//backwards obstacle threshold 3
+//     {
+//         car.setSpeed(0);
+//         car.setSpeed(20);
+//         Serial.println("moving forward level 3");
+//         activeAvoidance = true;
+//     } else if (frontUltDis == 0 && backIRDis == 0 && activeAvoidance)
+//     {
+//         car.setSpeed(0);
+//         activeAvoidance = false;
+//     } 
+// }
 
 // This method will be called when the connection breaks from the broker
 void lastWill()
