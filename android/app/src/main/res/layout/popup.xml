@@ -90,23 +90,27 @@
         android:id="@+id/saveButton"
         android:layout_width="125dp"
         android:layout_height="70dp"
+        android:layout_marginTop="45dp"
         android:layout_marginBottom="76dp"
         android:text="Save"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.129"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newcontactpopup_email" />
 
     <Button
         android:id="@+id/cancelButton"
         android:layout_width="125dp"
         android:layout_height="70dp"
+        android:layout_marginTop="44dp"
         android:layout_marginBottom="77dp"
         android:text="Cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.856"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newcontactpopup_email" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

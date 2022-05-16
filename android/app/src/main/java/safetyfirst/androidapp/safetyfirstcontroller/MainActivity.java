@@ -346,11 +346,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
     public void mqttConnectionStatus(boolean isConnected){
         if(!isConnected){
-            findViewById(R.id.imageView_no_connection).setVisibility(View.VISIBLE);
-            findViewById(R.id.imageView_connected).setVisibility(View.GONE);
+            findViewById(R.id.imageView_red_symbol).setVisibility(View.VISIBLE);
+            findViewById(R.id.imageView_green_symbol).setVisibility(View.GONE);
         }else{
-            findViewById(R.id.imageView_connected).setVisibility(View.VISIBLE);
-            findViewById(R.id.imageView_no_connection).setVisibility(View.GONE);
+            findViewById(R.id.imageView_green_symbol).setVisibility(View.VISIBLE);
+            findViewById(R.id.imageView_red_symbol).setVisibility(View.GONE);
         }
     }
 

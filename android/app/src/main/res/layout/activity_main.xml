@@ -45,25 +45,27 @@
             android:background="@color/black">
 
             <ImageView
-                android:id="@+id/imageView_no_connection"
+                android:id="@+id/imageView_red_symbol"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
-                android:src="@drawable/no_connection"
+                android:background="@color/black"
+                android:src="@drawable/red_symbol"
                 android:visibility="gone" />
 
             <ImageView
-                android:id="@+id/imageView_connected"
+                android:id="@+id/imageView_green_symbol"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
-                android:src="@drawable/connected"
+                android:background="@color/black"
+                android:src="@drawable/green_symbol"
                 android:visibility="gone" />
 
         </RelativeLayout>
