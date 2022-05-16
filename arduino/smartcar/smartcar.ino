@@ -38,22 +38,9 @@ DirectionlessOdometer rightOdometer(
  
 SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
 
-
-
-// infrared sensor
-const int frontIRPin = 0;
-const int leftIRPin = 1;
-const int rightIRPin = 2;
-const int backIRPin = 3;
-// GP2Y0A02 frontIR(arduinoRuntime, frontIRPin);
-// GP2Y0A02 leftIR(arduinoRuntime, leftIRPin);
-// GP2Y0A02 rightIR(arduinoRuntime, rightIRPin);
-// GP2Y0A21 backIR(arduinoRuntime, backIRPin);
-// measure infrared between 0 and 40
-
 const auto oneSecond = 1UL;
 
-// ultrasounds sensor//
+//start of ultra sensor//
 #ifdef __SMCE__ // Four simulator
 const auto triggerPin = 6;
 const auto echoPin = 7;
@@ -71,27 +58,27 @@ const auto mqttBrokerUrl = "192.168.0.40";
 #endif
 
 int speed;
-const auto maxfrontUltDis = 150;
+const auto maxfrontUltDis = 100;
 SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxfrontUltDis);
 
-const auto maxfrontUltDis1 = 150;
-SR04 LUlt(arduinoRuntime, triggerPin1, echoPin1, maxfrontUltDis1);
+const auto maxfrontUltDis1 = 100;
+SR04 leftUlt(arduinoRuntime, triggerPin1, echoPin1, maxfrontUltDis1);
 
-const auto maxfrontUltDis2 = 150;
-SR04 RUlt(arduinoRuntime, triggerPin2, echoPin2, maxfrontUltDis2);
+const auto maxfrontUltDis2 = 100;
+SR04 rightUlt(arduinoRuntime, triggerPin2, echoPin2, maxfrontUltDis2);
 
-const auto maxfrontUltDis3 = 150;
-SR04 BUlt(arduinoRuntime, triggerPin3, echoPin3, maxfrontUltDis3);
+const auto maxfrontUltDis3 = 100;
+SR04 backUlt(arduinoRuntime, triggerPin3, echoPin3, maxfrontUltDis3);
+//end of ultra sensor//
 
 //Camera
 std::vector<char> frameBuffer;
 
 //Inizialize variables for sens0or data
 int frontUltDis;
-int frontIRDis;
-int LUltDDis;
-int RUltDDis;
-int BUltDDis;
+int leftUltDDis;
+int rightUltDDis;
+int backUltDDis;
 
 void setup()
 {
@@ -126,7 +113,7 @@ void setup()
     mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
                    {
-    Serial.println(message);
+    // Serial.println(message);
     if (topic == "/smartcar/control/throttle") {
         car.setSpeed(message.toInt());
     } else if (topic == "/smartcar/control/steering") {
@@ -147,15 +134,18 @@ void loop()
 
     if (mqtt.connected())
     {
-        // frontUltDis = frontUlt.getDistance();
-        // backIRDis = backIR.getDistance();
+        //frontUltDis = frontUlt.getDistance();
+        
 
-        //test
-        LUltDDis = LUlt.getDistance();
-        RUltDDis = RUlt.getDistance();
-        BUltDDis = BUlt.getDistance();
+        
+        //leftUltDDis = leftUlt.getDistance();
+        //rightUltDDis = rightUlt.getDistance();
+        backUltDDis = backUlt.getDistance();
 
-        Serial.println(BUltDDis);
+        //Serial.println(frontUltDis);
+        //Serial.println(leftUltDDis);
+        //Serial.println(rightUltDDis);
+        Serial.println(backUltDDis);
 
 
         frontUltDis = frontUlt.getDistance();
