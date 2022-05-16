@@ -11,13 +11,21 @@
 MQTTClient mqtt;
 WiFiClient net;
 
+
 // This is for the toggle button, to activate the safety features
 // This is changed to false to sync with the app better
 bool safetyFeatures = false;
-bool canDrive = true;
 
-bool activeAvoidance = false;
-// bool inMotion = false;
+bool canDrive = true; // for stopZoneAutoBreak method
+
+bool activeAvoidance = false; // for incomingAvoidanceThreshold method
+
+//limit sensor input
+bool driveForward = false;
+bool driveBackwards = false;
+int sensorInterval;
+
+
 
 const char ssid[] = "***";
 const char pass[] = "****";
@@ -110,8 +118,10 @@ void setup()
     mqtt.subscribe("/smartcar/control/#", 1);
     mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
-                   {
-    Serial.println(message);
+    {
+
+    //Serial.println(message); // will print out the speed of the car in Serial
+
     if (topic == "/smartcar/control/throttle") {
         car.setSpeed(message.toInt());
     } else if (topic == "/smartcar/control/steering") {
@@ -172,6 +182,39 @@ void loop()
         delay(1);
     }
 }
+
+// This method will be called when the connection breaks from the broker
+void lastWill()
+{
+    if (speed > 10)
+    { // Car slows down if speed is greater than 10
+        smoothStop();
+    }
+    else
+    {
+        car.setSpeed(0); // Car just stops if speed is lower than 10
+    }
+}
+
+// A method for slowing down, can be used in other methods
+void smoothStop()
+{
+    if (speed > 3)
+    {
+        car.setSpeed(speed * 0.9); // 0.9 is the fraction it will multiple the speed with, hence slowing down
+        delay(100);
+        speed = speed * 0.9;
+    }
+    else
+    {
+        car.setSpeed(0); // then it will come to a complete stop
+    }
+    car.setSpeed(0);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                    //all safetyFeatures//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void stopZoneAutoBreak(long frontUltDis, long backIRDis)
 {
@@ -236,33 +279,4 @@ void incomingAvoidanceThreshold(long frontUltDis, long backIRDis)
         car.setSpeed(0);
         activeAvoidance = false;
     } 
-}
-
-// This method will be called when the connection breaks from the broker
-void lastWill()
-{
-    if (speed > 10)
-    { // Car slows down if speed is greater than 10
-        smoothStop();
-    }
-    else
-    {
-        car.setSpeed(0); // Car just stops if speed is lower than 10
-    }
-}
-
-// A method for slowing down, can be used in other methods
-void smoothStop()
-{
-    if (speed > 3)
-    {
-        car.setSpeed(speed * 0.9); // 0.9 is the fraction it will multiple the speed with, hence slowing down
-        delay(100);
-        speed = speed * 0.9;
-    }
-    else
-    {
-        car.setSpeed(0); // then it will come to a complete stop
-    }
-    car.setSpeed(0);
 }
