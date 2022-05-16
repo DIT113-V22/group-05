@@ -18,14 +18,14 @@ bool safetyFeatures = false;
 
 //stopZoneAutoBreak
 bool canDrive = true;
-bool DriveForwards = false;
-bool Drivebackwards = false;
+bool driveForwards = false;
+bool drivebackwards = false;
 
 //incomingAvoidanceThreshold
 bool activeAvoidance = false;
 
 //controls which sensors active during the loops for the simulator car
-int loopControl = 1;
+int loopControl = 0;
 
 
 const char ssid[] = "***";
@@ -36,18 +36,18 @@ BrushedMotor leftMotor(arduinoRuntime, smartcarlib::pins::v2::leftMotorPins);
 BrushedMotor rightMotor(arduinoRuntime, smartcarlib::pins::v2::rightMotorPins);
 DifferentialControl control(leftMotor, rightMotor);
  
-// GY50 gyroscope(arduinoRuntime, 37);
-// const auto pulsesPerMeter = 600;
-// DirectionlessOdometer leftOdometer(
-//     arduinoRuntime, smartcarlib::pins::v2::leftOdometerPin, []() { leftOdometer.update(); },
-//     pulsesPerMeter);
-// DirectionlessOdometer rightOdometer(
-//     arduinoRuntime, smartcarlib::pins::v2::rightOdometerPin, []() { rightOdometer.update();
-// }, pulsesPerMeter);
+GY50 gyroscope(arduinoRuntime, 37);
+const auto pulsesPerMeter = 600;
+DirectionlessOdometer leftOdometer(
+    arduinoRuntime, smartcarlib::pins::v2::leftOdometerPin, []() { leftOdometer.update(); },
+    pulsesPerMeter);
+DirectionlessOdometer rightOdometer(
+    arduinoRuntime, smartcarlib::pins::v2::rightOdometerPin, []() { rightOdometer.update();
+}, pulsesPerMeter);
  
-// SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
+SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
 
-SimpleCar car(control);
+// SimpleCar car(control);
 
 const auto oneSecond = 1UL;
 
@@ -87,9 +87,9 @@ std::vector<char> frameBuffer;
 
 //Inizialize variables for sens0or data
 int frontUltDis;
-int leftUltDDis;
-int rightUltDDis;
-int backUltDDis;
+int leftUltDis;
+int rightUltDis;
+int backUltDis;
 
 void setup()
 {
@@ -145,26 +145,37 @@ void loop()
     
     if (mqtt.connected())
     {
+        if (driveForwards)
+        {
+            driveForwards = false;
+        }
+        else if (drivebackwards)
+        {
+            drivebackwards = false;
+        }
+        else
+        {
+            driveForwards = false;
+            drivebackwards = false;
+        }
+        
+        //////////////////////////////  start of read sensory input //////////////////////////////
         loopControl = loopControl + 1;
-
         if (loopControl == 1)
         {
             frontUltDis = frontUlt.getDistance();
-            
         }
         else if (loopControl == 2)
         {
-            leftUltDDis = leftUlt.getDistance();
-            
+            leftUltDis = leftUlt.getDistance();
         }
         else if (loopControl == 3)
         {
-            rightUltDDis = rightUlt.getDistance();
-            
+            rightUltDis = rightUlt.getDistance();
         }
         else if (loopControl == 4)
         {
-            backUltDDis = backUlt.getDistance();
+            backUltDis = backUlt.getDistance();
             loopControl = 0;
         }
         
@@ -172,14 +183,14 @@ void loop()
         Serial.print("F sensor: ");
         Serial.println(frontUltDis);
         Serial.print("L sensor: ");
-        Serial.println(leftUltDDis);
+        Serial.println(leftUltDis);
         Serial.print("R sensor: ");
-        Serial.println(rightUltDDis);
+        Serial.println(rightUltDis);
         Serial.print("B sensor: ");
-        Serial.println(backUltDDis);
+        Serial.println(backUltDis);
         Serial.print("loop: ");
         Serial.println(loopControl);
-
+        //////////////////////////////  and of read sensory input //////////////////////////////
 
         mqtt.loop();
 
@@ -201,7 +212,7 @@ void loop()
         {
             // if (!activeAvoidance)
             // {
-            //     stopZoneAutoBreak(frontUltDis, backIRDis);
+                //  stopZoneAutoBreak(frontUltDis, backUltDis);
             // }
             // incomingAvoidanceThreshold(frontUltDis, backIRDis);
         }
