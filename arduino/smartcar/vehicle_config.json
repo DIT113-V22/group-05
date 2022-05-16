@@ -33,24 +33,27 @@
          }
       },
       "Left": {
-         "class": "AnalogRaycast",
-         "name": "Left Infrared",
+         "class": "UltraSonic",
+         "name": "Left UltraSonic",
          "props": {
-            "pin": 1
+           "trigger_pin": 10,
+           "echo_pin": 1
          }
       },
       "Right": {
-         "class": "AnalogRaycast",
-         "name": "Right Infrared",
+         "class": "UltraSonic",
+         "name": "Right UltraSonic",
          "props": {
-            "pin": 2
+           "trigger_pin": 11,
+           "echo_pin": 2
          }
       },
       "Back": {
-         "class": "AnalogRaycast",
-         "name": "Back Infrared",
+         "class": "UltraSonic",
+         "name": "Back UltraSonic",
          "props": {
-            "pin": 3
+           "trigger_pin": 15,
+           "echo_pin": 3
          }
       }
    },
