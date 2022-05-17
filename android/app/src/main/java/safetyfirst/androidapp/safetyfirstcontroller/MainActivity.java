@@ -35,9 +35,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
 import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
+import safetyfirst.androidapp.safetyfirstcontroller.MailBot.MailSender;
 import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
 
 public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener{
@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
     //Crash popup
     private Button iAmOk;
+    private AlertDialog dialogCrashPopup;
 
 
 
@@ -479,35 +480,42 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
        dialogBuilder = new AlertDialog.Builder(this);
        final View crashPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
        dialogBuilder.setView(crashPopupView);
-       dialog = dialogBuilder.create();
-       dialog.show();
+       dialogCrashPopup = dialogBuilder.create();
+       dialogCrashPopup.show();
        iAmOk = findViewById(R.id.button_iAmOk);
 
        Timer timer = new Timer();
        TimerTask timerTaskObj = new TimerTask() {
            public void run() {
                //perform your action here
-               try {
-
-                   MailBot sendEmergencyEmail = new MailBot();
-                   sendEmergencyEmail.setupServerProperties();
-                   sendEmergencyEmail.draftEmail("erik.lindmaa@gmail.com","Send help please", "Heeelp" );
-                   sendEmergencyEmail.sendEmail();
-
-                   iAmOk.setOnClickListener(new View.OnClickListener() {
+                   new Thread(new Runnable() {
                        @Override
-                       public void onClick(View view) {
-                           timer.cancel();//stop the time
-                           dialog.dismiss();
+                       public void run() {
+                           try {
+                               MailSender sender = new MailSender("safetyfirst.emergencyservices@gmail.com",
+                                       "Safetyfirst123");
+                               sender.sendMail("This is a test subject", "This is the test body content",
+                                       "safetyfirst.emergencyservices@gmail.com", "erik.lindmaa@gmail.com");
+
+                               iAmOk.setOnClickListener(new View.OnClickListener() {
+                                   @Override
+                                   public void onClick(View view) {
+                                       timer.cancel();//stop the time
+                                       dialogCrashPopup.dismiss();
+                                   }
+                               });
+
+                           } catch (Exception e) {
+                               Log.e("SendMail", e.getMessage(), e);
+                           }
 
                        }
-                   });
-               } catch (MessagingException | IOException e) {
-                   e.printStackTrace();
+
+                   }).start();
+
                }
-           }
        };
-       timer.schedule(timerTaskObj, 0, 15000);
+       timer.schedule(timerTaskObj, 15000, 15000);
 
 
    }

@@ -10,7 +10,7 @@ import java.util.Properties;
 import java.io.IOException;
 import java.util.Properties;
 
-public class MailBot {
+public class MailBotOld {
 
     Session newSession = null;
     MimeMessage mimeMessage = null;
