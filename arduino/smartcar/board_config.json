@@ -1,8 +1,11 @@
 {
     "gpio_drivers": [
         { "pin": 0, "analog": true },
+        { "pin": 10, "digital": true },
         { "pin": 1, "analog": true },
+        { "pin": 11, "digital": true },
         { "pin": 2, "analog": true },
+        { "pin": 15, "digital": true },
         { "pin": 3, "analog": true },
         { "pin": 4, "analog": true },
         { "pin": 5, "analog": true },
