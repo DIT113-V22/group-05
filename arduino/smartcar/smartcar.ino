@@ -50,8 +50,6 @@ DirectionlessOdometer rightOdometer(
  
 SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
 
-// SimpleCar car(control);
-
 const auto oneSecond = 1UL;
 
 //start of ultra sensor//
