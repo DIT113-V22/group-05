@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SafetyFirstController</string>
+    <string name="open">Side Bar Open</string>
+    <string name="close">Side Bar Close</string>
 </resources>

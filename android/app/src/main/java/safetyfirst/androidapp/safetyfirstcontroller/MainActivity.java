@@ -1,38 +1,41 @@
 package safetyfirst.androidapp.safetyfirstcontroller;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
-import android.content.Intent;
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.CompoundButton;
-import android.widget.SeekBar;
 import android.widget.Toast;
-import android.widget.ToggleButton;
+
+import com.google.android.material.navigation.NavigationView;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import java.util.Objects;
 
-import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
-import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
+import safetyfirst.androidapp.safetyfirstcontroller.fragments.ContactsFragment;
+import safetyfirst.androidapp.safetyfirstcontroller.fragments.HomeFragment;
+import safetyfirst.androidapp.safetyfirstcontroller.fragments.ProfileFragment;
+import safetyfirst.androidapp.safetyfirstcontroller.fragments.RegisterFragment;
+import safetyfirst.androidapp.safetyfirstcontroller.fragments.SettingsFragment;
 
-public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener{
-
+public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener, NavigationView.OnNavigationItemSelectedListener{
 
     private static final String TAG = "SmartcarMqttController";
     private static final String EXTERNAL_MQTT_BROKER = "aerostun.dev";
@@ -60,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     //SeekBar simpleSeekBar;
     //private static int adjust;
 
-
     // variables for contact dialogue popup
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private Button newcontactpopup_cancel, newcontactpopup_save;
     ListView lv_contactList;
 
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,140 +79,70 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         JoystickView joystick = new JoystickView(this);
         setContentView(R.layout.activity_main);
 
-        /*
-        //On initiate views
-        simpleSeekBar = (SeekBar)findViewById(R.id.simpleSeekBar); // initiate the Seekbar
-
-        simpleSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int progressChangedValue = 0;
-
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    progressChangedValue = progress;
-                    adjust = progressChangedValue;
-                    drive(adjust, STRAIGHT_ANGLE, "Adjust speed");
-            }
-
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
-            }
-
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                Toast.makeText(MainActivity.this, "Seek bar progress is :" + progressChangedValue,
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-
-         */
-
         mMqttClient = new MqttClient(getApplicationContext(), MQTT_SERVER, TAG);
         mCameraView = findViewById(R.id.imageView);
-        Objects.requireNonNull(getSupportActionBar()).setTitle("SAFETY FIRST");  // provide compatibility to all the versions
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,
+                drawerLayout,
+                toolbar,
+                R.string.open,
+                R.string.close);
+
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
         connectToMqttBroker();
-
-        //This is the toggle button object to create the on and off switch for the automatic stopping features
-        ToggleButton toggle = findViewById(R.id.toggleButton1);
-
-        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {//Publish a message depending on which value the button has
-                if (b){
-                    Toast.makeText(getApplicationContext(), "Safety system enabled", Toast.LENGTH_SHORT).show();
-                    mMqttClient.publish(SAFETY_SYSTEMS, "true", QOS, null);
-                }else{
-                    Toast.makeText(getApplicationContext(), "Safety system disabled", Toast.LENGTH_SHORT).show();
-                    mMqttClient.publish(SAFETY_SYSTEMS, "false", QOS, null);
-                }
-            }
-        });
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-       getMenuInflater().inflate(R.menu.first_menu,menu);
-       return true;
-    }
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.home:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new HomeFragment()).commit();
+                break;
 
+            case R.id.profile:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new ProfileFragment()).commit();
+                break;
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+            case R.id.contacts:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new ContactsFragment()).commit();
+                break;
 
-        int id = item.getItemId();
+            case R.id.settings:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new SettingsFragment()).commit();
+                break;
 
-        if(id == R.id.menu1){
-            //Contact creation
-            createNewContactDialog();
+            case R.id.registerUser:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new RegisterFragment()).commit();
+                break;
         }
-        if(id == R.id.menu2){
-            //Viewing contacts
-            openContactActivity();
-        }
-        return super.onOptionsItemSelected(item);
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
-
-    // Method for opening the popup window for the new emergency contact.
-    public void createNewContactDialog(){
-        dialogBuilder = new AlertDialog.Builder(this);
-        final View contactPopupView = getLayoutInflater().inflate(R.layout.popup, null);
-        newcontactpopup_firstname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_firstname);
-        newcontactpopup_lastname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_lastname);
-        newcontactpopup_mobile = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_mobile);
-        newcontactpopup_email = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_email);
-
-        newcontactpopup_save = (Button) contactPopupView.findViewById(R.id.saveButton);
-        newcontactpopup_cancel = (Button) contactPopupView.findViewById(R.id.cancelButton);
-
-
-        dialogBuilder.setView(contactPopupView);
-        dialog = dialogBuilder.create();
-        dialog.show();
-
-
-        newcontactpopup_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                EmergencyContact contactModel;
-
-                //Throws exception if added contact information does not meet requirements.
-
-                try {
-                    contactModel = new EmergencyContact(-1, newcontactpopup_firstname.getText().toString(),newcontactpopup_lastname.getText().toString(),Integer.parseInt(newcontactpopup_mobile.getText().toString()),newcontactpopup_email.getText().toString());
-                    Toast.makeText(MainActivity.this, contactModel.toString(), Toast.LENGTH_SHORT).show();
-
-                } catch(Exception e){
-                    Toast.makeText(MainActivity.this, "Error creating customer", Toast.LENGTH_SHORT).show();
-                    contactModel = new EmergencyContact(-1, "error","error",0,"error");
-                }
-
-                DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
-
-                boolean success = dataBaseHelper.addOne(contactModel);
-
-                Toast.makeText(MainActivity.this, "Contact Added", Toast.LENGTH_SHORT).show();
-                //ShowCustomerOnListView(dataBaseHelper);
-
-                dialog.dismiss();
-
-            }
-        });
-
-        newcontactpopup_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //define cancel button
-                dialog.dismiss();
-            }
-        });
-    }
-
-    public void openContactActivity(){
-        Intent intent = new Intent(this, ContactList.class);
-        startActivity(intent);
-        lv_contactList = findViewById(R.id.lv_contactList);
-    }
-
 
     @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }else {
+            super.onBackPressed();
+        }
+    }
+
+
     protected void onResume() {
         super.onResume();
         connectToMqttBroker();

@@ -17,9 +17,6 @@ public class EmergencyContact {
         this.phone_number = phone_number;
     }
 
-    public EmergencyContact() {
-    }
-
     @Override
     public String toString() {
         return
