@@ -17,8 +17,8 @@ public class MailBot {
 
     //Ossian
     public void sendEmail() throws MessagingException {
-        String fromUser = "";  //Enter sender email id (MUST BE GMAIL)
-        String fromUserPassword = "";  //Enter sender gmail password , this will be authenticated by gmail smtp server
+        String fromUser = "safetyfirst.emergencyservices@gmail.com";  //Enter sender email id (MUST BE GMAIL)
+        String fromUserPassword = "Safetyfirst123";  //Enter sender gmail password , this will be authenticated by gmail smtp server
         String emailHost = "smtp.gmail.com";
         Transport transport = newSession.getTransport("smtp");
         transport.connect(emailHost, fromUser, fromUserPassword);

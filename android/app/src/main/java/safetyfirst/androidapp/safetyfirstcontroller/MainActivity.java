@@ -28,9 +28,14 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
 import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
@@ -72,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private Button newContactPopupCancel, newContactPopupSave;
     ListView lv_contactList;
 
-    //call emergency contact
-    View buttonCall;
+    //Crash popup
+    private Button iAmOk;
 
 
 
@@ -310,15 +315,19 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             openContactActivity();
         }
         if(id == R.id.menu3){
-            //Viewing contacts
+            //call emergency services
             callEmergencyContact();
 
         }
         if(id == R.id.menu4){
-            //Viewing contacts
+            //send message to emergency services
             sendMessageEmergencyContact();
 
         }
+        if(id == R.id.menu5){
+            crashPopup();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -428,21 +437,80 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
     }
 
-    public void crashPopup(){
+   /* public void crashPopup(){
         dialogBuilder = new AlertDialog.Builder(this);
         final View contactPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
+        dialogBuilder.setView(contactPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 //what you want to do
+                try {
+                    sendEmergencyEmail.setupServerProperties();
+                    sendEmergencyEmail.draftEmail("erik.lindmaa@gmail.com","Send help please", "Heeelp" );
+                    sendEmergencyEmail.sendEmail();
+
+                    iAmOk.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            timer.cancel();//stop the time
+                            dialog.cancel();
+
+                        }
+                    });
+                } catch (MessagingException | IOException e) {
+                    e.printStackTrace();
+                }
+
             }
-        }, 0, 1000);//wait 0 ms before doing the action and do it evry 1000ms (1second)
+
+        }, 15000); //wait 0 ms before doing the action.
 
         timer.cancel();//stop the time
 
     }
+
+    */
+   public void crashPopup(){
+       dialogBuilder = new AlertDialog.Builder(this);
+       final View crashPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
+       dialogBuilder.setView(crashPopupView);
+       dialog = dialogBuilder.create();
+       dialog.show();
+       iAmOk = findViewById(R.id.button_iAmOk);
+
+       Timer timer = new Timer();
+       TimerTask timerTaskObj = new TimerTask() {
+           public void run() {
+               //perform your action here
+               try {
+
+                   MailBot sendEmergencyEmail = new MailBot();
+                   sendEmergencyEmail.setupServerProperties();
+                   sendEmergencyEmail.draftEmail("erik.lindmaa@gmail.com","Send help please", "Heeelp" );
+                   sendEmergencyEmail.sendEmail();
+
+                   iAmOk.setOnClickListener(new View.OnClickListener() {
+                       @Override
+                       public void onClick(View view) {
+                           timer.cancel();//stop the time
+                           dialog.dismiss();
+
+                       }
+                   });
+               } catch (MessagingException | IOException e) {
+                   e.printStackTrace();
+               }
+           }
+       };
+       timer.schedule(timerTaskObj, 0, 15000);
+
+
+   }
 
 
 
