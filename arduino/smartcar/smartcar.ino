@@ -18,8 +18,11 @@ bool safetyFeatures = false;
 
 //stopZoneAutoBreak
 bool canDrive = true;
-bool driveForwards = false;
-bool drivebackwards = false;
+bool driveForwards = true;
+bool drivebackwards = true;
+int speedGate;//check if it's positive or negative speed
+int theSpeed;//let's speed actually be registered
+
 
 //incomingAvoidanceThreshold
 bool activeAvoidance = false;
@@ -123,21 +126,31 @@ void setup()
     mqtt.subscribe("/smartcar/control/#", 1);
     mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
-                   {
-    // Serial.println(message);
-    if (topic == "/smartcar/control/throttle") {
-        car.setSpeed(message.toInt());
-    } else if (topic == "/smartcar/control/steering") {
-        car.setAngle(message.toInt());
-    } else if (topic == "/smartcar/safetysystem") {
-        if (message == "false"){  //Update the boolean depending on the message received from app
-            safetyFeatures = false;
-        }else{
-            safetyFeatures = true;
+    {
+        //if statements controls the intake of information from the joystick forward and backwards
+        speedGate = message.toInt();
+        if (driveForwards && speedGate >= 0){
+            theSpeed = speedGate;
+        } 
+        if (drivebackwards && speedGate <= 0){
+            theSpeed = speedGate;
         }
-    } else {
-      Serial.println(topic + " " + message);
-    } });
+            //Serial.println(theSpeed);//shows the speed
+        
+        if (topic == "/smartcar/control/throttle") {
+            car.setSpeed(theSpeed);
+        } else if (topic == "/smartcar/control/steering") {
+            car.setAngle(message.toInt());
+        } else if (topic == "/smartcar/safetysystem") {
+            if (message == "false"){  //Update the boolean depending on the message received from app
+                safetyFeatures = false;
+            }else{
+                safetyFeatures = true;
+            }
+        } else {
+        Serial.println(topic + " " + message);
+        } 
+    });
 }
 
 void loop()
@@ -145,19 +158,6 @@ void loop()
     
     if (mqtt.connected())
     {
-        if (driveForwards)
-        {
-            driveForwards = false;
-        }
-        else if (drivebackwards)
-        {
-            drivebackwards = false;
-        }
-        else
-        {
-            driveForwards = false;
-            drivebackwards = false;
-        }
         
         //////////////////////////////  start of read sensory input //////////////////////////////
         loopControl = loopControl + 1;
@@ -180,6 +180,7 @@ void loop()
         }
         
         //Prince out for different ultra sensors and the control
+
         Serial.print("F sensor: ");
         Serial.println(frontUltDis);
         Serial.print("L sensor: ");
@@ -190,6 +191,7 @@ void loop()
         Serial.println(backUltDis);
         Serial.print("loop: ");
         Serial.println(loopControl);
+        
         //////////////////////////////  and of read sensory input //////////////////////////////
 
         mqtt.loop();
@@ -206,15 +208,17 @@ void loop()
                          false, 0);
         }
 #endif
-        if (safetyFeatures) // check if the safety system is enabled
-                            //safetyFeatures && frontUltDis <= 150 || safetyFeatures && backIRDis <= 40
+        if (safetyFeatures){// check if the safety system is enabled
+                            //safetyFeatures && frontUltDis <= 150 || safetyFeatures && backUltDis <= 100
                             //Also check if sensors are in range to avoid going through all checks if they aren't
-        {
-            // if (!activeAvoidance)
-            // {
-                //  stopZoneAutoBreak(frontUltDis, backUltDis);
-            // }
-            // incomingAvoidanceThreshold(frontUltDis, backIRDis);
+        
+            if (!activeAvoidance){
+                stopZoneAutoBreak(frontUltDis, backUltDis);  
+            }
+            incomingAvoidanceThreshold(frontUltDis, backUltDis);
+        } else {
+                driveForwards = true;
+                drivebackwards = true;
         }
 
 #ifdef __SMCE__
@@ -263,66 +267,80 @@ void smoothStop()
                                             //all safetyFeatures methods//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// void stopZoneAutoBreak(long frontUltDis, long backIRDis)
-// {
-//     if (frontUltDis <= 100 && frontUltDis != 0 || backIRDis <= 40 && backIRDis != 0) // stop zone
-//     {
-//         if (canDrive) // check whether you're in the stop zone
-//         {
-//             car.setSpeed(0);
-//             Serial.println("Emergency stop 1");
-//         }
-//         canDrive = false; // so the car can move in the stop zone
-//     }
-//     else
-//     {
-//         canDrive = true; // so the car will stop again if it hits the stop zone
-//     }
-// }
+void stopZoneAutoBreak(long frontUltDis, long backUltDis)
+{
+    if (frontUltDis <= 100 && frontUltDis != 0){// stop zone
+        if (canDrive) {// check whether you're in the stop zone
+            car.setSpeed(0);
+            Serial.println("forward stop");
+        }
+        canDrive = false; // so the car can move in the stop zone
+        driveForwards = false;    
+    } else if (backUltDis <= 100 && backUltDis != 0){
+        if (canDrive) {// check whether you're in the stop zone
+            car.setSpeed(0);
+            Serial.println("backward stop");
+        }
+        canDrive = false; // so the car can move in the stop zone
+        drivebackwards = false; 
+    } else {
+        canDrive = true; // so the car will stop again if it hits the stop zone
+        driveForwards = true;
+        drivebackwards = true;
+    }
+}
 
-// // Threshold stands for when the car is too close to a certain
-// // obstacle and we use threshold because there are multiple thresholds
-// void incomingAvoidanceThreshold(long frontUltDis, long backIRDis)
-// {
-//     if (frontUltDis <= 30 && frontUltDis != 0)//forward obstacle threshold 1
-//     {
-//         car.setSpeed(0);
-//         car.setSpeed(-90);
-//         Serial.println("backing up level 1");
-//         activeAvoidance = true;
-//     } else if (frontUltDis <= 60 && frontUltDis != 0)//forward obstacle threshold 2
-//     {
-//         car.setSpeed(0);
-//         car.setSpeed(-60);
-//         Serial.println("backing up level 2");
-//         activeAvoidance = true;
-//     } else if (frontUltDis <= 90 && frontUltDis != 0)//forward obstacle threshold 3
-//     {
-//         car.setSpeed(0);
-//         car.setSpeed(-30);
-//         Serial.println("backing up level 3");
-//         activeAvoidance = true;
-//     } else if (backIRDis <= 10 && backIRDis != 0)//backwards obstacle threshold 1
-//     {
-//         car.setSpeed(0);
-//         car.setSpeed(40);
-//         Serial.println("moving forward level 1");
-//         activeAvoidance = true;
-//     } else if (backIRDis <= 20 && backIRDis != 0)//backwards obstacle threshold 2
-//     {
-//         car.setSpeed(0);
-//         car.setSpeed(30);
-//         Serial.println("moving forward level 2");
-//         activeAvoidance = true;
-//     } else if (backIRDis <= 30 && backIRDis != 0)//backwards obstacle threshold 3
-//     {
-//         car.setSpeed(0);
-//         car.setSpeed(20);
-//         Serial.println("moving forward level 3");
-//         activeAvoidance = true;
-//     } else if (frontUltDis == 0 && backIRDis == 0 && activeAvoidance)
-//     {
-//         car.setSpeed(0);
-//         activeAvoidance = false;
-//     } 
-// }
+// Threshold stands for when the car is too close to a certain
+// obstacle and we use threshold because there are multiple thresholds
+void incomingAvoidanceThreshold(long frontUltDis, long backUltDis)
+{
+    if (frontUltDis <= 30 && frontUltDis != 0)//forward obstacle threshold 1
+    {
+        car.setSpeed(-90);
+        //Serial.println("backing up level 1");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (frontUltDis <= 60 && frontUltDis != 0)//forward obstacle threshold 2
+    {
+        car.setSpeed(-60);
+        //Serial.println("backing up level 2");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (frontUltDis <= 90 && frontUltDis != 0)//forward obstacle threshold 3
+    {
+        car.setSpeed(-30);
+        //Serial.println("backing up level 3");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (backUltDis <= 30 && backUltDis != 0)//backwards obstacle threshold 1
+    {
+        car.setSpeed(90);
+        //Serial.println("moving forward level 1");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (backUltDis <= 60 && backUltDis != 0)//backwards obstacle threshold 2
+    {
+        car.setSpeed(60);
+        //Serial.println("moving forward level 2");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (backUltDis <= 90 && backUltDis != 0)//backwards obstacle threshold 3
+    {
+        car.setSpeed(30);
+        //Serial.println("moving forward level 3");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (frontUltDis == 0 && backUltDis == 0 && activeAvoidance)
+    {
+        car.setSpeed(0);
+        activeAvoidance = false;
+        driveForwards = true;
+        drivebackwards = true;
+    } 
+}
