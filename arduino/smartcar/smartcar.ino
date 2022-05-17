@@ -125,18 +125,19 @@ void setup()
     mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
     {
-        //if statements controls the intake of information from the joystick forward and backwards
-        speedGate = message.toInt();
-        if (driveForwards && speedGate >= 0){
-            theSpeed = speedGate;
-        } 
-        if (drivebackwards && speedGate <= 0){
-            theSpeed = speedGate;
-        }
-            //Serial.println(theSpeed);//shows the speed
+     //this is going to be common out because it's going to appear on the android side but the code remains in case someone needed for reference
+//         //if statements controls the intake of information from the joystick forward and backwards
+//         speedGate = message.toInt();
+//         if (driveForwards && speedGate >= 0){
+//             theSpeed = speedGate;
+//         } 
+//         if (drivebackwards && speedGate <= 0){
+//             theSpeed = speedGate;
+//         }
+//             //Serial.println(theSpeed);//shows the speed
         
         if (topic == "/smartcar/control/throttle") {
-            car.setSpeed(theSpeed);
+            car.setSpeed(message.toInt());
         } else if (topic == "/smartcar/control/steering") {
             car.setAngle(message.toInt());
         } else if (topic == "/smartcar/safetysystem") {
