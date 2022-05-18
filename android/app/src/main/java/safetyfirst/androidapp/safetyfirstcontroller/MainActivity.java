@@ -31,6 +31,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.ContactsFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.HomeFragment;
+import safetyfirst.androidapp.safetyfirstcontroller.fragments.LoginFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.ProfileFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.RegisterFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.SettingsFragment;
@@ -122,6 +123,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             case R.id.settings:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new SettingsFragment()).commit();
+                break;
+
+            case R.id.login:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new LoginFragment()).commit();
                 break;
 
             case R.id.registerUser:
