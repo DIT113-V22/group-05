@@ -73,14 +73,14 @@ int speed;
 const auto maxfrontUltDis = 100;
 SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxfrontUltDis);
 
-const auto maxfrontUltDis1 = 100;
-SR04 leftUlt(arduinoRuntime, triggerPin1, echoPin1, maxfrontUltDis1);
+const auto maxleftUltDis1 = 100;
+SR04 leftUlt(arduinoRuntime, triggerPin1, echoPin1, maxleftUltDis1);
 
 const auto maxfrontUltDis2 = 100;
-SR04 rightUlt(arduinoRuntime, triggerPin2, echoPin2, maxfrontUltDis2);
+SR04 rightUlt(arduinoRuntime, triggerPin2, echoPin2, maxrightUltDis2);
 
 const auto maxfrontUltDis3 = 100;
-SR04 backUlt(arduinoRuntime, triggerPin3, echoPin3, maxfrontUltDis3);
+SR04 backUlt(arduinoRuntime, triggerPin3, echoPin3, maxbackUltDis3);
 //end of ultra sensor//
 
 //Camera
