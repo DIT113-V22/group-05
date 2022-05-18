@@ -137,7 +137,7 @@ void setup()
 //             //Serial.println(theSpeed);//shows the speed
         
         if (topic == "/smartcar/control/throttle") {
-            car.setSpeed(message.toInt());
+            car.setSpeed(message.toInt());//this needs to be swapped if the above is uncommented <<car.setSpeed(theSpeed);>>
         } else if (topic == "/smartcar/control/steering") {
             car.setAngle(message.toInt());
         } else if (topic == "/smartcar/safetysystem") {
