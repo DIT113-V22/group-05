@@ -1,0 +1,288 @@
+[gd_scene load_steps=17 format=2]
+
+[ext_resource path="res://source/Track.glb" type="PackedScene" id=1]
+
+[sub_resource type="CubeMesh" id=2]
+
+[sub_resource type="SpatialMaterial" id=4]
+albedo_color = Color( 0.184314, 0.529412, 0.301961, 1 )
+
+[sub_resource type="BoxShape" id=3]
+extents = Vector3( 1.12322, 1, 1.09204 )
+
+[sub_resource type="ProceduralSky" id=15]
+radiance_size = 4
+sky_top_color = Color( 0.615686, 0.309804, 0.686275, 1 )
+sky_horizon_color = Color( 0.87451, 0.831373, 0.184314, 1 )
+
+[sub_resource type="Environment" id=16]
+background_mode = 2
+background_sky = SubResource( 15 )
+
+[sub_resource type="CubeMesh" id=5]
+
+[sub_resource type="SpatialMaterial" id=6]
+albedo_color = Color( 0.137255, 0.0666667, 0.0666667, 1 )
+
+[sub_resource type="BoxShape" id=7]
+
+[sub_resource type="CubeMesh" id=8]
+
+[sub_resource type="SpatialMaterial" id=9]
+albedo_color = Color( 0, 0, 0, 1 )
+
+[sub_resource type="BoxShape" id=10]
+
+[sub_resource type="CylinderMesh" id=11]
+
+[sub_resource type="CylinderShape" id=12]
+
+[sub_resource type="SphereMesh" id=13]
+
+[sub_resource type="CubeMesh" id=14]
+
+[node name="Spatial" type="Spatial"]
+transform = Transform( 0.0108208, 0, 0.999941, 0, 1, 0, -0.999941, 0, 0.0108208, 4.40129, 1.15312, -91.2554 )
+
+[node name="Track" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1.45171, 0, 0, 0, 1, 0, 0, 0, 1.5866, -91.234, -1.37536, -6.82237 )
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 111.75, 0, 1.19209e-07, 0, 1, 0, -1.19209e-07, 0, 65.0897, 0, -2.39082, 0 )
+mesh = SubResource( 2 )
+material/0 = SubResource( 4 )
+
+[node name="StaticBody" type="StaticBody" parent="MeshInstance"]
+
+[node name="CollisionShape" type="CollisionShape" parent="MeshInstance/StaticBody"]
+transform = Transform( 0.888586, 0, 0, 0, 0.999999, 0, 0, 0, 0.914868, 0, 0, 0 )
+shape = SubResource( 3 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 0.50878, -0.264396, 0.819291, -0.000950204, 0.951499, 0.307651, -0.860896, -0.157305, 0.483852, 0, 9.0114, 25.5384 )
+environment = SubResource( 16 )
+
+[node name="SpotLight" type="SpotLight" parent="Camera"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.921024 )
+
+[node name="Wall" type="MeshInstance" parent="."]
+transform = Transform( 113.613, 0, 0, 0, 5.99698, 0, 0, 0, 1, 0, -0.501486, -64.6453 )
+mesh = SubResource( 5 )
+material/0 = SubResource( 6 )
+
+[node name="StaticBody" type="StaticBody" parent="Wall"]
+
+[node name="CollisionShape" type="CollisionShape" parent="Wall/StaticBody"]
+shape = SubResource( 7 )
+
+[node name="Wall2" type="MeshInstance" parent="."]
+transform = Transform( 111.803, 0, 0, 0, 6.24775, 0, 0, 0, 1.00815, -0.00761032, -0.53277, 63.9807 )
+mesh = SubResource( 8 )
+material/0 = SubResource( 9 )
+
+[node name="StaticBody" type="StaticBody" parent="Wall2"]
+
+[node name="CollisionShape" type="CollisionShape" parent="Wall2/StaticBody"]
+shape = SubResource( 10 )
+
+[node name="Wall3" type="MeshInstance" parent="."]
+transform = Transform( 0.602202, 0, 1.00813, 0, 6.24775, 0, -65.3861, 0, 0.00530598, -111.846, -0.53277, 0.126089 )
+mesh = SubResource( 8 )
+material/0 = SubResource( 9 )
+
+[node name="StaticBody" type="StaticBody" parent="Wall3"]
+
+[node name="CollisionShape" type="CollisionShape" parent="Wall3/StaticBody"]
+shape = SubResource( 10 )
+
+[node name="Wall4" type="MeshInstance" parent="."]
+transform = Transform( 0.602202, 0, 1.00813, 0, 6.24775, 0, -65.3861, 0, 0.00530598, 113.046, -0.53277, 0.126089 )
+mesh = SubResource( 8 )
+material/0 = SubResource( 9 )
+
+[node name="StaticBody" type="StaticBody" parent="Wall4"]
+
+[node name="CollisionShape" type="CollisionShape" parent="Wall4/StaticBody"]
+shape = SubResource( 10 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 102.157, 38.0589, 59.4473 )
+
+[node name="LightPole" type="MeshInstance" parent="."]
+transform = Transform( 0.238506, 0, 0, 0, 3.64629, 0, 0, 0, 0.268432, -80.2915, 2.20039, 2.09734 )
+mesh = SubResource( 11 )
+material/0 = null
+
+[node name="StaticBody" type="StaticBody" parent="LightPole"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.15115, 0, 9.94005 )
+
+[node name="CollisionShape" type="CollisionShape" parent="LightPole/StaticBody"]
+transform = Transform( 1, 0, -9.31323e-10, 0, 1.84594, 0, 0, 0, 1, -2.90732, -0.287098, -9.9176 )
+shape = SubResource( 12 )
+
+[node name="MeshInstance" type="MeshInstance" parent="LightPole"]
+transform = Transform( 1, 0, 0, 0, 0.0383809, 0, 0, 0, 0.846249, 0, 0.977148, -8.98286 )
+mesh = SubResource( 13 )
+material/0 = null
+
+[node name="OmniLight" type="OmniLight" parent="LightPole/MeshInstance"]
+light_energy = 4.0
+omni_range = 23.0
+
+[node name="MeshInstance2" type="MeshInstance" parent="LightPole"]
+transform = Transform( 1, 0, 0, 0, 0.0328599, 0, 0, 0, 5.48137, 0, 1.01444, -4.45269 )
+mesh = SubResource( 14 )
+material/0 = null
+
+[node name="LightPole2" type="MeshInstance" parent="."]
+transform = Transform( 0.238506, 0, 0, 0, 3.64629, 0, 0, 0, 0.268432, -44.3713, 2.20039, 2.09734 )
+mesh = SubResource( 11 )
+material/0 = null
+
+[node name="StaticBody" type="StaticBody" parent="LightPole2"]
+
+[node name="CollisionShape" type="CollisionShape" parent="LightPole2/StaticBody"]
+transform = Transform( 1, 0, -1.86265e-09, 0, 1.84594, 0, 0, 0, 1, -0.346176, -0.287098, 0.0425129 )
+shape = SubResource( 12 )
+
+[node name="MeshInstance" type="MeshInstance" parent="LightPole2"]
+transform = Transform( 1, 0, 0, 0, 0.0383809, 0, 0, 0, 0.846249, 0, 0.977148, -8.98286 )
+mesh = SubResource( 13 )
+material/0 = null
+
+[node name="OmniLight" type="OmniLight" parent="LightPole2/MeshInstance"]
+light_energy = 4.0
+omni_range = 23.0
+
+[node name="MeshInstance2" type="MeshInstance" parent="LightPole2"]
+transform = Transform( 1, 0, 0, 0, 0.0328599, 0, 0, 0, 5.48137, 0, 1.01444, -4.45269 )
+mesh = SubResource( 14 )
+material/0 = null
+
+[node name="LightPole3" type="MeshInstance" parent="."]
+transform = Transform( 0.238506, 0, 0, 0, 3.64629, 0, 0, 0, 0.268432, -12.8712, 2.20039, 2.09734 )
+mesh = SubResource( 11 )
+material/0 = null
+
+[node name="StaticBody" type="StaticBody" parent="LightPole3"]
+
+[node name="CollisionShape" type="CollisionShape" parent="LightPole3/StaticBody"]
+transform = Transform( 1, 0, 0, 0, 1.84594, 0, 0, 0, 1, 0.317646, -0.831732, 0.941687 )
+shape = SubResource( 12 )
+
+[node name="MeshInstance" type="MeshInstance" parent="LightPole3"]
+transform = Transform( 1, 0, 0, 0, 0.0383809, 0, 0, 0, 0.846249, 0, 0.977148, -8.98286 )
+mesh = SubResource( 13 )
+material/0 = null
+
+[node name="OmniLight" type="OmniLight" parent="LightPole3/MeshInstance"]
+transform = Transform( 4.19277, 0.000444119, 0.00481552, -0.000192056, 7.12869, -0.490236, -0.00507611, 0.302022, 4.39181, 0, 0, 0 )
+light_energy = 4.0
+omni_range = 23.0
+
+[node name="MeshInstance2" type="MeshInstance" parent="LightPole3"]
+transform = Transform( 1, 0, 0, 0, 0.0328599, 0, 0, 0, 5.48137, 0, 1.01444, -4.45269 )
+mesh = SubResource( 14 )
+material/0 = null
+
+[node name="LightPole6" type="MeshInstance" parent="."]
+transform = Transform( 0.238506, 0, 0, 0, 3.64629, 0, 0, 0, 0.268432, 21.6425, 2.20039, 2.09734 )
+mesh = SubResource( 11 )
+material/0 = null
+
+[node name="StaticBody" type="StaticBody" parent="LightPole6"]
+
+[node name="CollisionShape" type="CollisionShape" parent="LightPole6/StaticBody"]
+transform = Transform( 1, 0, -1.86265e-09, 0, 1.84594, 0, 0, 0, 1, 0.20575, -0.287098, 0.374336 )
+shape = SubResource( 12 )
+
+[node name="MeshInstance" type="MeshInstance" parent="LightPole6"]
+transform = Transform( 1, 0, 0, 0, 0.0383809, 0, 0, 0, 0.846249, 0, 0.977148, -8.98286 )
+mesh = SubResource( 13 )
+material/0 = null
+
+[node name="OmniLight" type="OmniLight" parent="LightPole6/MeshInstance"]
+transform = Transform( 4.19277, 0.000444119, 0.00481552, -0.000192056, 7.12869, -0.490236, -0.00507611, 0.302022, 4.39181, 0, 0, 0 )
+light_energy = 4.0
+omni_range = 23.0
+
+[node name="MeshInstance2" type="MeshInstance" parent="LightPole6"]
+transform = Transform( 1, 0, 0, 0, 0.0328599, 0, 0, 0, 5.48137, 0, 1.01444, -4.45269 )
+mesh = SubResource( 14 )
+material/0 = null
+
+[node name="LightPole7" type="MeshInstance" parent="."]
+transform = Transform( 0.238506, 0, 0, 0, 3.64629, 0, 0, 0, 0.268432, 50.7477, 2.20039, 2.09734 )
+mesh = SubResource( 11 )
+material/0 = null
+
+[node name="StaticBody" type="StaticBody" parent="LightPole7"]
+
+[node name="CollisionShape" type="CollisionShape" parent="LightPole7/StaticBody"]
+transform = Transform( 1, 0, -1.86265e-09, 0, 1.84594, 0, 0, 0, 1, 0.34845, -0.287098, 0.0273743 )
+shape = SubResource( 12 )
+
+[node name="MeshInstance" type="MeshInstance" parent="LightPole7"]
+transform = Transform( 1, 0, 0, 0, 0.0383809, 0, 0, 0, 0.846249, 0, 0.977148, -8.98286 )
+mesh = SubResource( 13 )
+material/0 = null
+
+[node name="OmniLight" type="OmniLight" parent="LightPole7/MeshInstance"]
+transform = Transform( 4.19277, 0.000444119, 0.00481552, -0.000192056, 7.12869, -0.490236, -0.00507611, 0.302022, 4.39181, 0, 0, 0 )
+light_energy = 4.0
+omni_range = 23.0
+
+[node name="MeshInstance2" type="MeshInstance" parent="LightPole7"]
+transform = Transform( 1, 0, 0, 0, 0.0328599, 0, 0, 0, 5.48137, 0, 1.01444, -4.45269 )
+mesh = SubResource( 14 )
+material/0 = null
+
+[node name="LightPole4" type="MeshInstance" parent="."]
+transform = Transform( 0.238506, 0, 0, 0, 3.64629, 0, 0, 0, 0.268432, 80.5358, 2.20039, 2.09734 )
+mesh = SubResource( 11 )
+material/0 = null
+
+[node name="StaticBody" type="StaticBody" parent="LightPole4"]
+
+[node name="CollisionShape" type="CollisionShape" parent="LightPole4/StaticBody"]
+transform = Transform( 1, 0, -1.86265e-09, 0, 1.84594, 0, 0, 0, 1, 0.286133, -0.287098, 0.667496 )
+shape = SubResource( 12 )
+
+[node name="MeshInstance" type="MeshInstance" parent="LightPole4"]
+transform = Transform( 1, 0, 0, 0, 0.0383809, 0, 0, 0, 0.846249, 0, 0.977148, -8.98286 )
+mesh = SubResource( 13 )
+material/0 = null
+
+[node name="OmniLight" type="OmniLight" parent="LightPole4/MeshInstance"]
+light_energy = 4.0
+omni_range = 23.0
+
+[node name="MeshInstance2" type="MeshInstance" parent="LightPole4"]
+transform = Transform( 1, 0, 0, 0, 0.0328599, 0, 0, 0, 5.48137, 0, 1.01444, -4.45269 )
+mesh = SubResource( 14 )
+material/0 = null
+
+[node name="LightPole5" type="MeshInstance" parent="."]
+transform = Transform( -0.238506, 0, 0.000131197, 0, 3.64629, 0, -0.000116579, 0, -0.268431, 80.5358, 2.20039, -14.7793 )
+mesh = SubResource( 11 )
+material/0 = null
+
+[node name="StaticBody" type="StaticBody" parent="LightPole5"]
+
+[node name="CollisionShape" type="CollisionShape" parent="LightPole5/StaticBody"]
+transform = Transform( 1, 0, -7.45058e-09, 0, 1.84594, 0, 1.86265e-09, 0, 1, 0.515503, -0.287098, 0.19878 )
+shape = SubResource( 12 )
+
+[node name="MeshInstance" type="MeshInstance" parent="LightPole5"]
+transform = Transform( 1, 0, 0, 0, 0.0383809, 0, 0, 0, 0.846249, 0, 0.977148, -8.98286 )
+mesh = SubResource( 13 )
+material/0 = null
+
+[node name="OmniLight" type="OmniLight" parent="LightPole5/MeshInstance"]
+light_energy = 4.0
+omni_range = 23.0
+
+[node name="MeshInstance2" type="MeshInstance" parent="LightPole5"]
+transform = Transform( 1, 0, 0, 0, 0.0328599, 0, 0, 0, 5.48137, 0, 1.01444, -4.45269 )
+mesh = SubResource( 14 )
+material/0 = null
