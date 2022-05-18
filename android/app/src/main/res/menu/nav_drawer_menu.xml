@@ -7,43 +7,37 @@
             android:id="@+id/home"
             android:icon="@drawable/home"
             android:title="Home"
-            android:visible="true"/>
+            />
 
         <item
             android:id="@+id/profile"
             android:icon="@drawable/profile"
             android:title="My Profile"
-            android:visible="false"/>
+            />
 
         <item
             android:id="@+id/contacts"
             android:icon="@drawable/contacts"
             android:title="Emergency Contacts"
-            android:visible="true"/>
+            />
 
         <item
             android:id="@+id/settings"
             android:icon="@drawable/settings"
             android:title="Settings"
-            android:visible="false"/>
+            />
 
         <item
             android:id="@+id/login"
             android:icon="@drawable/log_in"
             android:title="Log In"
-            android:visible="true"/>
+            />
 
         <item
             android:id="@+id/registerUser"
             android:icon="@drawable/register"
             android:title="Register"
             android:visible="true"/>
-
-        <item
-            android:id="@+id/logOut"
-            android:icon="@drawable/log_out"
-            android:title="Log Out"
-            android:visible="false"/>
 
     </group>
 

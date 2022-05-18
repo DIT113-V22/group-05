@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -29,6 +30,7 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import safetyfirst.androidapp.safetyfirstcontroller.Model.User;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.ContactsFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.HomeFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.LoginFragment;

@@ -89,36 +89,16 @@ public class RegisterFragment extends Fragment  {
                     return;
                 }
 
-                mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    User user = new User(fullName, age, email);
-                                    FirebaseDatabase.getInstance().getReference("Users")
-                                            .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                                            .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                        Toast.makeText(getContext(),
-                                                                "Registered Successfully",
-                                                                Toast.LENGTH_LONG).show();
-
-                                                    } else {
-                                                        Toast.makeText(getContext(),
-                                                                "Failed to register",
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                    progressBar.setVisibility(View.GONE);
-                                                }
-                                            });
-                                } else {
-                                    Toast.makeText(getContext(), "Failed to register", Toast.LENGTH_LONG).show();
-                                    progressBar.setVisibility(View.GONE);
-                                }
-                            }
-                        });
+                mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(getContext(), "Registered Successfully", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), "Email already registered", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
             }
         });
         return rootView;
