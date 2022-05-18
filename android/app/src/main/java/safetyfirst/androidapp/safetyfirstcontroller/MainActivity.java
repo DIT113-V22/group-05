@@ -40,7 +40,7 @@ import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
 import safetyfirst.androidapp.safetyfirstcontroller.MailBot.MailSender;
 import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
 
-public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener{
+public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener {
 
 
     private static final String TAG = "SmartcarMqttController";
@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     //Crash popup
     private Button iAmOk;
     private AlertDialog dialogCrashPopup;
-
 
 
     @Override
@@ -126,10 +125,10 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {//Publish a message depending on which value the button has
-                if (b){
+                if (b) {
                     Toast.makeText(getApplicationContext(), "Safety system enabled", Toast.LENGTH_SHORT).show();
                     mMqttClient.publish(SAFETY_SYSTEMS, "true", QOS, null);
-                }else{
+                } else {
                     Toast.makeText(getApplicationContext(), "Safety system disabled", Toast.LENGTH_SHORT).show();
                     mMqttClient.publish(SAFETY_SYSTEMS, "false", QOS, null);
                 }
@@ -137,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         });
     }
 
-    
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -262,26 +261,26 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         //The movementSpeed that has been adjusted will now be added to the throttlespeed
         throttleSpeed = movementSpeed;
         Log.i(TAG, actionDescription);
-        if(movingForwards) {
+        if (movingForwards) {
             mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
-        }else{
+        } else {
             mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(-throttleSpeed), QOS, null);
         }
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
     }
 
     //Mqtt connection status icon
-    public void mqttConnectionStatus(boolean isConnected){
-        if(!isConnected){
+    public void mqttConnectionStatus(boolean isConnected) {
+        if (!isConnected) {
             findViewById(R.id.imageView_no_connection).setVisibility(View.VISIBLE);
             findViewById(R.id.imageView_connected).setVisibility(View.GONE);
-        }else{
+        } else {
             findViewById(R.id.imageView_connected).setVisibility(View.VISIBLE);
             findViewById(R.id.imageView_no_connection).setVisibility(View.GONE);
         }
     }
 
-//When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
+    //When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
 //I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
     @Override
     public void onJoystickMoved(float xPercent, float yPercent, int id) {
@@ -293,11 +292,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
         mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
 
-      }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.first_menu,menu);
+        getMenuInflater().inflate(R.menu.first_menu, menu);
         return true;
     }
 
@@ -307,25 +306,25 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
         int id = item.getItemId();
 
-        if(id == R.id.menu1){
+        if (id == R.id.menu1) {
             //Contact creation
             createNewContactDialog();
         }
-        if(id == R.id.menu2){
+        if (id == R.id.menu2) {
             //Viewing contacts
             openContactActivity();
         }
-        if(id == R.id.menu3){
+        if (id == R.id.menu3) {
             //call emergency services
             callEmergencyContact();
 
         }
-        if(id == R.id.menu4){
+        if (id == R.id.menu4) {
             //send message to emergency services
             sendMessageEmergencyContact();
 
         }
-        if(id == R.id.menu5){
+        if (id == R.id.menu5) {
             crashPopup();
         }
 
@@ -333,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     }
 
     // Method for opening the popup window for the new emergency contact.
-    public void createNewContactDialog(){
+    public void createNewContactDialog() {
         dialogBuilder = new AlertDialog.Builder(this);
         final View contactPopupView = getLayoutInflater().inflate(R.layout.popup, null);
         newContactPopupFirstname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_firstname);
@@ -360,19 +359,19 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                 //Throws exception if added contact information does not meet requirements.
 
                 try {
-                    if(EmergencyContact.patternMatches(newContactPopupEmail.getText().toString(), regexPattern)){
-                        contactModel = new EmergencyContact(-1, newContactPopupFirstname.getText().toString(), newContactPopupLastname.getText().toString(),Integer.parseInt(newContactPopupMobile.getText().toString()), newContactPopupEmail.getText().toString());
+                    if (EmergencyContact.patternMatches(newContactPopupEmail.getText().toString(), regexPattern)) {
+                        contactModel = new EmergencyContact(-1, newContactPopupFirstname.getText().toString(), newContactPopupLastname.getText().toString(), Integer.parseInt(newContactPopupMobile.getText().toString()), newContactPopupEmail.getText().toString());
                         Toast.makeText(MainActivity.this, contactModel.toString(), Toast.LENGTH_SHORT).show();
                         DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
                         boolean success = dataBaseHelper.addOne(contactModel);
                         Toast.makeText(MainActivity.this, "Contact Added", Toast.LENGTH_SHORT).show();
-                    }else{
+                    } else {
                         throw new Exception();
                     }
 
-                } catch(Exception e){
+                } catch (Exception e) {
                     Toast.makeText(MainActivity.this, "Error creating contact", Toast.LENGTH_SHORT).show();
-                    contactModel = new EmergencyContact(-1, "error","error",0,"error");
+                    contactModel = new EmergencyContact(-1, "error", "error", 0, "error");
                 }
 
                 dialog.dismiss();
@@ -389,15 +388,14 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         });
     }
 
-    public void openContactActivity(){
+    public void openContactActivity() {
         Intent intent = new Intent(this, ContactList.class);
         startActivity(intent);
         lv_contactList = findViewById(R.id.lv_contactList);
     }
 
 
-
-    public void sendMessageEmergencyContact(){
+    public void sendMessageEmergencyContact() {
 
         DataBaseHelper phone_number_data = new DataBaseHelper(this);
 
@@ -411,14 +409,14 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             intent.setData(Uri.parse("sms:" + phone_number));
             startActivity(intent);
 
-        }catch(Exception e) {
+        } catch (Exception e) {
             Toast.makeText(MainActivity.this, "No emergency contact added", Toast.LENGTH_SHORT).show();
         }
 
     }
 
 
-    public void callEmergencyContact(){
+    public void callEmergencyContact() {
 
         DataBaseHelper phone_number_data = new DataBaseHelper(this);
 
@@ -432,7 +430,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             intent.setData(Uri.parse("tel:" + phone_number));
             startActivity(intent);
 
-        }catch(Exception e) {
+        } catch (Exception e) {
             Toast.makeText(MainActivity.this, "No emergency contact added", Toast.LENGTH_SHORT).show();
         }
 
@@ -476,13 +474,18 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     }
 
     */
+
+
+
    public void crashPopup(){
        dialogBuilder = new AlertDialog.Builder(this);
        final View crashPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
        dialogBuilder.setView(crashPopupView);
        dialogCrashPopup = dialogBuilder.create();
        dialogCrashPopup.show();
-       iAmOk = findViewById(R.id.button_iAmOk);
+
+       //I am ok button
+       iAmOk = (Button) crashPopupView.findViewById(R.id.button_iAmOk);
 
        Timer timer = new Timer();
        TimerTask timerTaskObj = new TimerTask() {
@@ -497,14 +500,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                                sender.sendMail("This is a test subject", "This is the test body content",
                                        "safetyfirst.emergencyservices@gmail.com", "erik.lindmaa@gmail.com");
 
-                               iAmOk.setOnClickListener(new View.OnClickListener() {
-                                   @Override
-                                   public void onClick(View view) {
-                                       timer.cancel();//stop the time
-                                       dialogCrashPopup.dismiss();
-                                   }
-                               });
-
                            } catch (Exception e) {
                                Log.e("SendMail", e.getMessage(), e);
                            }
@@ -512,20 +507,21 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                        }
 
                    }).start();
-
                }
        };
-       timer.schedule(timerTaskObj, 15000, 15000);
-
-
+       iAmOk.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               timer.cancel();//stop the time
+               dialogCrashPopup.dismiss();
+           }
+       });
+       timer.schedule(timerTaskObj, 15000);
    }
 
 
 
-
-
-
-    }
+}
 
 
 
