@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -486,6 +488,22 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
        //I am ok button
        iAmOk = (Button) crashPopupView.findViewById(R.id.button_iAmOk);
+
+       TextView displayTimer = findViewById(R.id.TextView3);
+
+       /* CountDownTimer countDownTimer = new CountDownTimer(30000, 1000) {
+           @Override
+           public void onTick(long millisUntilFinished) {
+               displayTimer.setText("seconds remaining: " + millisUntilFinished / 1000);
+           }
+
+           @Override
+           public void onFinish() {
+               displayTimer.setText("done!");
+           }
+       };
+
+        */
 
        Timer timer = new Timer();
        TimerTask timerTaskObj = new TimerTask() {
