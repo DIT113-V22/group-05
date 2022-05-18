@@ -70,17 +70,17 @@ const auto mqttBrokerUrl = "192.168.0.40";
 #endif
 
 int speed;
-const auto maxfrontUltDis = 100;
-SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxfrontUltDis);
+const auto maxFrontUltDis = 100;
+SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxFrontUltDis);
 
-const auto maxleftUltDis1 = 100;
-SR04 leftUlt(arduinoRuntime, triggerPin1, echoPin1, maxleftUltDis1);
+const auto maxLeftUltDis = 100;
+SR04 leftUlt(arduinoRuntime, triggerPin1, echoPin1, maxLeftUltDis);
 
-const auto maxfrontUltDis2 = 100;
-SR04 rightUlt(arduinoRuntime, triggerPin2, echoPin2, maxrightUltDis2);
+const auto maxRightUltDis = 100;
+SR04 rightUlt(arduinoRuntime, triggerPin2, echoPin2, maxRightUltDis);
 
-const auto maxfrontUltDis3 = 100;
-SR04 backUlt(arduinoRuntime, triggerPin3, echoPin3, maxbackUltDis3);
+const auto maxBackUltDis = 100;
+SR04 backUlt(arduinoRuntime, triggerPin3, echoPin3, maxBackUltDis);
 //end of ultra sensor//
 
 //Camera
