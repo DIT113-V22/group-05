@@ -444,7 +444,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     }
 
 
-   //Ready to be implemented
+   //Ready to be implemented when we have crash detection
+
    public void crashPopup(){
        dialogBuilder = new AlertDialog.Builder(this);
        final View crashPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
