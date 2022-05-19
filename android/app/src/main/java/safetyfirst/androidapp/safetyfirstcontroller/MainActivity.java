@@ -405,9 +405,9 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
             Cursor result = dbs.rawQuery(query, null);
             result.moveToFirst();
-            int phone_number = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
+            int phoneNumber = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
             Intent intent = new Intent(Intent.ACTION_SENDTO);
-            intent.setData(Uri.parse("sms:" + phone_number));
+            intent.setData(Uri.parse("sms:" + phoneNumber));
             startActivity(intent);
 
         } catch (Exception e) {
@@ -426,9 +426,9 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
             Cursor result = dbs.rawQuery(query, null);
             result.moveToFirst();
-            int phone_number = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
+            int phoneNumber = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
             Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:" + phone_number));
+            intent.setData(Uri.parse("tel:" + phoneNumber));
             startActivity(intent);
 
         } catch (Exception e) {
