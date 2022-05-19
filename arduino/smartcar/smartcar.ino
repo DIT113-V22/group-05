@@ -190,19 +190,6 @@ void loop()
             loopControl = 0;
         }
 
-        // Print outs for different ultra sensors and the control
-
-        // Serial.print("F sensor: ");
-        // Serial.println(frontUltDis);
-        // Serial.print("L sensor: ");
-        // Serial.println(leftUltDis);
-        // Serial.print("R sensor: ");
-        // Serial.println(rightUltDis);
-        // Serial.print("B sensor: ");
-        // Serial.println(backUltDis);
-        // Serial.print("loop: ");
-        // Serial.println(loopControl);
-
         //////////////////////////////  and of read sensory input //////////////////////////////
 
         mqtt.loop();
