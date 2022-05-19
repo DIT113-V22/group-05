@@ -14,7 +14,7 @@ WiFiClient net;
 
 // This is for the toggle button, to activate the safety features
 // This is changed to false to sync with the app better
-bool safetyFeatures = false;
+bool safetyFeatures = true;
 
 //stopZoneAutoBreak
 bool canDrive = true;
@@ -152,6 +152,11 @@ void setup()
         Serial.println(topic + " " + message);
         } 
     });
+    if (safetyFeatures){  //Update the boolean depending on the message received from app
+        mqtt.publish("/smartcar/safetysystem", "true");
+    }else{
+        mqtt.publish("/smartcar/safetysystem", "false");
+    }
 }
 
 void loop()

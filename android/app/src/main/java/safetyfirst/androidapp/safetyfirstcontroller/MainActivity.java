@@ -110,7 +110,18 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         mCameraView = findViewById(R.id.imageView);
         Objects.requireNonNull(getSupportActionBar()).setTitle("SAFETY FIRST");  // provide compatibility to all the versions
         connectToMqttBroker();
+        safetTtoggleButton();
 
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+       getMenuInflater().inflate(R.menu.first_menu,menu);
+       return true;
+    }
+
+    public void safetTtoggleButton(){
         //This is the toggle button object to create the on and off switch for the automatic stopping features
         ToggleButton toggle = findViewById(R.id.toggleButton1);
 
@@ -126,12 +137,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                 }
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-       getMenuInflater().inflate(R.menu.first_menu,menu);
-       return true;
     }
 
 
@@ -250,6 +255,9 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                     Toast.makeText(getApplicationContext(), successfulConnection, Toast.LENGTH_SHORT).show();
                     mMqttClient.subscribe("/smartcar/ultrasound/front", QOS, null);
                     mMqttClient.subscribe("/smartcar/camera", QOS, null);
+                    mMqttClient.subscribe("/smartcar/safetysystem", QOS, null);
+
+                    mMqttClient.publish(SAFETY_SYSTEMS, "true", QOS, null);//Publish once connected to make sure the car and the app has the same value upon start
                 }
 
                 @Override
@@ -286,7 +294,15 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         }
                         bm.setPixels(colors, 0, IMAGE_WIDTH, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
                         mCameraView.setImageBitmap(bm);
-                    } else {
+                    } else if (topic.equals("/smartcar/safetysystem")) {
+                        ToggleButton toggle = findViewById(R.id.toggleButton1);
+                        if (message.toString().equals("true")){ //sync the toggle button to the car.
+                            toggle.setChecked(true);
+                        }else if (message.toString().equals("false")){
+                            toggle.setChecked(false);
+                        }
+                    }
+                    else {
                         Log.i(TAG, "[MQTT] Topic: " + topic + " | Message: " + message.toString());
                     }
                 }
