@@ -22,9 +22,7 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
     private float hatRadius;
     private JoystickListener joystickCallback;
     private final int ratio = 5;
-    private long currentTime = System.currentTimeMillis();
-    private long previousTime;
-    private final int TIME_DELAY = 100;
+    private long getPreviousTime = System.currentTimeMillis();
 
     //The size of the circles on the UI
     private void setupDimensions(){
@@ -91,14 +89,15 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
     //When there is movement in the area of the joystick then this boolean method will run
     //Identifying what kind of movement is occurring
     public boolean onTouch(View v, MotionEvent e) {
-        previousTime = System.currentTimeMillis();
+        long currentTime = System.currentTimeMillis();
         if(v.equals(this)){
             if(e.getAction() != e.ACTION_UP) {
                 float displacement = (float) Math.sqrt((Math.pow(e.getX()-centerX,2))+Math.pow(e.getY()-centerY,2));
+                int TIME_DELAY = 100;
                 if(displacement < baseRadius) {
                     drawJoystick(e.getX(), e.getY());
-                    if (previousTime - currentTime > TIME_DELAY) { //Check if set time has passed since the last onJoystickMoved call to prevent mqtt flooding
-                        currentTime = previousTime;
+                    if (currentTime - getPreviousTime > TIME_DELAY) { //Check if set time has passed since the last onJoystickMoved call to prevent mqtt flooding
+                        getPreviousTime = currentTime;
                         joystickCallback.onJoystickMoved((e.getX() - centerX) / baseRadius, (e.getY() - centerY) / baseRadius, getId());
                     }
                 }else{
@@ -106,8 +105,8 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
                     float constrainedX = centerX + (e.getX()-centerX)*ratio;
                     float constrainedY = centerY + (e.getY()-centerY)*ratio;
                     drawJoystick(constrainedX,constrainedY);
-                    if (previousTime - currentTime > 100) { //Check if set time has passed since the last onJoystickMoved call to prevent mqtt flooding
-                        currentTime = previousTime;
+                    if (currentTime - getPreviousTime > TIME_DELAY) { //Check if set time has passed since the last onJoystickMoved call to prevent mqtt flooding
+                        getPreviousTime = currentTime;
                         joystickCallback.onJoystickMoved(((constrainedX-centerX)/baseRadius),((constrainedY-centerY)/baseRadius),getId());
                     }
                 }
