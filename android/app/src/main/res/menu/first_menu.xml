@@ -28,14 +28,8 @@
         android:id="@+id/menu4"
         app:showAsAction="always"
         android:icon="@drawable/ic_baseline_sms_24"
-        android:title="Call emergency contact"
+        android:title="Message emergency contact"
         />
 
-    <item
-        android:id="@+id/menu5"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_baseline_sms_24"
-        android:title="Call emergency contact"
-        />
 
 </menu>

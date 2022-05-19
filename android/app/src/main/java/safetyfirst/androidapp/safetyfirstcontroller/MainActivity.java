@@ -324,10 +324,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         if (id == R.id.menu4) {
             //send message to emergency services
             sendMessageEmergencyContact();
-
-        }
-        if (id == R.id.menu5) {
-            crashPopup();
         }
 
         return super.onOptionsItemSelected(item);
@@ -439,6 +435,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     }
 
 
+   //Ready to be implemented
    public void crashPopup(){
        dialogBuilder = new AlertDialog.Builder(this);
        final View crashPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
@@ -449,22 +446,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
        //I am ok button
        iAmOk = (Button) crashPopupView.findViewById(R.id.button_iAmOk);
 
-       TextView displayTimer = findViewById(R.id.TextView3);
 
-       /* CountDownTimer countDownTimer = new CountDownTimer(30000, 1000) {
-           @Override
-           public void onTick(long millisUntilFinished) {
-               displayTimer.setText("seconds remaining: " + millisUntilFinished / 1000);
-           }
-
-           @Override
-           public void onFinish() {
-               displayTimer.setText("done!");
-           }
-       };
-
-        */
-
+       //Countdown timer for message
        Timer timer = new Timer();
        TimerTask timerTaskObj = new TimerTask() {
            public void run() {
