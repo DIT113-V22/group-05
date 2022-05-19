@@ -20,7 +20,7 @@ bool canDrive = true;
 bool driveForwards = true;
 bool driveBackwards = true;
 int speedGate; // check if it's positive or negative speed
-int theSpeed;  // let's speed actually be registered
+int theSpeed;  // lets the speed to actually be registered
 
 // incomingAvoidanceThreshold
 bool activeAvoidance = false;
@@ -85,7 +85,7 @@ SR04 backUlt(arduinoRuntime, triggerPin3, echoPin3, maxBackUltDis);
 // Camera
 std::vector<char> frameBuffer;
 
-// Inizialize variables for sens0or data
+// Inizialize variables for sensor data
 int frontUltDis;
 int leftUltDis;
 int rightUltDis;
@@ -127,7 +127,7 @@ void setup()
     mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
                    {
-     //this is going to be common out because it's going to appear on the android side but the code remains in case someone needed for reference
+     //this is going to be commented out because it's going to appear on the android side but the code remains in case someone needs it for reference.
 //         //if statements controls the intake of information from the joystick forward and backwards
 //         speedGate = message.toInt();
 //         if (driveForwards && speedGate >= 0){
@@ -189,19 +189,6 @@ void loop()
             backUltDis = backUlt.getDistance();
             loopControl = 0;
         }
-
-        // Prince out for different ultra sensors and the control
-
-        // Serial.print("F sensor: ");
-        // Serial.println(frontUltDis);
-        // Serial.print("L sensor: ");
-        // Serial.println(leftUltDis);
-        // Serial.print("R sensor: ");
-        // Serial.println(rightUltDis);
-        // Serial.print("B sensor: ");
-        // Serial.println(backUltDis);
-        // Serial.print("loop: ");
-        // Serial.println(loopControl);
 
         //////////////////////////////  and of read sensory input //////////////////////////////
 
