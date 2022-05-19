@@ -47,8 +47,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_CONTACT_FIRSTNAME, contactModel.getFirst_name());
-        cv.put(COLUMN_CONTACT_LASTNAME, contactModel.getLast_name());
-        cv.put(COLUMN_CONTACT_PHONE_NUMBER, contactModel.getPhone_number());
+        cv.put(COLUMN_CONTACT_LASTNAME, contactModel.getLastName());
+        cv.put(COLUMN_CONTACT_PHONE_NUMBER, contactModel.getPhoneNumber());
         cv.put(COLUMN_CONTACT_EMAIL, contactModel.getEmail());
 
 

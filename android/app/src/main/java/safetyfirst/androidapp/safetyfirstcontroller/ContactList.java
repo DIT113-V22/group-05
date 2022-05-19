@@ -21,11 +21,7 @@ public class ContactList extends AppCompatActivity {
     //Database
     ArrayAdapter customerArrayAdapter;
     DataBaseHelper dataBaseHelper;
-    ListView lv_contactList;
-
-    //Buttons
-    Button delete_contact;
-
+    ListView contactList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,14 +29,14 @@ public class ContactList extends AppCompatActivity {
         setContentView(R.layout.activity_emergency_contacts);
         Objects.requireNonNull(getSupportActionBar()).setTitle("EMERGENCY CONTACTS");  // provide compatibility to all the versions
 
-        lv_contactList = findViewById(R.id.lv_contactList);
+        contactList = findViewById(R.id.lv_contactList);
         dataBaseHelper = new DataBaseHelper(ContactList.this);
         ShowCustomerOnListView(dataBaseHelper);
 
         Button deleteButton = (Button) findViewById(R.id.button2);
 
 
-        lv_contactList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        contactList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int postion, long id) {
 
@@ -63,7 +59,7 @@ public class ContactList extends AppCompatActivity {
 
     private void ShowCustomerOnListView(DataBaseHelper dataBaseHelper2) {
         customerArrayAdapter = new ArrayAdapter<EmergencyContact>(ContactList.this, android.R.layout.simple_expandable_list_item_1, dataBaseHelper2.getEveryone());
-        lv_contactList.setAdapter(customerArrayAdapter);
+        contactList.setAdapter(customerArrayAdapter);
     }
 
 

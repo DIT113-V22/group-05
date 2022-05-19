@@ -11,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +20,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.CompoundButton;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -31,17 +29,13 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.mail.MessagingException;
-
 import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
 import safetyfirst.androidapp.safetyfirstcontroller.MailBot.MailSender;
 import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener {
 
@@ -80,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private AlertDialog dialog;
     private EditText newContactPopupFirstname, newContactPopupLastname, newContactPopupMobile, newContactPopupEmail;
     private Button newContactPopupCancel, newContactPopupSave;
-    ListView lv_contactList;
+    ListView contactList;
 
     //Crash popup
     private Button iAmOk;
@@ -398,7 +392,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     public void openContactActivity() {
         Intent intent = new Intent(this, ContactList.class);
         startActivity(intent);
-        lv_contactList = findViewById(R.id.lv_contactList);
+        contactList = findViewById(R.id.lv_contactList);
     }
 
 
