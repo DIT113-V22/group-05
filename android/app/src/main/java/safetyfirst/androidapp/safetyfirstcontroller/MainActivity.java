@@ -56,9 +56,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private ImageView mCameraView;
     private static boolean movingForwards = true;
 
-
-
-
+    private boolean drivebackwards;
+    private boolean driveforwards;
 
     //Variables for the seekbar
     //Button submitButton;
@@ -255,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                     Toast.makeText(getApplicationContext(), successfulConnection, Toast.LENGTH_SHORT).show();
                     mMqttClient.subscribe("/smartcar/ultrasound/front", QOS, null);
                     mMqttClient.subscribe("/smartcar/camera", QOS, null);
-                    mMqttClient.subscribe("/smartcar/safetysystem", QOS, null);
+                    mMqttClient.subscribe("/smartcar/safetysystem/#", QOS, null);
 
                     mMqttClient.publish(SAFETY_SYSTEMS, "true", QOS, null);//Publish once connected to make sure the car and the app has the same value upon start
                 }
@@ -301,12 +300,22 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         }else if (message.toString().equals("false")){
                             toggle.setChecked(false);
                         }
-                    }
-                    else {
+                    } else if (topic.equals("/smartcar/safetysystem/driveforwards")) {
+                        if (message.toString().equals("true")){
+                            drivebackwards = true;
+                        }else if (message.toString().equals("false")){
+                            drivebackwards = false;
+                        }
+                    } else if (topic.equals("/smartcar/safetysystem/drivebackwards")) {
+                        if (message.toString().equals("true")){
+                            driveforwards = true;
+                        }else if (message.toString().equals("false")){
+                            driveforwards = false;
+                        }
+                    } else {
                         Log.i(TAG, "[MQTT] Topic: " + topic + " | Message: " + message.toString());
                     }
                 }
-
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {
                     Log.d(TAG, "Message delivered");
@@ -380,13 +389,20 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     public void onJoystickMoved(float xPercent, float yPercent, int id) {
         //When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
         //I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
+        System.out.println(driveforwards + " " + drivebackwards);
         xPercent = xPercent * 100;
         yPercent = (-yPercent) * 100;
         System.out.println(xPercent + yPercent);
 
         //Here it will publish the yPercent and xPercent as ThrottleSpeed and SteeringAngle to the smartCar
-        mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
-        mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
+        //If statement to avoid sending messages if the car has detected an obstacle
+        if(yPercent <= 0 && driveforwards){
+            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
+            mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
+        }else if(yPercent >= 0 && drivebackwards){
+            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
+            mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
+        }
       }
     }
 
