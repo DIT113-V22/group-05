@@ -16,6 +16,7 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:maxLines="1"
         app:layout_constraintVertical_bias="0.165" />
 
     <EditText
@@ -28,6 +29,8 @@
         android:textSize="24sp"
         android:hint="First Name"
         android:textAlignment="center"
+        android:maxLines="1"
+        android:singleLine="true"
         android:gravity="center_horizontal"
 
         />
@@ -42,6 +45,8 @@
         android:textSize="24sp"
         android:hint="Last Name"
         android:textAlignment="center"
+        android:maxLines="1"
+        android:singleLine="true"
         android:gravity="center_horizontal"
         />
 
@@ -55,6 +60,8 @@
         android:textSize="24sp"
         android:hint="Phone Number"
         android:textAlignment="center"
+        android:maxLines="1"
+        android:singleLine="true"
         android:gravity="center_horizontal"
 
 
@@ -70,6 +77,8 @@
         android:textSize="24sp"
         android:hint="Email"
         android:textAlignment="center"
+        android:maxLines="1"
+        android:singleLine="true"
         android:gravity="center_horizontal"
 
         />

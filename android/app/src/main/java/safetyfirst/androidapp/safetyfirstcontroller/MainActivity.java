@@ -5,8 +5,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,7 +20,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.CompoundButton;
-import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -26,12 +28,16 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
+import safetyfirst.androidapp.safetyfirstcontroller.MailBot.MailSender;
 import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
 
-public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener{
+public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener {
 
 
     private static final String TAG = "SmartcarMqttController";
@@ -55,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private ImageView mCameraView;
     private static boolean movingForwards = true;
 
+
+
     //Variables for the seekbar
     //Button submitButton;
     //SeekBar simpleSeekBar;
@@ -64,9 +72,13 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     // variables for contact dialogue popup
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText newcontactpopup_firstname, newcontactpopup_lastname, newcontactpopup_mobile, newcontactpopup_email;
-    private Button newcontactpopup_cancel, newcontactpopup_save;
-    ListView lv_contactList;
+    private EditText newContactPopupFirstname, newContactPopupLastname, newContactPopupMobile, newContactPopupEmail;
+    private Button newContactPopupCancel, newContactPopupSave;
+    ListView contactList;
+
+    //Crash popup
+    private Button iAmOk;
+    private AlertDialog dialogCrashPopup;
 
 
     @Override
@@ -112,100 +124,15 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {//Publish a message depending on which value the button has
-                if (b){
+                if (b) {
                     Toast.makeText(getApplicationContext(), "Safety system enabled", Toast.LENGTH_SHORT).show();
                     mMqttClient.publish(SAFETY_SYSTEMS, "true", QOS, null);
-                }else{
+                } else {
                     Toast.makeText(getApplicationContext(), "Safety system disabled", Toast.LENGTH_SHORT).show();
                     mMqttClient.publish(SAFETY_SYSTEMS, "false", QOS, null);
                 }
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-       getMenuInflater().inflate(R.menu.first_menu,menu);
-       return true;
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        int id = item.getItemId();
-
-        if(id == R.id.menu1){
-            //Contact creation
-            createNewContactDialog();
-        }
-        if(id == R.id.menu2){
-            //Viewing contacts
-            openContactActivity();
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    // Method for opening the popup window for the new emergency contact.
-    public void createNewContactDialog(){
-        dialogBuilder = new AlertDialog.Builder(this);
-        final View contactPopupView = getLayoutInflater().inflate(R.layout.popup, null);
-        newcontactpopup_firstname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_firstname);
-        newcontactpopup_lastname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_lastname);
-        newcontactpopup_mobile = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_mobile);
-        newcontactpopup_email = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_email);
-
-        newcontactpopup_save = (Button) contactPopupView.findViewById(R.id.saveButton);
-        newcontactpopup_cancel = (Button) contactPopupView.findViewById(R.id.cancelButton);
-
-
-        dialogBuilder.setView(contactPopupView);
-        dialog = dialogBuilder.create();
-        dialog.show();
-
-
-        newcontactpopup_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                EmergencyContact contactModel;
-
-                //Throws exception if added contact information does not meet requirements.
-
-                try {
-                    contactModel = new EmergencyContact(-1, newcontactpopup_firstname.getText().toString(),newcontactpopup_lastname.getText().toString(),Integer.parseInt(newcontactpopup_mobile.getText().toString()),newcontactpopup_email.getText().toString());
-                    Toast.makeText(MainActivity.this, contactModel.toString(), Toast.LENGTH_SHORT).show();
-
-                } catch(Exception e){
-                    Toast.makeText(MainActivity.this, "Error creating customer", Toast.LENGTH_SHORT).show();
-                    contactModel = new EmergencyContact(-1, "error","error",0,"error");
-                }
-
-                DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
-
-                boolean success = dataBaseHelper.addOne(contactModel);
-
-                Toast.makeText(MainActivity.this, "Contact Added", Toast.LENGTH_SHORT).show();
-                //ShowCustomerOnListView(dataBaseHelper);
-
-                dialog.dismiss();
-
-            }
-        });
-
-        newcontactpopup_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //define cancel button
-                dialog.dismiss();
-            }
-        });
-    }
-
-    public void openContactActivity(){
-        Intent intent = new Intent(this, ContactList.class);
-        startActivity(intent);
-        lv_contactList = findViewById(R.id.lv_contactList);
     }
 
 
@@ -333,39 +260,233 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         //The movementSpeed that has been adjusted will now be added to the throttlespeed
         throttleSpeed = movementSpeed;
         Log.i(TAG, actionDescription);
-        if(movingForwards) {
+        if (movingForwards) {
             mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(throttleSpeed), QOS, null);
-        }else{
+        } else {
             mMqttClient.publish(THROTTLE_CONTROL, Integer.toString(-throttleSpeed), QOS, null);
         }
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
     }
 
-
-
-
-    public void mqttConnectionStatus(boolean isConnected){
-        if(!isConnected){
+    //Mqtt connection status icon
+    public void mqttConnectionStatus(boolean isConnected) {
+        if (!isConnected) {
             findViewById(R.id.imageView_no_connection).setVisibility(View.VISIBLE);
             findViewById(R.id.imageView_connected).setVisibility(View.GONE);
-        }else{
+        } else {
             findViewById(R.id.imageView_connected).setVisibility(View.VISIBLE);
             findViewById(R.id.imageView_no_connection).setVisibility(View.GONE);
         }
     }
 
-//When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
-//I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
+    //When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
+    //I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
+
     @Override
     public void onJoystickMoved(float xPercent, float yPercent, int id) {
+        try { Thread.sleep(100); } //A delay to prevent the the joystick from flooding the mqtt handler on the car.
+        catch(InterruptedException ex) {Thread.currentThread().interrupt();}
 
-        xPercent = xPercent * 80;
+        //When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
+        //I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
+        xPercent = xPercent * 100;
         yPercent = (-yPercent) * 100;
+        System.out.println(xPercent + yPercent);
 
         //Here it will publish the yPercent and xPercent as ThrottleSpeed and SteeringAngle to the smartCar
         mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
         mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
 
-      }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.first_menu, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        int id = item.getItemId();
+
+        if (id == R.id.menu1) {
+            //Contact creation
+            createNewContactDialog();
+        }
+        if (id == R.id.menu2) {
+            //Viewing contacts
+            openContactActivity();
+        }
+        if (id == R.id.menu3) {
+            //call emergency services
+            callEmergencyContact();
+
+        }
+        if (id == R.id.menu4) {
+            //send message to emergency services
+            sendMessageEmergencyContact();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Method for opening the popup window for the new emergency contact.
+    public void createNewContactDialog() {
+        dialogBuilder = new AlertDialog.Builder(this);
+        final View contactPopupView = getLayoutInflater().inflate(R.layout.popup, null);
+        newContactPopupFirstname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_firstname);
+        newContactPopupLastname = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_lastname);
+        newContactPopupMobile = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_mobile);
+        newContactPopupEmail = (EditText) contactPopupView.findViewById(R.id.newcontactpopup_email);
+
+        newContactPopupSave = (Button) contactPopupView.findViewById(R.id.saveButton);
+        newContactPopupCancel = (Button) contactPopupView.findViewById(R.id.cancelButton);
+
+
+        dialogBuilder.setView(contactPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
+
+
+        newContactPopupSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                EmergencyContact contactModel;
+                String regexPattern = "^(.+)@(\\S+)$";
+
+                //Throws exception if added contact information does not meet requirements.
+
+                try {
+                    if (EmergencyContact.patternMatches(newContactPopupEmail.getText().toString(), regexPattern)) {
+                        contactModel = new EmergencyContact(-1, newContactPopupFirstname.getText().toString(), newContactPopupLastname.getText().toString(), Integer.parseInt(newContactPopupMobile.getText().toString()), newContactPopupEmail.getText().toString());
+                        Toast.makeText(MainActivity.this, contactModel.toString(), Toast.LENGTH_SHORT).show();
+                        DataBaseHelper dataBaseHelper = new DataBaseHelper(MainActivity.this);
+                        boolean success = dataBaseHelper.addOne(contactModel);
+                        Toast.makeText(MainActivity.this, "Contact Added", Toast.LENGTH_SHORT).show();
+                    } else {
+                        throw new Exception();
+                    }
+
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Error creating contact", Toast.LENGTH_SHORT).show();
+                    contactModel = new EmergencyContact(-1, "error", "error", 0, "error");
+                }
+
+                dialog.dismiss();
+
+            }
+        });
+
+        newContactPopupCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //define cancel button
+                dialog.dismiss();
+            }
+        });
+    }
+
+    public void openContactActivity() {
+        Intent intent = new Intent(this, ContactList.class);
+        startActivity(intent);
+        contactList = findViewById(R.id.lv_contactList);
+    }
+
+
+    public void sendMessageEmergencyContact() {
+
+        DataBaseHelper phone_number_data = new DataBaseHelper(this);
+
+        try {
+            String query = "SELECT CONTACT_PHONE_NUMBER FROM CONTACT_TABLE ORDER BY CONTACT_PHONE_NUMBER DESC LIMIT 1";
+            SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
+            Cursor result = dbs.rawQuery(query, null);
+            result.moveToFirst();
+            int phoneNumber = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("sms:" + phoneNumber));
+            startActivity(intent);
+
+        } catch (Exception e) {
+            Toast.makeText(MainActivity.this, "No emergency contact added", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+
+    public void callEmergencyContact() {
+
+        DataBaseHelper phone_number_data = new DataBaseHelper(this);
+
+        try {
+            String query = "SELECT CONTACT_PHONE_NUMBER FROM CONTACT_TABLE ORDER BY CONTACT_PHONE_NUMBER DESC LIMIT 1";
+            SQLiteDatabase dbs = phone_number_data.getReadableDatabase();
+            Cursor result = dbs.rawQuery(query, null);
+            result.moveToFirst();
+            int phoneNumber = result.getInt(result.getColumnIndexOrThrow("CONTACT_PHONE_NUMBER"));
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:" + phoneNumber));
+            startActivity(intent);
+
+        } catch (Exception e) {
+            Toast.makeText(MainActivity.this, "No emergency contact added", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+
+   //Ready to be implemented when we have crash detection
+
+   public void crashPopup(){
+       dialogBuilder = new AlertDialog.Builder(this);
+       final View crashPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
+       dialogBuilder.setView(crashPopupView);
+       dialogCrashPopup = dialogBuilder.create();
+       dialogCrashPopup.show();
+
+       //I am ok button
+       iAmOk = (Button) crashPopupView.findViewById(R.id.button_iAmOk);
+
+
+       //Countdown timer for message
+       Timer timer = new Timer();
+       TimerTask timerTaskObj = new TimerTask() {
+           public void run() {
+               //perform your action here
+                   new Thread(new Runnable() {
+                       @Override
+                       public void run() {
+                           try {
+                               MailSender sender = new MailSender("safetyfirst.emergencyservices@gmail.com",
+                                       "Safetyfirst123");
+                               sender.sendMail("Accident detected", "Send help immediately to the drivers location.",
+                                       "safetyfirst.emergencyservices@gmail.com", "erik.lindmaa@gmail.com");
+
+                           } catch (Exception e) {
+                               Log.e("SendMail", e.getMessage(), e);
+                           }
+
+                       }
+
+                   }).start();
+               }
+       };
+       iAmOk.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               timer.cancel();//stop the time
+               dialogCrashPopup.dismiss();
+           }
+       });
+       timer.schedule(timerTaskObj, 15000);
+   }
+
+
+
+}
+
+
 
