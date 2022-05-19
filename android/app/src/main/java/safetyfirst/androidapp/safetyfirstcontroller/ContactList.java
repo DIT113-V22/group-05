@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -20,8 +21,7 @@ public class ContactList extends AppCompatActivity {
     //Database
     ArrayAdapter customerArrayAdapter;
     DataBaseHelper dataBaseHelper;
-    ListView lv_contactList;
-
+    ListView contactList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,28 +29,37 @@ public class ContactList extends AppCompatActivity {
         setContentView(R.layout.activity_emergency_contacts);
         Objects.requireNonNull(getSupportActionBar()).setTitle("EMERGENCY CONTACTS");  // provide compatibility to all the versions
 
-        lv_contactList = findViewById(R.id.lv_contactList);
+        contactList = findViewById(R.id.lv_contactList);
         dataBaseHelper = new DataBaseHelper(ContactList.this);
         ShowCustomerOnListView(dataBaseHelper);
 
-        lv_contactList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        Button deleteButton = (Button) findViewById(R.id.button2);
+
+
+        contactList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int postion, long l) {
-                EmergencyContact clickedCustomer = (EmergencyContact) parent.getItemAtPosition(postion);
-                dataBaseHelper.deleteOne(clickedCustomer);
-                ShowCustomerOnListView(dataBaseHelper);
-                Toast.makeText(ContactList.this, "Deleted " + clickedCustomer.toString(), Toast.LENGTH_SHORT).show();
-                return false;
+            public void onItemClick(AdapterView<?> parent, View view, int postion, long id) {
+
+                deleteButton.setOnClickListener(
+                        new Button.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                EmergencyContact clickedCustomer = (EmergencyContact) parent.getItemAtPosition(postion);
+                                dataBaseHelper.deleteOne(clickedCustomer);
+                                ShowCustomerOnListView(dataBaseHelper);
+                                Toast.makeText(ContactList.this, "Deleted " + clickedCustomer.toString(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                );
+
             }
         });
+
         }
-
-
-
 
     private void ShowCustomerOnListView(DataBaseHelper dataBaseHelper2) {
         customerArrayAdapter = new ArrayAdapter<EmergencyContact>(ContactList.this, android.R.layout.simple_expandable_list_item_1, dataBaseHelper2.getEveryone());
-        lv_contactList.setAdapter(customerArrayAdapter);
+        contactList.setAdapter(customerArrayAdapter);
     }
 
 
