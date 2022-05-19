@@ -41,6 +41,7 @@ import javax.mail.MessagingException;
 import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
 import safetyfirst.androidapp.safetyfirstcontroller.MailBot.MailSender;
 import safetyfirst.androidapp.safetyfirstcontroller.Model.EmergencyContact;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener {
 
@@ -65,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     private boolean isConnected = false;
     private ImageView mCameraView;
     private static boolean movingForwards = true;
+
+
 
     //Variables for the seekbar
     //Button submitButton;
@@ -283,12 +286,18 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     }
 
     //When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
-//I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
+    //I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
+
     @Override
     public void onJoystickMoved(float xPercent, float yPercent, int id) {
+        try { Thread.sleep(100); } //A delay to prevent the the joystick from flooding the mqtt handler on the car.
+        catch(InterruptedException ex) {Thread.currentThread().interrupt();}
 
-        xPercent = xPercent * 80;
+        //When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
+        //I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
+        xPercent = xPercent * 100;
         yPercent = (-yPercent) * 100;
+        System.out.println(xPercent + yPercent);
 
         //Here it will publish the yPercent and xPercent as ThrottleSpeed and SteeringAngle to the smartCar
         mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
