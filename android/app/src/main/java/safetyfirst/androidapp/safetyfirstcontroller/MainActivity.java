@@ -438,46 +438,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
     }
 
-   /* public void crashPopup(){
-        dialogBuilder = new AlertDialog.Builder(this);
-        final View contactPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
-        dialogBuilder.setView(contactPopupView);
-        dialog = dialogBuilder.create();
-        dialog.show();
-
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                //what you want to do
-                try {
-                    sendEmergencyEmail.setupServerProperties();
-                    sendEmergencyEmail.draftEmail("erik.lindmaa@gmail.com","Send help please", "Heeelp" );
-                    sendEmergencyEmail.sendEmail();
-
-                    iAmOk.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            timer.cancel();//stop the time
-                            dialog.cancel();
-
-                        }
-                    });
-                } catch (MessagingException | IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-        }, 15000); //wait 0 ms before doing the action.
-
-        timer.cancel();//stop the time
-
-    }
-
-    */
-
-
 
    public void crashPopup(){
        dialogBuilder = new AlertDialog.Builder(this);
@@ -515,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                            try {
                                MailSender sender = new MailSender("safetyfirst.emergencyservices@gmail.com",
                                        "Safetyfirst123");
-                               sender.sendMail("This is a test subject", "This is the test body content",
+                               sender.sendMail("Accident detected", "Send help immediately to the drivers location.",
                                        "safetyfirst.emergencyservices@gmail.com", "erik.lindmaa@gmail.com");
 
                            } catch (Exception e) {

@@ -105,7 +105,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean deleteOne(EmergencyContact contactModel){
-        //find customerModel in the database. If it is found, delete it and return true.
+        //find EmergencyContact in the database. If it is found, delete it and return true.
         //if it is not found, return false
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -120,7 +120,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             return false;
         }
 
+
     }
+
+
 
 
 
