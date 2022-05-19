@@ -22,12 +22,6 @@
             />
 
         <item
-            android:id="@+id/settings"
-            android:icon="@drawable/settings"
-            android:title="Settings"
-            />
-
-        <item
             android:id="@+id/login"
             android:icon="@drawable/log_in"
             android:title="Log In"
@@ -37,7 +31,13 @@
             android:id="@+id/registerUser"
             android:icon="@drawable/register"
             android:title="Register"
-            android:visible="true"/>
+            />
+
+        <item
+            android:id="@+id/logOut"
+            android:icon="@drawable/log_out"
+            android:title="Log Out"
+            />
 
     </group>
 

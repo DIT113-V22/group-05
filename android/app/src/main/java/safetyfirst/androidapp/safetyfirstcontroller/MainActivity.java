@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -30,13 +31,11 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import safetyfirst.androidapp.safetyfirstcontroller.Model.User;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.ContactsFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.HomeFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.LoginFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.ProfileFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.RegisterFragment;
-import safetyfirst.androidapp.safetyfirstcontroller.fragments.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity implements JoystickView.JoystickListener, NavigationView.OnNavigationItemSelectedListener{
 
@@ -75,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
     private DrawerLayout drawerLayout;
 
+    FirebaseAuth firebaseAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
         connectToMqttBroker();
     }
 
@@ -122,11 +124,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         new ContactsFragment()).commit();
                 break;
 
-            case R.id.settings:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new SettingsFragment()).commit();
-                break;
-
             case R.id.login:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new LoginFragment()).commit();
@@ -136,9 +133,46 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new RegisterFragment()).commit();
                 break;
+            case R.id.logOut:
+                FirebaseAuth.getInstance().signOut();
+                hideItemDefault();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new HomeFragment()).commit();
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void hideItemLogged()
+    {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        Menu nav_Menu = navigationView.getMenu();
+        nav_Menu.findItem(R.id.profile).setVisible(true);
+        nav_Menu.findItem(R.id.login).setVisible(false);
+        nav_Menu.findItem(R.id.registerUser).setVisible(false);
+        nav_Menu.findItem(R.id.logOut).setVisible(true);
+
+    }
+
+    public void hideItemDefault(){
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        Menu nav_Menu = navigationView.getMenu();
+        nav_Menu.findItem(R.id.profile).setVisible(false);
+        nav_Menu.findItem(R.id.logOut).setVisible(false);
+        nav_Menu.findItem(R.id.login).setVisible(true);
+        nav_Menu.findItem(R.id.registerUser).setVisible(true);
+
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        firebaseAuth = FirebaseAuth.getInstance();
+        if (firebaseAuth.getCurrentUser() != null) {
+            hideItemLogged();
+        }else {
+            hideItemDefault();
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override

@@ -1,11 +1,15 @@
 package safetyfirst.androidapp.safetyfirstcontroller.fragments;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,6 +26,9 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Objects;
+
+import safetyfirst.androidapp.safetyfirstcontroller.MainActivity;
 import safetyfirst.androidapp.safetyfirstcontroller.R;
 
 public class LoginFragment extends Fragment{
@@ -81,6 +88,12 @@ public class LoginFragment extends Fragment{
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
+                                        hideKeyboardFrom(requireContext(), view);
+
+                                        NavigationView navigationView = (NavigationView) requireActivity().findViewById(R.id.nav_view);
+                                        Menu nav_Menu = navigationView.getMenu();
+                                        onPrepareOptionsMenu(nav_Menu);
+
                                         FragmentTransaction addTransaction = getParentFragmentManager().beginTransaction();
                                         addTransaction.replace(R.id.fragment_container, new ProfileFragment());
                                         addTransaction.commit();
@@ -96,5 +109,9 @@ public class LoginFragment extends Fragment{
             });
 
         return rootView;
+    }
+    public static void hideKeyboardFrom(Context context, View view) {
+        InputMethodManager input = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        input.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
