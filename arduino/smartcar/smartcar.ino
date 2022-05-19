@@ -137,8 +137,10 @@ void setup()
 //             //Serial.println(theSpeed);//shows the speed
         
         if (topic == "/smartcar/control/throttle") {
+            Serial.println(message);
             car.setSpeed(message.toInt());//this needs to be swapped if the above is uncommented <<car.setSpeed(theSpeed);>>
         } else if (topic == "/smartcar/control/steering") {
+            Serial.println(message);
             car.setAngle(message.toInt());
         } else if (topic == "/smartcar/safetysystem") {
             if (message == "false"){  //Update the boolean depending on the message received from app
@@ -180,16 +182,16 @@ void loop()
         
         //Prince out for different ultra sensors and the control
 
-        Serial.print("F sensor: ");
-        Serial.println(frontUltDis);
-        Serial.print("L sensor: ");
-        Serial.println(leftUltDis);
-        Serial.print("R sensor: ");
-        Serial.println(rightUltDis);
-        Serial.print("B sensor: ");
-        Serial.println(backUltDis);
-        Serial.print("loop: ");
-        Serial.println(loopControl);
+        // Serial.print("F sensor: ");
+        // Serial.println(frontUltDis);
+        // Serial.print("L sensor: ");
+        // Serial.println(leftUltDis);
+        // Serial.print("R sensor: ");
+        // Serial.println(rightUltDis);
+        // Serial.print("B sensor: ");
+        // Serial.println(backUltDis);
+        // Serial.print("loop: ");
+        // Serial.println(loopControl);
         
         //////////////////////////////  and of read sensory input //////////////////////////////
 
