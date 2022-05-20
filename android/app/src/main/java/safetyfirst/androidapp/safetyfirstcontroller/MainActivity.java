@@ -512,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                                MailSender sender = new MailSender("safetyfirst.emergencyservices@gmail.com",
                                        "Safetyfirst123");
                                sender.sendMail("Accident detected", "Send help immediately to the drivers location.",
-                                       "safetyfirst.emergencyservices@gmail.com", "erik.lindmaa@gmail.com");
+                                       "safetyfirst.emergencyservices@gmail.com", "gusvalkfe@student.gu.se");
 
                            } catch (Exception e) {
                                Log.e("SendMail", e.getMessage(), e);
