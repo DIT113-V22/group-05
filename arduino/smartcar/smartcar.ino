@@ -38,6 +38,8 @@ int angleAfterUpdate;
 
 int angleChangeDegree;
 
+double carSpeed;
+
 
 //controls which sensors active during the loops for the simulator car
 int loopControl = 0;
@@ -203,7 +205,7 @@ void loop()
         }
         else if (loopControl == 7)
         {
-        
+            carSpeed = car.getSpeed();
             if (gyroscopeAngle < 330 && gyroscopeAngle > 30){
                 angleChangeDegree = angleAfterUpdate - angleBeforeUpdate;
             } 
@@ -234,8 +236,7 @@ void loop()
             // Serial.print("gyroscopeAngle: ");
             // Serial.println(gyroscopeAngle);
 
-            Serial.print("angleCha: ");
-            Serial.println(angleChangeDegree);
+            
 
             Serial.print("angleCha: ");
             Serial.println(angleChangeDegree);
@@ -293,7 +294,7 @@ void loop()
         if (safetyFeatures){// check if the safety system is enabled
                             //safetyFeatures && frontUltDis <= 150 || safetyFeatures && backUltDis <= 100
                             //Also check if sensors are in range to avoid going through all checks if they aren't
-            registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, twoSeconds);
+            registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, twoSeconds, carSpeed);
             // if (!activeAvoidance){
             //     stopZoneAutoBreak(frontUltDis, backUltDis);  
             // }
@@ -427,11 +428,21 @@ void smoothStop()
 //     } 
 // }
 
-void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long backUltDis, long angleChangeDegree, long twoSeconds){
+void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long backUltDis, long angleChangeDegree, long twoSeconds, double carSpeed){
     bool timecheck1 = false;
     bool timecheck2 = false;
+    
+    Serial.print("Speed: ");
+    Serial.println(carSpeed);
+    
     //0.000001 is necessary because when the car stops it will make a second increase above 20
-    if (angleChangeDegree >= 25 && car.getSpeed() > 0.000001 || angleChangeDegree <= -25 && car.getSpeed() > 0.000001){
+    // if (angleChangeDegree >= 25 && carSpeed > 0.000001 || angleChangeDegree <= -25 && carSpeed > 0.000001){
+    //     collision = true;
+    // } else {
+    //     collision = false;
+    // }
+
+    if (angleChangeDegree >= 2 && carSpeed == 0 || angleChangeDegree <= -2 && carSpeed == 0){
         collision = true;
     } else {
         collision = false;
