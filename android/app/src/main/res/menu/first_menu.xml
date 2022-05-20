@@ -31,5 +31,12 @@
         android:title="Message emergency contact"
         />
 
+    <item
+        android:id="@+id/menu5"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_baseline_car_crash_24"
+        android:title="Test button for crash popup"
+        />
+
 
 </menu>

@@ -373,6 +373,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             sendMessageEmergencyContact();
         }
 
+        if (id == R.id.menu5) {
+            //send message to emergency services
+            crashPopup();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
