@@ -166,9 +166,11 @@ void setup()
 
 void loop()
 {
+    
 
     if (mqtt.connected())
     {
+
 
         //////////////////////////////  start of read sensory input //////////////////////////////
         loopControl = loopControl + 1;
@@ -187,6 +189,9 @@ void loop()
         else if (loopControl == 4)
         {
             backUltDis = backUlt.getDistance();
+        }else if (loopControl == 5)
+        {
+            mqtt.publish("/smartcar/speedometer", String(car.getSpeed()));
             loopControl = 0;
         }
 

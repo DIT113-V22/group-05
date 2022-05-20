@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -80,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     //Crash popup
     private Button iAmOk;
     private AlertDialog dialogCrashPopup;
+
+    private double currentSpeed;
+
 
 
     @Override
@@ -178,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                     mMqttClient.subscribe("/smartcar/ultrasound/front", QOS, null);
                     mMqttClient.subscribe("/smartcar/camera", QOS, null);
                     mMqttClient.subscribe("/smartcar/safetysystem/#", QOS, null);
+                    mMqttClient.subscribe("/smartcar/speedometer", QOS, null);
 
                     mMqttClient.publish(SAFETY_SYSTEMS, "true", QOS, null);//Publish once connected to make sure the car and the app has the same value upon start
                 }
@@ -235,6 +240,14 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         }else if (message.toString().equals("false")){
                             driveforwards = false;
                         }
+                    } else if (topic.equals("/smartcar/speedometer")) {
+                        TextView speedometer = (TextView)findViewById(R.id.speedometer);
+
+                        double speedMS = Double.parseDouble(message.toString());
+                        double speedKMH = Math.round((speedMS * 10)*10.0)/10.0;
+
+
+                        speedometer.setText(Double.toString(speedKMH));
                     } else {
                         Log.i(TAG, "[MQTT] Topic: " + topic + " | Message: " + message.toString());
                     }
