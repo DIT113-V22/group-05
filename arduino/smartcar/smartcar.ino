@@ -18,7 +18,6 @@ bool safetyFeatures = false;
 
 //used to register time
 int twoSeconds = 0;//right assures every two seconds
-int timeInterval1 = 0;//mainly exists for testing can be removed for final product or, comment out
 
 //stopZoneAutoBreak
 bool canDrive = true;
@@ -200,7 +199,14 @@ void loop()
         {
             gyroscopeAngle = gyroscope.getHeading();
             angleAfterUpdate = gyroscopeAngle;
-            angleChangeDegree = angleAfterUpdate - angleBeforeUpdate;
+            
+        }
+        else if (loopControl == 7)
+        {
+        
+            if (gyroscopeAngle < 330 && gyroscopeAngle > 30){
+                angleChangeDegree = angleAfterUpdate - angleBeforeUpdate;
+            } 
 
             loopControl = 0;
         }
@@ -213,34 +219,54 @@ void loop()
         
         //Prince out for different ultra sensors and the control
         //this is for testing removed for final product or, comment out
-        timeInterval1 = timeInterval1 + 1;
-        if (timeInterval1 % 10 && true /* true / false */){
-            Serial.print("F sen: ");
-            Serial.println(frontUltDis);
-            Serial.print("L sen: ");
-            Serial.println(leftUltDis);
-            Serial.print("R sen: ");
-            Serial.println(rightUltDis);
-            Serial.print("B sen: ");
-            Serial.println(backUltDis);
+        
+        if (true /* true / false */){
+            // Serial.print("F sen: ");
+            // Serial.println(frontUltDis);
+            // Serial.print("L sen: ");
+            // Serial.println(leftUltDis);
+            // Serial.print("R sen: ");
+            // Serial.println(rightUltDis);
+            // Serial.print("B sen: ");
+            // Serial.println(backUltDis);
+
+
+            // Serial.print("gyroscopeAngle: ");
+            // Serial.println(gyroscopeAngle);
+
             Serial.print("angleCha: ");
             Serial.println(angleChangeDegree);
-            Serial.print("loop: ");
-            Serial.println(loopControl);
-        } else if (timeInterval1 > 1000){
-            timeInterval1 = 0;
+
+            Serial.print("angleCha: ");
+            Serial.println(angleChangeDegree);
+            
+
+            
+            if (collision){
+                Serial.println("not safe");
+                Serial.println("not safe"); 
+                Serial.println("not safe");
+                Serial.println("not safe");
+                Serial.println("not safe"); 
+                Serial.println("not safe");
+                Serial.println("not safe");
+                Serial.println("not safe"); 
+                Serial.println("not safe"); 
+            } else {
+                // Serial.print("safe");
+                // Serial.print("safe");
+                // Serial.print("safe");
+            }
+
+            // Serial.print("speed: ");
+            // Serial.println(car.getSpeed());
+            
+
+            // Serial.print("loop: ");
+            // Serial.println(loopControl);
         }
         //Serial.println(twoSeconds); //shows the integers for the two second interval
-        // if (collision){
-        //     Serial.print("in collision");
-        //     Serial.print("in collision");
-        //     Serial.print("in collision");
-        //     collision = false;//this is for testing purposes it will be removed when attached to android side
-        // } else {
-        //     Serial.print("safe");
-        //     Serial.print("safe");
-        //     Serial.print("safe");
-        // }
+        
         
         
         
@@ -404,8 +430,8 @@ void smoothStop()
 void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long backUltDis, long angleChangeDegree, long twoSeconds){
     bool timecheck1 = false;
     bool timecheck2 = false;
-
-    if (angleChangeDegree >= 23){
+    //0.000001 is necessary because when the car stops it will make a second increase above 20
+    if (angleChangeDegree >= 25 && car.getSpeed() > 0.000001 || angleChangeDegree <= -25 && car.getSpeed() > 0.000001){
         collision = true;
     } else {
         collision = false;
