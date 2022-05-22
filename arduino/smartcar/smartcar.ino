@@ -16,9 +16,6 @@ WiFiClient net;
 // This is changed to false to sync with the app better
 bool safetyFeatures = false;
 
-//used to register time
-int twoSeconds = 0;//right assures every two seconds
-
 //stopZoneAutoBreak
 bool canDrive = true;
 bool driveForwards = true;
@@ -225,12 +222,6 @@ void loop()
             loopControl = 0;
         }
         
-        twoSeconds = twoSeconds + 1;   
-        if (twoSeconds >= 75)//this can use better calculation but this is about two seconds
-        {
-            twoSeconds = 0;
-        }
-        
         //Prince out for different ultra sensors and the control
         //this is for testing removed for final product or, comment out
         
@@ -244,49 +235,30 @@ void loop()
             // Serial.print("B sen: ");
             // Serial.println(backUltDis);
 
-
             // Serial.print("gyroscopeAngle: ");
             // Serial.println(gyroscopeAngle);
-
-            
 
             // Serial.print("angleCha: ");
             // Serial.println(angleChangeDegree);
             
-
-            
-            if (collision){
-                Serial.println("not safe");
-                Serial.println("not safe"); 
-                Serial.println("not safe");
-                Serial.println("not safe");
-                Serial.println("not safe"); 
-                Serial.println("not safe");
-                Serial.println("not safe");
-                Serial.println("not safe"); 
-                Serial.println("not safe"); 
-            } else {
-                // Serial.print("safe");
-                // Serial.print("safe");
-                // Serial.print("safe");
-            }
-
             // Serial.print("speed: ");
             // Serial.println(car.getSpeed());
-            
 
             // Serial.print("loop: ");
             // Serial.println(loopControl);
+
+            // if (collision){
+            //     Serial.println("not safe");
+            //     Serial.println("not safe"); 
+            //     Serial.println("not safe");
+            // } else {
+            //     // Serial.print("safe");
+            //     // Serial.print("safe");
+            //     // Serial.print("safe");
+            // }
         }
-        //Serial.println(twoSeconds); //shows the integers for the two second interval
-        
-        
-        
-        
         
 
-
-        
         //////////////////////////////  and of read sensory input //////////////////////////////
 
         mqtt.loop();
@@ -306,11 +278,11 @@ void loop()
         if (safetyFeatures){// check if the safety system is enabled
                             //safetyFeatures && frontUltDis <= 150 || safetyFeatures && backUltDis <= 100
                             //Also check if sensors are in range to avoid going through all checks if they aren't
-            registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, twoSeconds, carSpeed);
-            // if (!activeAvoidance){
-            //     stopZoneAutoBreak(frontUltDis, backUltDis);  
-            // }
-            //incomingAvoidanceThreshold(frontUltDis, backUltDis);
+            registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, carSpeed);
+            if (!activeAvoidance){
+                stopZoneAutoBreak(frontUltDis, backUltDis);  
+            }
+            incomingAvoidanceThreshold(frontUltDis, backUltDis);
             
         } else {
                 driveForwards = true;
@@ -363,131 +335,107 @@ void smoothStop()
                                             //all safetyFeatures methods//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// void stopZoneAutoBreak(long frontUltDis, long backUltDis)
-// {
-//     if (frontUltDis <= 150 && frontUltDis != 0){// stop zone
-//         if (canDrive) {// check whether you're in the stop zone
-//             car.setSpeed(0);
-//             Serial.println("forward stop");
-//         }
-//         canDrive = false; // so the car can move in the stop zone
-//         driveForwards = false;    
-//     } else if (backUltDis <= 150 && backUltDis != 0){
-//         if (canDrive) {// check whether you're in the stop zone
-//             car.setSpeed(0);
-//             Serial.println("backward stop");
-//         }
-//         canDrive = false; // so the car can move in the stop zone
-//         drivebackwards = false; 
-//     } else {
-//         canDrive = true; // so the car will stop again if it hits the stop zone
-//         driveForwards = true;
-//         drivebackwards = true;
-//     }
-// }
+void stopZoneAutoBreak(long frontUltDis, long backUltDis)
+{
+    if (frontUltDis <= 150 && frontUltDis != 0){// stop zone
+        if (canDrive) {// check whether you're in the stop zone
+            car.setSpeed(0);
+            Serial.println("forward stop");
+        }
+        canDrive = false; // so the car can move in the stop zone
+        driveForwards = false;    
+    } else if (backUltDis <= 150 && backUltDis != 0){
+        if (canDrive) {// check whether you're in the stop zone
+            car.setSpeed(0);
+            Serial.println("backward stop");
+        }
+        canDrive = false; // so the car can move in the stop zone
+        drivebackwards = false; 
+    } else {
+        canDrive = true; // so the car will stop again if it hits the stop zone
+        driveForwards = true;
+        drivebackwards = true;
+    }
+}
 
-// //Threshold stands for when the car is too close to a certain obstacle
-// //and we use threshold because there are multiple thresholds for when the car is getting too close to an obstacle in has to move backwards or forwards to avoid it
-// void incomingAvoidanceThreshold(long frontUltDis, long backUltDis)
-// {
-//     if (frontUltDis <= 30 && frontUltDis != 0)//forward obstacle threshold 1
-//     {
-//         car.setSpeed(-90);
-//         //Serial.println("backing up level 1");
-//         activeAvoidance = true;
-//         driveForwards = false;
-//         drivebackwards = false;
-//     } else if (frontUltDis <= 60 && frontUltDis != 0)//forward obstacle threshold 2
-//     {
-//         car.setSpeed(-60);
-//         //Serial.println("backing up level 2");
-//         activeAvoidance = true;
-//         driveForwards = false;
-//         drivebackwards = false;
-//     } else if (frontUltDis <= 90 && frontUltDis != 0)//forward obstacle threshold 3
-//     {
-//         car.setSpeed(-30);
-//         //Serial.println("backing up level 3");
-//         activeAvoidance = true;
-//         driveForwards = false;
-//         drivebackwards = false;
-//     } else if (backUltDis <= 30 && backUltDis != 0)//backwards obstacle threshold 1
-//     {
-//         car.setSpeed(90);
-//         //Serial.println("moving forward level 1");
-//         activeAvoidance = true;
-//         driveForwards = false;
-//         drivebackwards = false;
-//     } else if (backUltDis <= 60 && backUltDis != 0)//backwards obstacle threshold 2
-//     {
-//         car.setSpeed(60);
-//         //Serial.println("moving forward level 2");
-//         activeAvoidance = true;
-//         driveForwards = false;
-//         drivebackwards = false;
-//     } else if (backUltDis <= 90 && backUltDis != 0)//backwards obstacle threshold 3
-//     {
-//         car.setSpeed(30);
-//         //Serial.println("moving forward level 3");
-//         activeAvoidance = true;
-//         driveForwards = false;
-//         drivebackwards = false;
-//     } else if (frontUltDis == 0 && backUltDis == 0 && activeAvoidance)
-//     {
-//         car.setSpeed(0);
-//         activeAvoidance = false;
-//         driveForwards = true;
-//         drivebackwards = true;
-//     } 
-// }
+//Threshold stands for when the car is too close to a certain obstacle
+//and we use threshold because there are multiple thresholds for when the car is getting too close to an obstacle in has to move backwards or forwards to avoid it
+void incomingAvoidanceThreshold(long frontUltDis, long backUltDis)
+{
+    if (frontUltDis <= 30 && frontUltDis != 0)//forward obstacle threshold 1
+    {
+        car.setSpeed(-90);
+        //Serial.println("backing up level 1");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (frontUltDis <= 60 && frontUltDis != 0)//forward obstacle threshold 2
+    {
+        car.setSpeed(-60);
+        //Serial.println("backing up level 2");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (frontUltDis <= 90 && frontUltDis != 0)//forward obstacle threshold 3
+    {
+        car.setSpeed(-30);
+        //Serial.println("backing up level 3");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (backUltDis <= 30 && backUltDis != 0)//backwards obstacle threshold 1
+    {
+        car.setSpeed(90);
+        //Serial.println("moving forward level 1");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (backUltDis <= 60 && backUltDis != 0)//backwards obstacle threshold 2
+    {
+        car.setSpeed(60);
+        //Serial.println("moving forward level 2");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (backUltDis <= 90 && backUltDis != 0)//backwards obstacle threshold 3
+    {
+        car.setSpeed(30);
+        //Serial.println("moving forward level 3");
+        activeAvoidance = true;
+        driveForwards = false;
+        drivebackwards = false;
+    } else if (frontUltDis == 0 && backUltDis == 0 && activeAvoidance)
+    {
+        car.setSpeed(0);
+        activeAvoidance = false;
+        driveForwards = true;
+        drivebackwards = true;
+    } 
+}
 
-void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long backUltDis, long angleChangeDegree, long twoSeconds, double carSpeed){
-    bool timecheck1 = false;
-    bool timecheck2 = false;
+void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long backUltDis, long angleChangeDegree, double carSpeed){
     
-    // Serial.print("Speed: ");
-    // Serial.println(carSpeed);
-    
-    
-    //0.000001 is necessary because when the car stops it will make a second increase above 20
-    if (angleChangeDegree >= 25 && carSpeed > 0.000001 || angleChangeDegree <= -25 && carSpeed > 0.000001){
+    //tested and working
+    //0.000001 is necessary because when the car stops it will make a second increase somewhere at or below 50
+    if (angleChangeDegree >= 55 && carSpeed > 0.000001 || angleChangeDegree <= -55 && carSpeed > 0.000001){
         collision = true;
     } else {
         collision = false;
     }
 
-
-    // //working
-    // if (angleChangeDegree >= 2 && carSpeed == 0 && safeStationaryAngleChange || angleChangeDegree <= -2 && carSpeed == 0 && safeStationaryAngleChange){
-    //     collision = true;
-    // } else {
-    //     collision = false;
-    // }
+    //working
+    if (angleChangeDegree >= 2 && carSpeed <= 0.000400 && safeStationaryAngleChange || angleChangeDegree <= -2 && carSpeed <= 0.000400 && safeStationaryAngleChange){
+        collision = true;
+    } else {
+        collision = false;
+    }
     
-
     //tested and working
-    //around 20 is the closest you can get the tree in boxes so I went with 23
-    // if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
-    //     collision = true;
-    // } else {
-    //     collision = false;
-    // }
-
-    // if (frontUltDis <= 10 && frontUltDis != 0 || leftUltDis <= 10 && leftUltDis != 0 || rightUltDis <= 10 && rightUltDis != 0 || backUltDis <= 10 && backUltDis != 0){
-    //     if (timecheck1 && timecheck2){
-    //         collision = true;
-    //     } else if (twoSeconds = 1){
-    //         timecheck2 = true;
-    //     } else if (twoSeconds = 75){
-    //         timecheck1 = true;
-    //     }
-    // } 
-    // else {
-    //     timecheck1 = false;
-    //     timecheck2 = false;
-    //     collision = false;
-    // }
-    
-    
+    //around 20 is the closest you can get the tree and boxes so I went with 23
+    if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
+        collision = true;
+    } else {
+        collision = false;
+    }
     
 }
