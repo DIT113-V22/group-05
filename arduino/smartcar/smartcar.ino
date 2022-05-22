@@ -37,6 +37,8 @@ int angleBeforeUpdate;//needed for figure out angle change degree
 int angleAfterUpdate;
 
 int angleChangeDegree;
+int saveAngleOfChange;
+int checkAngleDegree;
 
 double carSpeed;
 
@@ -206,9 +208,25 @@ void loop()
         else if (loopControl == 7)
         {
             carSpeed = car.getSpeed();
-            if (gyroscopeAngle < 330 && gyroscopeAngle > 30){
+
+            checkAngleDegree = angleAfterUpdate - angleBeforeUpdate;
+            
+            if (checkAngleDegree < 300 && checkAngleDegree >= -300){
                 angleChangeDegree = angleAfterUpdate - angleBeforeUpdate;
-            } 
+            } else {    
+                angleChangeDegree = saveAngleOfChange;
+            }
+            saveAngleOfChange = angleChangeDegree;
+            
+            
+            
+            Serial.print("angleCha: ");
+            Serial.println(angleChangeDegree);
+
+            // Serial.print("gyroscopeAngle: ");
+            // Serial.println(gyroscopeAngle);
+
+            
 
             loopControl = 0;
         }
@@ -238,8 +256,8 @@ void loop()
 
             
 
-            Serial.print("angleCha: ");
-            Serial.println(angleChangeDegree);
+            // Serial.print("angleCha: ");
+            // Serial.println(angleChangeDegree);
             
 
             
@@ -299,6 +317,7 @@ void loop()
             //     stopZoneAutoBreak(frontUltDis, backUltDis);  
             // }
             //incomingAvoidanceThreshold(frontUltDis, backUltDis);
+            
         } else {
                 driveForwards = true;
                 drivebackwards = true;
@@ -432,22 +451,25 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
     bool timecheck1 = false;
     bool timecheck2 = false;
     
-    Serial.print("Speed: ");
-    Serial.println(carSpeed);
+    // Serial.print("Speed: ");
+    // Serial.println(carSpeed);
+    
     
     //0.000001 is necessary because when the car stops it will make a second increase above 20
-    // if (angleChangeDegree >= 25 && carSpeed > 0.000001 || angleChangeDegree <= -25 && carSpeed > 0.000001){
-    //     collision = true;
-    // } else {
-    //     collision = false;
-    // }
-
-    if (angleChangeDegree >= 2 && carSpeed == 0 || angleChangeDegree <= -2 && carSpeed == 0){
+    if (angleChangeDegree >= 25 && carSpeed > 0.000001 || angleChangeDegree <= -25 && carSpeed > 0.000001){
         collision = true;
     } else {
         collision = false;
     }
+
+    // //working
+    // if (angleChangeDegree >= 2 && carSpeed == 0 || angleChangeDegree <= -2 && carSpeed == 0){
+    //     collision = true;
+    // } else {
+    //     collision = false;
+    // }
     
+
     //tested and working
     //around 20 is the closest you can get the tree in boxes so I went with 23
     // if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
@@ -470,5 +492,7 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
     //     timecheck2 = false;
     //     collision = false;
     // }
+    
+    
     
 }
