@@ -40,6 +40,8 @@ int angleChangeDegree;
 int saveAngleOfChange;
 int checkAngleDegree;
 
+bool safeStationaryAngleChange = true;
+
 double carSpeed;
 
 
@@ -209,25 +211,17 @@ void loop()
         {
             carSpeed = car.getSpeed();
 
-            checkAngleDegree = angleAfterUpdate - angleBeforeUpdate;
-            
+            checkAngleDegree = angleAfterUpdate - angleBeforeUpdate;//checks if angle of change past the loop
+
             if (checkAngleDegree < 300 && checkAngleDegree >= -300){
                 angleChangeDegree = angleAfterUpdate - angleBeforeUpdate;
+                safeStationaryAngleChange = true;
             } else {    
                 angleChangeDegree = saveAngleOfChange;
+                safeStationaryAngleChange = false;
             }
-            saveAngleOfChange = angleChangeDegree;
+            saveAngleOfChange = angleChangeDegree;//saves angle of change to be used if checkAngleDegree fails
             
-            
-            
-            Serial.print("angleCha: ");
-            Serial.println(angleChangeDegree);
-
-            // Serial.print("gyroscopeAngle: ");
-            // Serial.println(gyroscopeAngle);
-
-            
-
             loopControl = 0;
         }
         
@@ -462,8 +456,9 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
         collision = false;
     }
 
+
     // //working
-    // if (angleChangeDegree >= 2 && carSpeed == 0 || angleChangeDegree <= -2 && carSpeed == 0){
+    // if (angleChangeDegree >= 2 && carSpeed == 0 && safeStationaryAngleChange || angleChangeDegree <= -2 && carSpeed == 0 && safeStationaryAngleChange){
     //     collision = true;
     // } else {
     //     collision = false;
