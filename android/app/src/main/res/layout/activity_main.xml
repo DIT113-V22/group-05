@@ -12,24 +12,56 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imageView"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_weight="0.3"
-            android:contentDescription="cameraView" />
+            android:layout_height="380dp">
 
-        <ToggleButton
-            android:id="@+id/toggleButton1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/button_toggle"
-            android:padding="10dp"
-            android:textColor="#FAFAFA"
-            android:textOff="Disabled"
-            android:textOn="Enabled"
-            android:textSize="12pt" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="368dp"
+
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="13dp"
+                android:layout_weight="0.3"
+
+                android:contentDescription="cameraView" />
+
+            <ToggleButton
+                android:id="@+id/toggleButton1"
+                android:layout_width="wrap_content"
+                android:layout_height="51dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="center"
+                android:layout_marginStart="119dp"
+                android:layout_marginTop="329dp"
+                android:layout_marginEnd="119dp"
+                android:layout_marginBottom="0dp"
+                android:background="@drawable/button_toggle"
+                android:padding="5dp"
+                android:textColor="#FAFAFA"
+                android:textOff="Disabled"
+                android:textOn="Enabled"
+                android:textSize="12pt" />
+
+            <TextView
+                android:id="@+id/speedometer"
+                android:layout_width="203dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="15dp"
+                android:layout_marginBottom="297dp"
+                android:padding="10dp"
+                android:text="0"
+                android:textStyle="bold"
+                android:textColor="#FAFAFA"
+                android:textSize="10pt" />
+        </RelativeLayout>
 
 
         <safetyfirst.androidapp.safetyfirstcontroller.JoystickView
