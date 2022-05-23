@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         TextView speedometer = (TextView)findViewById(R.id.speedometer);
 
                         double speedMS = Double.parseDouble(message.toString());
-                        double speedKMH = Math.round((speedMS * 10)*10.0)/10.0;
+                        double speedKMH = Math.round((speedMS * 3.6)*10.0)/10.0;
 
 
                         speedometer.setText(Double.toString(speedKMH));
