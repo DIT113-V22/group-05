@@ -11,21 +11,38 @@
 MQTTClient mqtt;
 WiFiClient net;
 
+
 // This is for the toggle button, to activate the safety features
 // This is changed to false to sync with the app better
-bool safetyFeatures = true;
 
-// stopZoneAutoBreak
+bool safetyFeatures = false;
+
+//stopZoneAutoBreak
 bool canDrive = true;
 bool driveForwards = true;
 bool driveBackwards = true;
-int speedGate; // check if it's positive or negative speed
-int theSpeed;  // lets the speed to actually be registered
+int speedGate;//check if it's positive or negative speed
+int theSpeed;//let's speed actually be registered
 
-// incomingAvoidanceThreshold
+//incomingAvoidanceThreshold
 bool activeAvoidance = false;
 
-// controls which sensors active during the loops for the simulator car
+//registerCollision
+bool collision = false;
+int timeForCollision = 0;
+
+int angleBeforeUpdate;//needed for figure out angle change degree
+int angleAfterUpdate;
+
+int angleChangeDegree;
+int saveAngleOfChange;
+int checkAngleDegree;
+
+bool safeStationaryAngleChange = true;
+
+double carSpeed;
+
+//simulated car controls which sensors active during the loops for the simulator car
 int loopControl = 0;
 
 const char ssid[] = "***";
@@ -51,7 +68,8 @@ SmartCar car(arduinoRuntime, control, gyroscope, leftOdometer, rightOdometer);
 
 const auto oneSecond = 1UL;
 
-// start of ultra sensor//
+//start of ultra sensor//
+
 const auto triggerPin1 = 10;
 const auto echoPin1 = 1;
 const auto triggerPin2 = 11;
@@ -82,6 +100,7 @@ const auto maxBackUltDis = 100;
 SR04 backUlt(arduinoRuntime, triggerPin3, echoPin3, maxBackUltDis);
 // end of ultra sensor//
 
+
 // Camera
 std::vector<char> frameBuffer;
 
@@ -90,6 +109,8 @@ int frontUltDis;
 int leftUltDis;
 int rightUltDis;
 int backUltDis;
+
+int gyroscopeAngle;
 
 auto previousTime = millis();
 auto previousTime2 = millis();
@@ -126,33 +147,22 @@ void setup()
     mqtt.subscribe("/smartcar/control/#", 1);
     mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
-                   {
-     //this is going to be commented out because it's going to appear on the android side but the code remains in case someone needs it for reference.
-//         //if statements controls the intake of information from the joystick forward and backwards
-//         speedGate = message.toInt();
-//         if (driveForwards && speedGate >= 0){
-//             theSpeed = speedGate;
-//         } 
-//         if (drivebackwards && speedGate <= 0){
-//             theSpeed = speedGate;
-//         }
-//             //Serial.println(theSpeed);//shows the speed
-        
+    {
         if (topic == "/smartcar/control/throttle") {
-            Serial.println(message);
-            car.setSpeed(message.toInt());//this needs to be swapped if the above is uncommented <<car.setSpeed(theSpeed);>>
+            car.setSpeed(message.toInt());
         } else if (topic == "/smartcar/control/steering") {
-            Serial.println(message);
             car.setAngle(message.toInt());
+
         } else if (topic == "/smartcar/safetysystem") {
-            if (message == "false"){  //Update the boolean depending on the message received from app
+            if (message == "false"){//Update the boolean depending on the message received from app
                 safetyFeatures = false;
             }else{
                 safetyFeatures = true;
             }
         } else {
         Serial.println(topic + " " + message);
-        } });
+        } 
+    });
 
     if (safetyFeatures)
     { // Publish a message to the app to make sure it's synced
@@ -163,15 +173,13 @@ void setup()
         mqtt.publish("/smartcar/safetysystem", "false");
     }
 }
-
+///////***
 void loop()
 {
     
-
     if (mqtt.connected())
     {
-
-
+        
         //////////////////////////////  start of read sensory input //////////////////////////////
         loopControl = loopControl + 1;
         if (loopControl == 1)
@@ -189,12 +197,75 @@ void loop()
         else if (loopControl == 4)
         {
             backUltDis = backUlt.getDistance();
-        }else if (loopControl == 5)
+        }
+        else if (loopControl == 5)
+        {
+            angleBeforeUpdate = gyroscopeAngle;
+            gyroscope.update();
+        }
+        else if (loopControl == 6)
+        {
+            gyroscopeAngle = gyroscope.getHeading();
+            angleAfterUpdate = gyroscopeAngle;
+            
+        }
+        else if (loopControl == 7)
+        {
+            carSpeed = car.getSpeed();
+
+            checkAngleDegree = angleAfterUpdate - angleBeforeUpdate;//checks if angle of change past the loop
+
+            if (checkAngleDegree < 300 && checkAngleDegree >= -300){
+                angleChangeDegree = angleAfterUpdate - angleBeforeUpdate;
+                safeStationaryAngleChange = true;
+            } else {    
+                angleChangeDegree = saveAngleOfChange;
+                safeStationaryAngleChange = false;
+            }
+            saveAngleOfChange = angleChangeDegree;//saves angle of change to be used if checkAngleDegree fails
+            
+        }
+        else if (loopControl == 8)
         {
             mqtt.publish("/smartcar/speedometer", String(car.getSpeed()));
             loopControl = 0;
         }
+        
+        //Prince out for different ultra sensors and the control
+        //this is for testing removed for final product or, comment out
+        
+        if (true /* true / false */){
+            // Serial.print("F sen: ");
+            // Serial.println(frontUltDis);
+            // Serial.print("L sen: ");
+            // Serial.println(leftUltDis);
+            // Serial.print("R sen: ");
+            // Serial.println(rightUltDis);
+            // Serial.print("B sen: ");
+            // Serial.println(backUltDis);
 
+            // Serial.print("gyroscopeAngle: ");
+            // Serial.println(gyroscopeAngle);
+
+            // Serial.print("angleCha: ");
+            // Serial.println(angleChangeDegree);
+            
+            // Serial.print("speed: ");
+            // Serial.println(car.getSpeed());
+
+            // Serial.print("loop: ");
+            // Serial.println(loopControl);
+
+            // if (collision){
+            //     Serial.println("not safe");
+            //     Serial.println("not safe"); 
+            //     Serial.println("not safe");
+            // } else {
+            //     // Serial.print("safe");
+            //     // Serial.print("safe");
+            //     // Serial.print("safe");
+            // }
+        }
         //////////////////////////////  and of read sensory input //////////////////////////////
 
         mqtt.loop();
@@ -212,10 +283,10 @@ void loop()
         }
 #endif
         if (safetyFeatures)
-        { // check if the safety system is enabled
-          // safetyFeatures && frontUltDis <= 150 || safetyFeatures && backUltDis <= 100
-          // Also check if sensors are in range to avoid going through all checks if they aren't
-
+        {   // check if the safety system is enabled
+            // safetyFeatures && frontUltDis <= 150 || safetyFeatures && backUltDis <= 100
+            // Also check if sensors are in range to avoid going through all checks if they aren't
+            registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, carSpeed);
             if (!activeAvoidance)
             {
                 stopZoneAutoBreak(frontUltDis, backUltDis);
@@ -271,7 +342,7 @@ void smoothStop()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// all safetyFeatures methods//
+//all safetyFeatures methods//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void stopZoneAutoBreak(long frontUltDis, long backUltDis)
@@ -296,7 +367,7 @@ void stopZoneAutoBreak(long frontUltDis, long backUltDis)
         canDrive = false; // so the car can move in the stop zone
         setDriveBackwards(false);
     }
-    else
+    else 
     {
         canDrive = true; // so the car will stop again if it hits the stop zone
         setDriveBackwards(true);
@@ -357,6 +428,33 @@ void incomingAvoidanceThreshold(long frontUltDis, long backUltDis)
         setDriveBackwards(true);
         setDriveForwards(true);
     }
+}
+
+void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long backUltDis, long angleChangeDegree, double carSpeed){
+    
+    //tested and working
+    //0.000001 is necessary because when the car stops it will make a second increase somewhere at or below 50
+    if (angleChangeDegree >= 55 && carSpeed > 0.000001 || angleChangeDegree <= -55 && carSpeed > 0.000001){
+        collision = true;
+    } else {
+        collision = false;
+    }
+
+    //working
+    if (angleChangeDegree >= 2 && carSpeed <= 0.000400 && safeStationaryAngleChange || angleChangeDegree <= -2 && carSpeed <= 0.000400 && safeStationaryAngleChange){
+        collision = true;
+    } else {
+        collision = false;
+    }
+    
+    //tested and working
+    //around 20 is the closest you can get the tree and boxes so I went with 23
+    if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
+        collision = true;
+    } else {
+        collision = false;
+    }
+    
 }
 
 void setDriveBackwards(bool value) // Added these to make the above if statement less repetitive
