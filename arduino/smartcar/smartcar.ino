@@ -221,6 +221,7 @@ void loop()
                 stopZoneAutoBreak(frontUltDis, backUltDis);
             }
             incomingAvoidanceThreshold(frontUltDis, backUltDis);
+            directionalAvoidance(leftUltDis, rightUltDis);
         }
         else
         {
@@ -359,6 +360,15 @@ void incomingAvoidanceThreshold(long frontUltDis, long backUltDis)
     }
 }
 
+//allows vehicle to avoid objects on its side
+void directionalAvoidance(long leftUltDis,long rightUltDis){
+    if (leftUltDis <= 100 && leftUltDis != 0 || rightUltDis <= 100 && rightUltDis != 0){
+         car.setSpeed(100);
+            delay(300);
+            smoothStop();
+    }
+ }
+
 void setDriveBackwards(bool value) // Added these to make the above if statement less repetitive
 {
     const auto currentTime = millis();
@@ -398,3 +408,4 @@ void setDriveForwards(bool value)
         }
     }
 }
+
