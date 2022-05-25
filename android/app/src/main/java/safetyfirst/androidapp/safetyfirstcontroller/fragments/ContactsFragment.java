@@ -37,7 +37,7 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.add_contact:
                 FragmentTransaction addTransaction = getParentFragmentManager().beginTransaction();
-                addTransaction.replace(R.id.fragment_container, new AddContactFragment());
+                addTransaction.replace(R.id.fragment_container, new AddContacts());
                 addTransaction.commit();
                 break;
             case R.id.view_contact:

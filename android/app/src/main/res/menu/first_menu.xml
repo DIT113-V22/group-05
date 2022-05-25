@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu3"
+        app:showAsAction="always"
+        android:icon="@drawable/profile"
+        android:title="Call emergency contact"
+        />
+    <item
+        android:id="@+id/menu4"
+        app:showAsAction="always"
+        android:icon="@drawable/register"
+        android:title="Message emergency contact"
+        />
+
+    <item
+        android:id="@+id/menu5"
+        app:showAsAction="always"
+        android:icon="@drawable/log_in"
+        android:title="Test button for crash popup"
+        />
+
+</menu>
