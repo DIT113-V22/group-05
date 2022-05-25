@@ -20,7 +20,7 @@ bool safetyFeatures = false;
 //stopZoneAutoBreak
 bool canDrive = true;
 bool driveForwards = true;
-bool drivebackwards = true;
+bool driveBackwards = true;
 int speedGate;//check if it's positive or negative speed
 int theSpeed;//let's speed actually be registered
 
@@ -42,7 +42,7 @@ bool safeStationaryAngleChange = true;
 
 double carSpeed;
 
-//controls which sensors active during the loops for the simulator car
+//simulated car controls which sensors active during the loops for the simulator car
 int loopControl = 0;
 
 const char ssid[] = "***";
@@ -149,10 +149,8 @@ void setup()
     mqtt.onMessage([](String topic, String message)
     {
         if (topic == "/smartcar/control/throttle") {
-            Serial.println(message);//Liam are these needed
             car.setSpeed(message.toInt());
         } else if (topic == "/smartcar/control/steering") {
-            Serial.println(message);//Liam are these needed
             car.setAngle(message.toInt());
 
         } else if (topic == "/smartcar/safetysystem") {
@@ -462,7 +460,7 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
 void setDriveBackwards(bool value) // Added these to make the above if statement less repetitive
 {
     const auto currentTime = millis();
-    drivebackwards = value;
+    driveBackwards = value;
     if (currentTime - previousTime > 100)
     {
         previousTime = currentTime;
