@@ -6,13 +6,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import androidx.annotation.NonNull;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class JoystickView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
     //Variables for the construction of the circles
@@ -22,13 +22,14 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
     private float hatRadius;
     private JoystickListener joystickCallback;
     private final int ratio = 5;
+    private long getPreviousTime = System.currentTimeMillis();
 
     //The size of the circles on the UI
     private void setupDimensions(){
         centerX = getWidth()/2;
         centerY = getHeight() / 2;
         baseRadius = Math.min(getWidth(), getHeight())/3;
-        hatRadius = Math.min(getWidth(), getHeight())/5;
+        hatRadius = Math.min(getWidth(), getHeight())/8;
     }
 
     //The constructors for the the object
@@ -62,9 +63,9 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
             Canvas myCanvas = this.getHolder().lockCanvas();
             Paint colors = new Paint();
             myCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-            colors.setARGB(255, 50, 50,50);
+            colors.setARGB(255, 20, 33,61);
             myCanvas.drawCircle(centerX, centerY, baseRadius, colors);
-            colors.setARGB(255,0,0,255);
+            colors.setARGB(255,252,163,17);
             myCanvas.drawCircle(newX, newY,hatRadius, colors);
             getHolder().unlockCanvasAndPost(myCanvas);
         }
@@ -87,19 +88,27 @@ public class JoystickView extends SurfaceView implements SurfaceHolder.Callback,
 
     //When there is movement in the area of the joystick then this boolean method will run
     //Identifying what kind of movement is occurring
-    public boolean onTouch(View v, MotionEvent e){
+    public boolean onTouch(View v, MotionEvent e) {
+        long currentTime = System.currentTimeMillis();
         if(v.equals(this)){
             if(e.getAction() != e.ACTION_UP) {
                 float displacement = (float) Math.sqrt((Math.pow(e.getX()-centerX,2))+Math.pow(e.getY()-centerY,2));
+                int TIME_DELAY = 100;
                 if(displacement < baseRadius) {
                     drawJoystick(e.getX(), e.getY());
-                    joystickCallback.onJoystickMoved((e.getX() - centerX) / baseRadius, (e.getY() - centerY) / baseRadius, getId());
+                    if (currentTime - getPreviousTime > TIME_DELAY) { //Check if set time has passed since the last onJoystickMoved call to prevent mqtt flooding
+                        getPreviousTime = currentTime;
+                        joystickCallback.onJoystickMoved((e.getX() - centerX) / baseRadius, (e.getY() - centerY) / baseRadius, getId());
+                    }
                 }else{
                     float ratio = baseRadius / displacement;
                     float constrainedX = centerX + (e.getX()-centerX)*ratio;
                     float constrainedY = centerY + (e.getY()-centerY)*ratio;
                     drawJoystick(constrainedX,constrainedY);
-                    joystickCallback.onJoystickMoved(((constrainedX-centerX)/baseRadius),((constrainedY-centerY)/baseRadius),getId());
+                    if (currentTime - getPreviousTime > TIME_DELAY) { //Check if set time has passed since the last onJoystickMoved call to prevent mqtt flooding
+                        getPreviousTime = currentTime;
+                        joystickCallback.onJoystickMoved(((constrainedX-centerX)/baseRadius),((constrainedY-centerY)/baseRadius),getId());
+                    }
                 }
             }else {
                 //If there is no interaction with the joystick area then it will relocate to the center

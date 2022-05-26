@@ -24,8 +24,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
-
+import android.widget.ToggleButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -39,6 +41,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import safetyfirst.androidapp.safetyfirstcontroller.Data.DataBaseHelper;
+import safetyfirst.androidapp.safetyfirstcontroller.MailBot.MailSender;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.ContactsFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.HomeFragment;
 import safetyfirst.androidapp.safetyfirstcontroller.fragments.LoginFragment;
@@ -79,22 +82,19 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     // variables for contact dialogue popup
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText newcontactpopup_firstname, newcontactpopup_lastname, newcontactpopup_mobile, newcontactpopup_email;
-    private Button newcontactpopup_cancel, newcontactpopup_save;
-    ListView lv_contactList;
+    private EditText newContactPopupFirstname, newContactPopupLastname, newContactPopupMobile, newContactPopupEmail;
+    private Button newContactPopupCancel, newContactPopupSave;
+    ListView contactList;
 
-    private DrawerLayout drawerLayout;
-
-    FirebaseAuth firebaseAuth;
-
+    //Crash popup
     private Button iAmOk;
     private AlertDialog dialogCrashPopup;
 
     private double currentSpeed;
 
-    public MainActivity() {
-    }
+    private DrawerLayout drawerLayout;
 
+    FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +102,31 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         //Instantiate the joystick
         JoystickView joystick = new JoystickView(this);
         setContentView(R.layout.activity_main);
+
+        /*
+        //On initiate views
+        simpleSeekBar = (SeekBar)findViewById(R.id.simpleSeekBar); // initiate the Seekbar
+
+        simpleSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progressChangedValue = 0;
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    progressChangedValue = progress;
+                    adjust = progressChangedValue;
+                    drive(adjust, STRAIGHT_ANGLE, "Adjust speed");
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Toast.makeText(MainActivity.this, "Seek bar progress is :" + progressChangedValue,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+         */
 
         mMqttClient = new MqttClient(getApplicationContext(), MQTT_SERVER, TAG);
         mCameraView = findViewById(R.id.imageView);
@@ -123,6 +148,25 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         toggle.syncState();
 
         connectToMqttBroker();
+        safetTtoggleButton();
+    }
+
+    public void safetTtoggleButton(){
+        //This is the toggle button object to create the on and off switch for the automatic stopping features
+        ToggleButton toggle = findViewById(R.id.toggleButton1);
+
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {//Publish a message depending on which value the button has
+                if (b) {
+                    Toast.makeText(getApplicationContext(), "Safety system enabled", Toast.LENGTH_SHORT).show();
+                    mMqttClient.publish(SAFETY_SYSTEMS, "true", QOS, null);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Safety system disabled", Toast.LENGTH_SHORT).show();
+                    mMqttClient.publish(SAFETY_SYSTEMS, "false", QOS, null);
+                }
+            }
+        });
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -203,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         }
     }
 
-
+    @Override
     protected void onResume() {
         super.onResume();
         connectToMqttBroker();
@@ -239,6 +283,10 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                     Toast.makeText(getApplicationContext(), successfulConnection, Toast.LENGTH_SHORT).show();
                     mMqttClient.subscribe("/smartcar/ultrasound/front", QOS, null);
                     mMqttClient.subscribe("/smartcar/camera", QOS, null);
+                    mMqttClient.subscribe("/smartcar/safetysystem/#", QOS, null);
+                    mMqttClient.subscribe("/smartcar/speedometer", QOS, null);
+
+                    mMqttClient.publish(SAFETY_SYSTEMS, "true", QOS, null);//Publish once connected to make sure the car and the app has the same value upon start
                 }
 
                 @Override
@@ -275,11 +323,36 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         }
                         bm.setPixels(colors, 0, IMAGE_WIDTH, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
                         mCameraView.setImageBitmap(bm);
+                    } else if (topic.equals("/smartcar/safetysystem")) {
+                        ToggleButton toggle = findViewById(R.id.toggleButton1);
+                        if (message.toString().equals("true")){ //sync the toggle button to the car.
+                            toggle.setChecked(true);
+                        }else if (message.toString().equals("false")){
+                            toggle.setChecked(false);
+                        }
+                    } else if (topic.equals("/smartcar/safetysystem/driveforwards")) {
+                        if (message.toString().equals("true")){
+                            drivebackwards = true;
+                        }else if (message.toString().equals("false")){
+                            drivebackwards = false;
+                        }
+                    } else if (topic.equals("/smartcar/safetysystem/drivebackwards")) {
+                        if (message.toString().equals("true")){
+                            driveforwards = true;
+                        }else if (message.toString().equals("false")){
+                            driveforwards = false;
+                        }
+                    } else if (topic.equals("/smartcar/speedometer")) {
+                        TextView speedometer = (TextView)findViewById(R.id.speedometer);
+
+                        double speedMS = Double.parseDouble(message.toString());
+                        double speedKMH = Math.round((speedMS * 3.6)*10.0)/10.0;
+
+                        speedometer.setText(Double.toString(speedKMH));
                     } else {
                         Log.i(TAG, "[MQTT] Topic: " + topic + " | Message: " + message.toString());
                     }
                 }
-
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {
                     Log.d(TAG, "Message delivered");
@@ -335,7 +408,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         mMqttClient.publish(STEERING_CONTROL, Integer.toString(steeringAngle), QOS, null);
     }
 
-
+    //Mqtt connection status icon
     public void mqttConnectionStatus(boolean isConnected) {
         if (!isConnected) {
             findViewById(R.id.imageView_no_connection).setVisibility(View.VISIBLE);
@@ -347,10 +420,10 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     }
 
     //When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
-//I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
+    //I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
+
     @Override
     public void onJoystickMoved(float xPercent, float yPercent, int id) {
-
         //When the joystick has been moved the coordinates will be sent to this method and the attributes xPercent and yPercent will store them
         //I multiple yPercent by 100, as the coordinates received were from 1.0 - 0.0. Now its 100 - 0. Which makes it easier to work with.
         System.out.println(driveforwards + " " + drivebackwards);
@@ -367,8 +440,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
             mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
             mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
         }
-    }
-
+      }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -398,7 +470,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
         return super.onOptionsItemSelected(item);
     }
-
     public void sendMessageEmergencyContact() {
 
         DataBaseHelper phone_number_data = new DataBaseHelper(this);
@@ -439,48 +510,52 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
     }
 
-    public void crashPopup() {
-        dialogBuilder = new AlertDialog.Builder(this);
-        final View crashPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
-        dialogBuilder.setView(crashPopupView);
-        dialogCrashPopup = dialogBuilder.create();
-        dialogCrashPopup.show();
 
-        //I am ok button
-        iAmOk = (Button) crashPopupView.findViewById(R.id.button_iAmOk);
+   //Ready to be implemented when we have crash detection
 
-/*
-        //Countdown timer for message
-        Timer timer = new Timer();
-        TimerTask timerTaskObj = new TimerTask() {
-            public void run() {
-                //perform your action here
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            MailSender sender = new MailSender("safetyfirst.emergencyservices@gmail.com",
-                                    "Safetyfirst123");
-                            sender.sendMail("Accident detected", "Send help immediately to the drivers location.",
-                                    "safetyfirst.emergencyservices@gmail.com", "gusvalkfe@student.gu.se");
+   public void crashPopup(){
+       dialogBuilder = new AlertDialog.Builder(this);
+       final View crashPopupView = getLayoutInflater().inflate(R.layout.crash_popup, null);
+       dialogBuilder.setView(crashPopupView);
+       dialogCrashPopup = dialogBuilder.create();
+       dialogCrashPopup.show();
 
-                        } catch (Exception e) {
-                            Log.e("SendMail", e.getMessage(), e);
-                        }
+       //I am ok button
+       iAmOk = (Button) crashPopupView.findViewById(R.id.button_iAmOk);
 
-                    }
+       //Countdown timer for message
+       Timer timer = new Timer();
+       TimerTask timerTaskObj = new TimerTask() {
+           public void run() {
+               //perform your action here
+                   new Thread(new Runnable() {
+                       @Override
+                       public void run() {
+                           try {
+                               MailSender sender = new MailSender("safetyfirst.emergencyservices@gmail.com",
+                                       "Safetyfirst123");
+                               sender.sendMail("Accident detected", "Send help immediately to the drivers location.",
+                                       "safetyfirst.emergencyservices@gmail.com", "gusvalkfe@student.gu.se");
 
-                }).start();
-            }
-        };
-        iAmOk.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timer.cancel();//stop the time
-                dialogCrashPopup.dismiss();
-            }
-        });
-        timer.schedule(timerTaskObj, 15000);
-    }*/
-    }
+                           } catch (Exception e) {
+                               Log.e("SendMail", e.getMessage(), e);
+                           }
+
+                       }
+
+                   }).start();
+               }
+       };
+       iAmOk.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               timer.cancel();//stop the time
+               dialogCrashPopup.dismiss();
+           }
+       });
+       timer.schedule(timerTaskObj, 15000);
+   }
 }
+
+
+

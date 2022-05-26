@@ -5,20 +5,20 @@
     <item
         android:id="@+id/menu3"
         app:showAsAction="always"
-        android:icon="@drawable/profile"
+        android:icon="@drawable/ic_baseline_phone_24_yellow"
         android:title="Call emergency contact"
         />
     <item
         android:id="@+id/menu4"
         app:showAsAction="always"
-        android:icon="@drawable/register"
+        android:icon="@drawable/ic_baseline_sms_24"
         android:title="Message emergency contact"
         />
 
     <item
         android:id="@+id/menu5"
         app:showAsAction="always"
-        android:icon="@drawable/log_in"
+        android:icon="@drawable/ic_baseline_car_crash_24"
         android:title="Test button for crash popup"
         />
 

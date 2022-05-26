@@ -1,28 +1,33 @@
 package safetyfirst.androidapp.safetyfirstcontroller.Model;
 
+import java.util.regex.Pattern;
+
 public class EmergencyContact {
 
     private int id;
-    private String first_name;
-    private String last_name;
+    private String firstName;
+    private String lastName;
     private String email;
-    private int phone_number;
+    private long phoneNumber;
 
 
-    public EmergencyContact(int id, String first_name, String last_name, int phone_number, String email) {
+    public EmergencyContact(int id, String first_name, String last_name, long phone_number, String email) {
         this.id = id;
-        this.first_name = first_name;
-        this.last_name = last_name;
+        this.firstName = first_name;
+        this.lastName = last_name;
         this.email = email;
-        this.phone_number = phone_number;
+        this.phoneNumber = phone_number;
+    }
+
+    public EmergencyContact() {
     }
 
     @Override
     public String toString() {
         return
-                "Name: " + first_name + " " +  last_name + "\n" +
+                "Name: " + firstName + " " + lastName + "\n" +
                 "Email: " + email + "\n" +
-                "Phone number: " + phone_number;
+                "Phone number: " + phoneNumber;
     }
 
     public int getId() {
@@ -34,19 +39,19 @@ public class EmergencyContact {
     }
 
     public String getFirst_name() {
-        return first_name;
+        return firstName;
     }
 
     public void setFirst_name(String first_name) {
-        this.first_name = first_name;
+        this.firstName = first_name;
     }
 
-    public String getLast_name() {
-        return last_name;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setLast_name(String last_name) {
-        this.last_name = last_name;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -57,11 +62,17 @@ public class EmergencyContact {
         this.email = email;
     }
 
-    public int getPhone_number() {
-        return phone_number;
+    public long getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhone_number(int phone_number) {
-        this.phone_number = phone_number;
+    public void setPhoneNumber(long phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public static boolean patternMatches(String emailAddress, String regexPattern) {
+        return Pattern.compile(regexPattern)
+                .matcher(emailAddress)
+                .matches();
     }
 }

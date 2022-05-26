@@ -13,8 +13,7 @@ import safetyfirst.androidapp.safetyfirstcontroller.R;
 
 public class HomeFragment extends Fragment {
     @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_main, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return inflater.inflate(R.layout.activity_main, container);
     }
 }

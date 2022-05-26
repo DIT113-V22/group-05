@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="176dp"
     android:layout_gravity="bottom"
-    android:background="@color/google_blue"
+    android:background="@color/color_scheme_dark_blue"
     android:orientation="vertical"
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Light">
@@ -18,11 +18,13 @@
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
         android:text="Smart Car"
+        android:textColor="@color/white"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Stay Safe" />
+        android:text="Stay Safe"
+        android:textColor="@color/white"/>
 
 </LinearLayout>

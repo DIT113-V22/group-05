@@ -29,7 +29,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     //this is called the first time a database is accessed. There should be code in here to create a new database.
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTableStatement = "CREATE TABLE " + CONTACT_TABLE + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_CONTACT_FIRSTNAME + " TEXT, " + COLUMN_CONTACT_LASTNAME + " TEXT, " + COLUMN_CONTACT_PHONE_NUMBER + " INT, " + COLUMN_CONTACT_EMAIL + " TEXT)";
+        String createTableStatement = "CREATE TABLE " + CONTACT_TABLE + " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_CONTACT_FIRSTNAME + " TEXT, " + COLUMN_CONTACT_LASTNAME + " TEXT, " + COLUMN_CONTACT_PHONE_NUMBER + " LONG, " + COLUMN_CONTACT_EMAIL + " TEXT)";
         db.execSQL(createTableStatement);
 
     }
@@ -46,8 +46,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_CONTACT_FIRSTNAME, contactModel.getFirst_name());
-        cv.put(COLUMN_CONTACT_LASTNAME, contactModel.getLast_name());
-        cv.put(COLUMN_CONTACT_PHONE_NUMBER, contactModel.getPhone_number());
+        cv.put(COLUMN_CONTACT_LASTNAME, contactModel.getLastName());
+        cv.put(COLUMN_CONTACT_PHONE_NUMBER, contactModel.getPhoneNumber());
         cv.put(COLUMN_CONTACT_EMAIL, contactModel.getEmail());
 
 
@@ -98,7 +98,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean deleteOne(EmergencyContact contactModel){
-        //find customerModel in the database. If it is found, delete it and return true.
+        //find EmergencyContact in the database. If it is found, delete it and return true.
         //if it is not found, return false
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -113,7 +113,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             return false;
         }
 
+
     }
+
+
+
+
 
 
 }
