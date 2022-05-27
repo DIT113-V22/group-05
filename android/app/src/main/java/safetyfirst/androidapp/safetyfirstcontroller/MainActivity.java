@@ -211,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                 hideItemDefault();
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new HomeFragment()).commit();
+                Toast.makeText(MainActivity.this, "Logged Out", Toast.LENGTH_LONG).show();
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
