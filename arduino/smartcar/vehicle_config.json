@@ -80,7 +80,7 @@
       "direction_pin": 39
     }
   }
-=======
+
    "slots": {
       "Front": {
          "class": "AnalogRaycast",
