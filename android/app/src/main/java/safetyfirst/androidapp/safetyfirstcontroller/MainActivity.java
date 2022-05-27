@@ -246,8 +246,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         double speedMS = Double.parseDouble(message.toString());
                         double speedKMH = Math.round((speedMS * 3.6)*10.0)/10.0;
 
-
                         speedometer.setText(Double.toString(speedKMH));
+                    }else if (topic.equals("/smartcar/safetysystem/collision")) {
+                        if (message.toString().equals("true")){
+                            crashPopup();
+                        }
                     } else {
                         Log.i(TAG, "[MQTT] Topic: " + topic + " | Message: " + message.toString());
                     }
