@@ -11,7 +11,6 @@
 MQTTClient mqtt;
 WiFiClient net;
 
-
 // This is for the toggle button, to activate the safety features
 // This is changed to false to sync with the app better
 
@@ -30,6 +29,7 @@ bool activeAvoidance = false;
 //registerCollision
 bool collision = false;
 int timeForCollision = 0;
+int startUp = 0;//when you start the simulation it can seem as a crash this takes care of that
 
 int angleBeforeUpdate;//needed for figure out angle change degree
 int angleAfterUpdate;
@@ -37,6 +37,9 @@ int angleAfterUpdate;
 int angleChangeDegree;
 int saveAngleOfChange;
 int checkAngleDegree;
+
+bool joystickMessage = false;
+int messageSave;
 
 bool safeStationaryAngleChange = true;
 
@@ -87,7 +90,7 @@ const auto mqttBrokerUrl = "192.168.0.40";
 #endif
 
 int speed;
-const auto maxFrontUltDis = 100;
+const auto maxFrontUltDis = 150;
 SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxFrontUltDis);
 
 const auto maxLeftUltDis = 100;
@@ -96,7 +99,7 @@ SR04 leftUlt(arduinoRuntime, triggerPin1, echoPin1, maxLeftUltDis);
 const auto maxRightUltDis = 100;
 SR04 rightUlt(arduinoRuntime, triggerPin2, echoPin2, maxRightUltDis);
 
-const auto maxBackUltDis = 100;
+const auto maxBackUltDis = 150;
 SR04 backUlt(arduinoRuntime, triggerPin3, echoPin3, maxBackUltDis);
 // end of ultra sensor//
 
@@ -148,6 +151,17 @@ void setup()
     mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
     {
+        messageSave = message.toInt();//this if statement checks whether the joystick is being used
+        if (messageSave == 0)
+        {
+            timeForCollision = 50;
+            joystickMessage = false;
+        } 
+        else
+        {
+            joystickMessage = true;
+        }
+        
         if (topic == "/smartcar/control/throttle") {
             car.setSpeed(message.toInt());
         } else if (topic == "/smartcar/control/steering") {
@@ -244,14 +258,20 @@ void loop()
             // Serial.print("B sen: ");
             // Serial.println(backUltDis);
 
-            // Serial.print("gyroscopeAngle: ");
-            // Serial.println(gyroscopeAngle);
+            // Serial.print("timeForCollision: ");
+            // Serial.println(timeForCollision);
 
             // Serial.print("angleCha: ");
             // Serial.println(angleChangeDegree);
+
+            // Serial.print("joystickMessage: ");
+            // Serial.println(joystickMessage);
             
             // Serial.print("speed: ");
             // Serial.println(car.getSpeed());
+
+            // Serial.print("joystickMessage: ");
+            // Serial.println(joystickMessage);
 
             // Serial.print("loop: ");
             // Serial.println(loopControl);
@@ -281,22 +301,41 @@ void loop()
             mqtt.publish("/smartcar/camera", frameBuffer.data(), frameBuffer.size(),
                          false, 0);
         }
-#endif
+#endif  
         if (safetyFeatures)
-        {   // check if the safety system is enabled
-            // safetyFeatures && frontUltDis <= 150 || safetyFeatures && backUltDis <= 100
-            // Also check if sensors are in range to avoid going through all checks if they aren't
-            registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, carSpeed);
-            if (!activeAvoidance)
-            {
-                stopZoneAutoBreak(frontUltDis, backUltDis);
-            }
-            incomingAvoidanceThreshold(frontUltDis, backUltDis);
+        {   
+        // check if the safety system is enabled
+        // safetyFeatures && frontUltDis <= 150 || safetyFeatures && backUltDis <= 100
+        // Also check if sensors are in range to avoid going through all checks if they aren't
+           
+        if (!activeAvoidance)
+        {
+            stopZoneAutoBreak(frontUltDis, backUltDis);
+        }
+        incomingAvoidanceThreshold(frontUltDis, backUltDis);
         }
         else
         {
             setDriveBackwards(true);
             setDriveForwards(true);
+        }
+
+        if (startUp > 75 && timeForCollision == 0)
+        {
+            // Serial.println(startUp);
+            registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, carSpeed);
+        }
+        else if (timeForCollision >= 1 && timeForCollision <= 74)
+        {
+            timeForCollision = timeForCollision + 1;
+        }  
+        else if (timeForCollision >= 75)
+        {
+            timeForCollision = 0;
+        }
+        else
+        {
+            startUp = startUp + 1;
         }
 
 #ifdef __SMCE__
@@ -347,7 +386,7 @@ void smoothStop()
 
 void stopZoneAutoBreak(long frontUltDis, long backUltDis)
 {
-    if (frontUltDis <= 100 && frontUltDis != 0)
+    if (frontUltDis <= 150 && frontUltDis != 0)
     { // stop zone
         if (canDrive)
         { // check whether you're in the stop zone
@@ -357,7 +396,7 @@ void stopZoneAutoBreak(long frontUltDis, long backUltDis)
         canDrive = false; // so the car can move in the stop zone
         setDriveForwards(false);
     }
-    else if (backUltDis <= 100 && backUltDis != 0)
+    else if (backUltDis <= 150 && backUltDis != 0)
     {
         if (canDrive)
         { // check whether you're in the stop zone
@@ -431,27 +470,33 @@ void incomingAvoidanceThreshold(long frontUltDis, long backUltDis)
 }
 
 void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long backUltDis, long angleChangeDegree, double carSpeed){
-    
-    //tested and working
-    //0.000001 is necessary because when the car stops it will make a second increase somewhere at or below 50
+   
     if (angleChangeDegree >= 55 && carSpeed > 0.000001 || angleChangeDegree <= -55 && carSpeed > 0.000001){
+            if (!collision)
+        {
+        mqtt.publish("/smartcar/safetysystem/collision", "true");
+        }
         collision = true;
-    } else {
-        collision = false;
-    }
-
-    //working
-    if (angleChangeDegree >= 2 && carSpeed <= 0.000400 && safeStationaryAngleChange || angleChangeDegree <= -2 && carSpeed <= 0.000400 && safeStationaryAngleChange){
+        timeForCollision = timeForCollision + 1;
+    } else if (angleChangeDegree >= 2 && !joystickMessage && safeStationaryAngleChange || angleChangeDegree <= -2 && !joystickMessage && safeStationaryAngleChange){
+            if (!collision)
+        {
+        mqtt.publish("/smartcar/safetysystem/collision", "true");
+        }
         collision = true;
-    } else {
-        collision = false;
-    }
-    
-    //tested and working
-    //around 20 is the closest you can get the tree and boxes so I went with 23
-    if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
+        timeForCollision = timeForCollision + 1;
+    } else if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
+            if (!collision)
+        {
+        mqtt.publish("/smartcar/safetysystem/collision", "true");
+        }
         collision = true;
+        timeForCollision = timeForCollision + 1;
     } else {
+            if (collision)
+        {
+        mqtt.publish("/smartcar/safetysystem/collision", "false");
+        }
         collision = false;
     }
     
@@ -467,12 +512,10 @@ void setDriveBackwards(bool value) // Added these to make the above if statement
         if (value)
         {
             mqtt.publish("/smartcar/safetysystem/drivebackwards", "true");
-            // Serial.println("Backwards - True");
         }
         else
         {
             mqtt.publish("/smartcar/safetysystem/drivebackwards", "false");
-            // Serial.println("Backwards - False");
         }
     }
 }
@@ -487,12 +530,10 @@ void setDriveForwards(bool value)
         if (value)
         {
             mqtt.publish("/smartcar/safetysystem/driveforwards", "true");
-            // Serial.println("Forwards - True");
         }
         else
         {
             mqtt.publish("/smartcar/safetysystem/driveforwards", "false");
-            // Serial.println("Forwards - False");
         }
     }
 }

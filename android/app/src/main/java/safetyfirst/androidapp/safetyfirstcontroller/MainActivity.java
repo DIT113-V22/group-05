@@ -353,6 +353,10 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         double speedKMH = Math.round((speedMS * 3.6)*10.0)/10.0;
 
                         speedometer.setText(Double.toString(speedKMH));
+                    }else if (topic.equals("/smartcar/safetysystem/collision")) {
+                        if (message.toString().equals("true")){
+                            crashPopup();
+                        }
                     } else {
                         Log.i(TAG, "[MQTT] Topic: " + topic + " | Message: " + message.toString());
                     }
@@ -465,11 +469,6 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         if (id == R.id.menu4) {
             //send message to emergency services
             sendMessageEmergencyContact();
-        }
-
-        if (id == R.id.menu5) {
-            //send message to emergency services
-            crashPopup();
         }
 
         return super.onOptionsItemSelected(item);
