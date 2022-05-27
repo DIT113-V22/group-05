@@ -156,7 +156,6 @@ void setup()
         {
             timeForCollision = 50;
             joystickMessage = false;
-            
         } 
         else
         {
