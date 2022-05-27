@@ -282,11 +282,13 @@ void loop()
                          false, 0);
         }
 #endif
+        registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, carSpeed);
+
         if (safetyFeatures)
         {   // check if the safety system is enabled
             // safetyFeatures && frontUltDis <= 150 || safetyFeatures && backUltDis <= 100
             // Also check if sensors are in range to avoid going through all checks if they aren't
-            registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, carSpeed);
+           
             if (!activeAvoidance)
             {
                 stopZoneAutoBreak(frontUltDis, backUltDis);
@@ -435,24 +437,36 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
     //tested and working
     //0.000001 is necessary because when the car stops it will make a second increase somewhere at or below 50
     if (angleChangeDegree >= 55 && carSpeed > 0.000001 || angleChangeDegree <= -55 && carSpeed > 0.000001){
+        if (!collision){
+            mqtt.publish("/smartcar/safetysystem/collision", "true");
+        }
         collision = true;
     } else {
         collision = false;
+        mqtt.publish("/smartcar/safetysystem/collision", "false");
     }
 
     //working
     if (angleChangeDegree >= 2 && carSpeed <= 0.000400 && safeStationaryAngleChange || angleChangeDegree <= -2 && carSpeed <= 0.000400 && safeStationaryAngleChange){
+         if (!collision){
+            mqtt.publish("/smartcar/safetysystem/collision", "true");
+        }
         collision = true;
     } else {
         collision = false;
+        mqtt.publish("/smartcar/safetysystem/collision", "false");
     }
     
     //tested and working
     //around 20 is the closest you can get the tree and boxes so I went with 23
     if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
+         if (!collision){
+            mqtt.publish("/smartcar/safetysystem/collision", "true");
+        }
         collision = true;
     } else {
         collision = false;
+        mqtt.publish("/smartcar/safetysystem/collision", "false");
     }
     
 }
