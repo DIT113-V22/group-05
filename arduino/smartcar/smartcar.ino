@@ -11,7 +11,6 @@
 MQTTClient mqtt;
 WiFiClient net;
 
-
 // This is for the toggle button, to activate the safety features
 // This is changed to false to sync with the app better
 
@@ -30,6 +29,7 @@ bool activeAvoidance = false;
 //registerCollision
 bool collision = false;
 int timeForCollision = 0;
+int startUp = 0;//when you start the simulation it can seem as a crash this takes care of that
 
 int angleBeforeUpdate;//needed for figure out angle change degree
 int angleAfterUpdate;
@@ -87,7 +87,7 @@ const auto mqttBrokerUrl = "192.168.0.40";
 #endif
 
 int speed;
-const auto maxFrontUltDis = 100;
+const auto maxFrontUltDis = 150;
 SR04 frontUlt(arduinoRuntime, triggerPin, echoPin, maxFrontUltDis);
 
 const auto maxLeftUltDis = 100;
@@ -96,7 +96,7 @@ SR04 leftUlt(arduinoRuntime, triggerPin1, echoPin1, maxLeftUltDis);
 const auto maxRightUltDis = 100;
 SR04 rightUlt(arduinoRuntime, triggerPin2, echoPin2, maxRightUltDis);
 
-const auto maxBackUltDis = 100;
+const auto maxBackUltDis = 150;
 SR04 backUlt(arduinoRuntime, triggerPin3, echoPin3, maxBackUltDis);
 // end of ultra sensor//
 
@@ -281,24 +281,33 @@ void loop()
             mqtt.publish("/smartcar/camera", frameBuffer.data(), frameBuffer.size(),
                          false, 0);
         }
-#endif
-        registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, carSpeed);
-
+#endif  
         if (safetyFeatures)
-        {   // check if the safety system is enabled
-            // safetyFeatures && frontUltDis <= 150 || safetyFeatures && backUltDis <= 100
-            // Also check if sensors are in range to avoid going through all checks if they aren't
+        {   
+        // check if the safety system is enabled
+        // safetyFeatures && frontUltDis <= 150 || safetyFeatures && backUltDis <= 100
+        // Also check if sensors are in range to avoid going through all checks if they aren't
            
-            if (!activeAvoidance)
-            {
-                stopZoneAutoBreak(frontUltDis, backUltDis);
-            }
-            incomingAvoidanceThreshold(frontUltDis, backUltDis);
+        if (!activeAvoidance)
+        {
+            stopZoneAutoBreak(frontUltDis, backUltDis);
+        }
+        incomingAvoidanceThreshold(frontUltDis, backUltDis);
         }
         else
         {
             setDriveBackwards(true);
             setDriveForwards(true);
+        }
+
+        if (startUp > 75)
+        {
+            // Serial.println(startUp);
+            registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, carSpeed);
+        } 
+        else
+        {
+            startUp = startUp + 1;
         }
 
 #ifdef __SMCE__
@@ -349,7 +358,7 @@ void smoothStop()
 
 void stopZoneAutoBreak(long frontUltDis, long backUltDis)
 {
-    if (frontUltDis <= 100 && frontUltDis != 0)
+    if (frontUltDis <= 150 && frontUltDis != 0)
     { // stop zone
         if (canDrive)
         { // check whether you're in the stop zone
@@ -359,7 +368,7 @@ void stopZoneAutoBreak(long frontUltDis, long backUltDis)
         canDrive = false; // so the car can move in the stop zone
         setDriveForwards(false);
     }
-    else if (backUltDis <= 100 && backUltDis != 0)
+    else if (backUltDis <= 150 && backUltDis != 0)
     {
         if (canDrive)
         { // check whether you're in the stop zone
@@ -433,40 +442,35 @@ void incomingAvoidanceThreshold(long frontUltDis, long backUltDis)
 }
 
 void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long backUltDis, long angleChangeDegree, double carSpeed){
-    
-    //tested and working
-    //0.000001 is necessary because when the car stops it will make a second increase somewhere at or below 50
+   
     if (angleChangeDegree >= 55 && carSpeed > 0.000001 || angleChangeDegree <= -55 && carSpeed > 0.000001){
-        if (!collision){
-            mqtt.publish("/smartcar/safetysystem/collision", "true");
+            if (!collision)
+        {
+        Serial.println("not safe");
+        mqtt.publish("/smartcar/safetysystem/collision", "true");
+        }
+        collision = true;
+    } else if (angleChangeDegree >= 2 && carSpeed <= 0.000400 && safeStationaryAngleChange || angleChangeDegree <= -2 && carSpeed <= 0.000400 && safeStationaryAngleChange){
+            if (!collision)
+        {
+        Serial.println("not safe");
+        mqtt.publish("/smartcar/safetysystem/collision", "true");
+        }
+        collision = true;
+    } else if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
+            if (!collision)
+        {
+        Serial.println("not safe");
+        mqtt.publish("/smartcar/safetysystem/collision", "true");
         }
         collision = true;
     } else {
-        collision = false;
+            if (collision)
+        {
+        Serial.println("safe");
         mqtt.publish("/smartcar/safetysystem/collision", "false");
-    }
-
-    //working
-    if (angleChangeDegree >= 2 && carSpeed <= 0.000400 && safeStationaryAngleChange || angleChangeDegree <= -2 && carSpeed <= 0.000400 && safeStationaryAngleChange){
-         if (!collision){
-            mqtt.publish("/smartcar/safetysystem/collision", "true");
         }
-        collision = true;
-    } else {
         collision = false;
-        mqtt.publish("/smartcar/safetysystem/collision", "false");
-    }
-    
-    //tested and working
-    //around 20 is the closest you can get the tree and boxes so I went with 23
-    if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
-         if (!collision){
-            mqtt.publish("/smartcar/safetysystem/collision", "true");
-        }
-        collision = true;
-    } else {
-        collision = false;
-        mqtt.publish("/smartcar/safetysystem/collision", "false");
     }
     
 }
