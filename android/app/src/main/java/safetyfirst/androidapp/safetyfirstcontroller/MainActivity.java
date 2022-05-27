@@ -333,11 +333,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         //Here it will publish the yPercent and xPercent as ThrottleSpeed and SteeringAngle to the smartCar
         //If statement to avoid sending messages if the car has detected an obstacle
         if(yPercent <= 0 && driveforwards){
-            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
-            mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
+            mMqttClient.publish(THROTTLE_CONTROL, Double.toString(yPercent / 2), QOS, null);//Dividing the value to prevent reversing at high speeds
+            mMqttClient.publish(STEERING_CONTROL, Double.toString(xPercent), QOS, null);
         }else if(yPercent >= 0 && drivebackwards){
-            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
-            mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
+            mMqttClient.publish(THROTTLE_CONTROL, Double.toString(yPercent), QOS, null);
+            mMqttClient.publish(STEERING_CONTROL, Double.toString(xPercent), QOS, null);
         }
       }
 
