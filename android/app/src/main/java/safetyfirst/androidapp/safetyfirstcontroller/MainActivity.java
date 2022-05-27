@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -80,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
     //Crash popup
     private Button iAmOk;
     private AlertDialog dialogCrashPopup;
+
+    private double currentSpeed;
+
 
 
     @Override
@@ -178,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                     mMqttClient.subscribe("/smartcar/ultrasound/front", QOS, null);
                     mMqttClient.subscribe("/smartcar/camera", QOS, null);
                     mMqttClient.subscribe("/smartcar/safetysystem/#", QOS, null);
+                    mMqttClient.subscribe("/smartcar/speedometer", QOS, null);
 
                     mMqttClient.publish(SAFETY_SYSTEMS, "true", QOS, null);//Publish once connected to make sure the car and the app has the same value upon start
                 }
@@ -235,6 +240,14 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                         }else if (message.toString().equals("false")){
                             driveforwards = false;
                         }
+                    } else if (topic.equals("/smartcar/speedometer")) {
+                        TextView speedometer = (TextView)findViewById(R.id.speedometer);
+
+                        double speedMS = Double.parseDouble(message.toString());
+                        double speedKMH = Math.round((speedMS * 3.6)*10.0)/10.0;
+
+
+                        speedometer.setText(Double.toString(speedKMH));
                     } else {
                         Log.i(TAG, "[MQTT] Topic: " + topic + " | Message: " + message.toString());
                     }
@@ -320,11 +333,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         //Here it will publish the yPercent and xPercent as ThrottleSpeed and SteeringAngle to the smartCar
         //If statement to avoid sending messages if the car has detected an obstacle
         if(yPercent <= 0 && driveforwards){
-            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
-            mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
+            mMqttClient.publish(THROTTLE_CONTROL, Double.toString(yPercent / 2), QOS, null);//Dividing the value to prevent reversing at high speeds
+            mMqttClient.publish(STEERING_CONTROL, Double.toString(xPercent), QOS, null);
         }else if(yPercent >= 0 && drivebackwards){
-            mMqttClient.publish(THROTTLE_CONTROL, Integer.toString((int) yPercent), QOS, null);
-            mMqttClient.publish(STEERING_CONTROL, Integer.toString((int) xPercent), QOS, null);
+            mMqttClient.publish(THROTTLE_CONTROL, Double.toString(yPercent), QOS, null);
+            mMqttClient.publish(STEERING_CONTROL, Double.toString(xPercent), QOS, null);
         }
       }
 
@@ -358,6 +371,11 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
         if (id == R.id.menu4) {
             //send message to emergency services
             sendMessageEmergencyContact();
+        }
+
+        if (id == R.id.menu5) {
+            //send message to emergency services
+            crashPopup();
         }
 
         return super.onOptionsItemSelected(item);
@@ -494,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
                                MailSender sender = new MailSender("safetyfirst.emergencyservices@gmail.com",
                                        "Safetyfirst123");
                                sender.sendMail("Accident detected", "Send help immediately to the drivers location.",
-                                       "safetyfirst.emergencyservices@gmail.com", "erik.lindmaa@gmail.com");
+                                       "safetyfirst.emergencyservices@gmail.com", "gusvalkfe@student.gu.se");
 
                            } catch (Exception e) {
                                Log.e("SendMail", e.getMessage(), e);

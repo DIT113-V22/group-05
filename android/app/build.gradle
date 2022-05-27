@@ -6,7 +6,9 @@ android {
     compileSdkVersion 32
     buildToolsVersion "30.0.3"
     packagingOptions {
-        pickFirst 'META-INF/LICENSE.txt' // picks the JavaMail license file
+        resources {
+            pickFirsts += ['META-INF/LICENSE.txt']
+        }
     }
 
     defaultConfig {
@@ -29,6 +31,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'safetyfirst.androidapp.safetyfirstcontroller'
 }
 
 repositories {
