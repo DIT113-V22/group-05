@@ -71,7 +71,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:background="#000000"
+            android:background="@color/color_scheme_dark_blue"
             android:visibility="visible">
 
             <ImageView
