@@ -87,8 +87,8 @@ public class LoginFragment extends Fragment {
                                     hideKeyboardFrom(requireContext(), view);
 
                                     NavigationView navigationView = (NavigationView) requireActivity().findViewById(R.id.nav_view);
-                                    Menu nav_Menu = navigationView.getMenu();
-                                    onPrepareOptionsMenu(nav_Menu);
+                                    Menu navMenu = navigationView.getMenu();
+                                    onPrepareOptionsMenu(navMenu);
 
                                     FragmentTransaction addTransaction = getParentFragmentManager().beginTransaction();
                                     addTransaction.replace(R.id.fragment_container, new HomeFragment());

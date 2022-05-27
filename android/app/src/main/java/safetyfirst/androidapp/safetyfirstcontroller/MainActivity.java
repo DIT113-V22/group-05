@@ -213,21 +213,21 @@ public class MainActivity extends AppCompatActivity implements JoystickView.Joys
 
     public void hideItemLogged() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        Menu nav_Menu = navigationView.getMenu();
-        nav_Menu.findItem(R.id.profile).setVisible(true);
-        nav_Menu.findItem(R.id.login).setVisible(false);
-        nav_Menu.findItem(R.id.registerUser).setVisible(false);
-        nav_Menu.findItem(R.id.logOut).setVisible(true);
+        Menu navMenu = navigationView.getMenu();
+        navMenu.findItem(R.id.profile).setVisible(true);
+        navMenu.findItem(R.id.login).setVisible(false);
+        navMenu.findItem(R.id.registerUser).setVisible(false);
+        navMenu.findItem(R.id.logOut).setVisible(true);
 
     }
 
     public void hideItemDefault() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        Menu nav_Menu = navigationView.getMenu();
-        nav_Menu.findItem(R.id.profile).setVisible(false);
-        nav_Menu.findItem(R.id.logOut).setVisible(false);
-        nav_Menu.findItem(R.id.login).setVisible(true);
-        nav_Menu.findItem(R.id.registerUser).setVisible(true);
+        Menu navMenu = navigationView.getMenu();
+        navMenu.findItem(R.id.profile).setVisible(false);
+        navMenu.findItem(R.id.logOut).setVisible(false);
+        navMenu.findItem(R.id.login).setVisible(true);
+        navMenu.findItem(R.id.registerUser).setVisible(true);
 
     }
 
