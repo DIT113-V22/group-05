@@ -2,22 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-
-    <item
-        android:id="@+id/menu1"
-        app:showAsAction="never"
-        android:title="Add emergency contact"
-
-        />
-
-    <item
-        android:id="@+id/menu2"
-        app:showAsAction="never"
-        android:title="View emergency contacts"
-
-        />
-
     <item
         android:id="@+id/menu3"
         app:showAsAction="always"
@@ -37,6 +21,5 @@
         android:icon="@drawable/ic_baseline_car_crash_24"
         android:title="Test button for crash popup"
         />
-
 
 </menu>

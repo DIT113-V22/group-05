@@ -40,7 +40,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         //To be implemented
     }
 
-
     public boolean addOne(EmergencyContact contactModel){
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -53,14 +52,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 
         long insert = db.insert(CONTACT_TABLE, null, cv);
-        if(insert == -1){
-            return false;
-        }else{
-            return true;
-        }
-
+        return insert != -1;
     }
-
 
     public List<EmergencyContact> getEveryone(){
 

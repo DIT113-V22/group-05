@@ -22,7 +22,6 @@ public class EmergencyContact {
     public EmergencyContact() {
     }
 
-
     @Override
     public String toString() {
         return
