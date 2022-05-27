@@ -22,8 +22,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.Objects;
-
 import safetyfirst.androidapp.safetyfirstcontroller.Model.User;
 import safetyfirst.androidapp.safetyfirstcontroller.R;
 
@@ -109,14 +107,6 @@ public class RegisterFragment extends Fragment  {
                                     }
                                 }
                             });
-                            /*rootNode = FirebaseDatabase.getInstance();
-                            reference = rootNode.getReference("users");
-
-                            User helperClass = new User(fullName, age, email);
-
-                            reference.child(fullName).setValue(helperClass);
-
-                            Toast.makeText(getContext(), "Registered Successfully", Toast.LENGTH_LONG).show();*/
                         } else {
                             Toast.makeText(getContext(), "Email already registered", Toast.LENGTH_LONG).show();
                         }

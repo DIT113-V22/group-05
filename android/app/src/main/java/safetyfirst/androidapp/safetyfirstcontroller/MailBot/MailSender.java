@@ -1,6 +1,5 @@
 package safetyfirst.androidapp.safetyfirstcontroller.MailBot;
 
-//import java.net.PasswordAuthentication;
 import java.security.Security;
 import java.util.Properties;
 

@@ -22,7 +22,6 @@ public class ViewContactFragment extends Fragment {
     //Database
     ArrayAdapter customerArrayAdapter;
     DataBaseHelper dataBaseHelper;
-    //ListView lv_contactList;
     ListView contactList;
 
     @Nullable
