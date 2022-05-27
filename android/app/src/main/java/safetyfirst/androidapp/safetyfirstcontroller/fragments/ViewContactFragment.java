@@ -3,6 +3,7 @@ package safetyfirst.androidapp.safetyfirstcontroller.fragments;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ public class ViewContactFragment extends Fragment {
         ShowCustomerOnListView(dataBaseHelper);
 
         Button deleteButton = (Button) rootView.findViewById(R.id.button2);
+        Button backButton = (Button) rootView.findViewById(R.id.cancel_view);
 
         contactList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int postion, long id) {
@@ -49,6 +51,14 @@ public class ViewContactFragment extends Fragment {
                             }
                         }
                 );
+            }
+        });
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.fragment_container, new ContactsFragment());
+                fragmentTransaction.commit();
             }
         });
         return rootView;

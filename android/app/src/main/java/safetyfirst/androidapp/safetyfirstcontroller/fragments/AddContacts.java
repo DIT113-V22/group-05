@@ -24,7 +24,7 @@ public class AddContacts extends Fragment implements View.OnClickListener {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.popup, container, false);
 
-        Button cancel = rootView.findViewById(R.id.cancelButton);
+        Button cancel = rootView.findViewById(R.id.backButton);
         cancel.setOnClickListener(this);
 
         Button save = rootView.findViewById(R.id.saveButton);
