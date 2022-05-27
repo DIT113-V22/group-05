@@ -38,6 +38,9 @@ int angleChangeDegree;
 int saveAngleOfChange;
 int checkAngleDegree;
 
+bool joystickMessage = false;
+int messageSave;
+
 bool safeStationaryAngleChange = true;
 
 double carSpeed;
@@ -148,6 +151,17 @@ void setup()
     mqtt.subscribe("/smartcar/safetysystem", 1);
     mqtt.onMessage([](String topic, String message)
     {
+        messageSave = message.toInt();//this if statement checks whether the joystick is being used
+        if (messageSave == 0)
+        {
+            timeForCollision = 50;
+            joystickMessage = false;
+        } 
+        else
+        {
+            joystickMessage = true;
+        }
+        
         if (topic == "/smartcar/control/throttle") {
             car.setSpeed(message.toInt());
         } else if (topic == "/smartcar/control/steering") {
@@ -247,11 +261,17 @@ void loop()
             // Serial.print("timeForCollision: ");
             // Serial.println(timeForCollision);
 
-            Serial.print("angleCha: ");
-            Serial.println(angleChangeDegree);
+            // Serial.print("angleCha: ");
+            // Serial.println(angleChangeDegree);
+
+            // Serial.print("joystickMessage: ");
+            // Serial.println(joystickMessage);
             
             // Serial.print("speed: ");
             // Serial.println(car.getSpeed());
+
+            // Serial.print("joystickMessage: ");
+            // Serial.println(joystickMessage);
 
             // Serial.print("loop: ");
             // Serial.println(loopControl);
@@ -454,15 +474,13 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
     if (angleChangeDegree >= 55 && carSpeed > 0.000001 || angleChangeDegree <= -55 && carSpeed > 0.000001){
             if (!collision)
         {
-        Serial.println("not safe");
         mqtt.publish("/smartcar/safetysystem/collision", "true");
         }
         collision = true;
         timeForCollision = timeForCollision + 1;
-    } else if (angleChangeDegree >= 2 && carSpeed <= 0.000400 && safeStationaryAngleChange || angleChangeDegree <= -2 && carSpeed <= 0.000400 && safeStationaryAngleChange){
+    } else if (angleChangeDegree >= 2 && !joystickMessage && safeStationaryAngleChange || angleChangeDegree <= -2 && !joystickMessage && safeStationaryAngleChange){
             if (!collision)
         {
-        Serial.println("not safe");
         mqtt.publish("/smartcar/safetysystem/collision", "true");
         }
         collision = true;
@@ -470,7 +488,6 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
     } else if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
             if (!collision)
         {
-        Serial.println("not safe");
         mqtt.publish("/smartcar/safetysystem/collision", "true");
         }
         collision = true;
@@ -478,7 +495,6 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
     } else {
             if (collision)
         {
-        Serial.println("safe");
         mqtt.publish("/smartcar/safetysystem/collision", "false");
         }
         collision = false;
@@ -496,12 +512,10 @@ void setDriveBackwards(bool value) // Added these to make the above if statement
         if (value)
         {
             mqtt.publish("/smartcar/safetysystem/drivebackwards", "true");
-            // Serial.println("Backwards - True");
         }
         else
         {
             mqtt.publish("/smartcar/safetysystem/drivebackwards", "false");
-            // Serial.println("Backwards - False");
         }
     }
 }
@@ -516,12 +530,10 @@ void setDriveForwards(bool value)
         if (value)
         {
             mqtt.publish("/smartcar/safetysystem/driveforwards", "true");
-            // Serial.println("Forwards - True");
         }
         else
         {
             mqtt.publish("/smartcar/safetysystem/driveforwards", "false");
-            // Serial.println("Forwards - False");
         }
     }
 }
