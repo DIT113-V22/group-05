@@ -1,7 +1,9 @@
 <resources>
-    <string name="app_name">SafetyFirstController</string>
+    <string name="app_name">Safety First</string>
     <string name="delete_contact" />
     <string name="delete_contact_button">DELETE</string>
     <string name="Accident">ACCIDENT DETECTED!</string>
     <string name="contacting_services_text">The emergency services will be contacted within 15 seconds. If you do not wish to get help from the emergency services, press the button below.</string>
+    <string name="open">Side Bar Open</string>
+    <string name="close">Side Bar Close</string>
 </resources>

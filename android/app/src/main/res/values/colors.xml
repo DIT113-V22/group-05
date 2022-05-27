@@ -15,5 +15,8 @@
     <color name="color_scheme_orange">#FCA311</color>
     <color name="color_scheme_gray">#E5E5E5</color>
     <color name="color_scheme_white">#FFFFFF</color>
+    <color name="navy_blue">#000080</color>
+    <color name="google_blue">#4285F4</color>
+    <color name="dark">#121212</color>
 
 </resources>
