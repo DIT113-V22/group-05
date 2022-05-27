@@ -25,13 +25,18 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
 
 import safetyfirst.androidapp.safetyfirstcontroller.MainActivity;
 import safetyfirst.androidapp.safetyfirstcontroller.R;
 
-public class LoginFragment extends Fragment{
+public class LoginFragment extends Fragment {
     private EditText editTextMail, editTextPass;
     private Button logIn;
     private TextView register;
@@ -53,63 +58,64 @@ public class LoginFragment extends Fragment{
         EditText editTextMail = rootView.findViewById(R.id.loginEmail);
         EditText editTextPass = rootView.findViewById(R.id.loginPassword);
 
-            register.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    FragmentTransaction addTransaction = getParentFragmentManager().beginTransaction();
-                    addTransaction.replace(R.id.fragment_container, new RegisterFragment());
-                    addTransaction.commit();
+        register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentTransaction addTransaction = getParentFragmentManager().beginTransaction();
+                addTransaction.replace(R.id.fragment_container, new RegisterFragment());
+                addTransaction.commit();
+            }
+        });
+
+        logIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String email = editTextMail.getText().toString().trim();
+                String password = editTextPass.getText().toString().trim();
+
+                if (email.isEmpty()) {
+                    editTextMail.setError("Email is required");
+                    editTextMail.requestFocus();
+                    return;
                 }
-            });
+                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    editTextMail.setError("Enter a valid Email");
+                    editTextMail.requestFocus();
+                    return;
+                }
+                if (password.isEmpty()) {
+                    editTextPass.setError("Password is required");
+                    editTextPass.requestFocus();
+                    return;
+                }
+                firebaseAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    hideKeyboardFrom(requireContext(), view);
 
-            logIn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String email = editTextMail.getText().toString().trim();
-                    String password = editTextPass.getText().toString().trim();
+                                    NavigationView navigationView = (NavigationView) requireActivity().findViewById(R.id.nav_view);
+                                    Menu nav_Menu = navigationView.getMenu();
+                                    onPrepareOptionsMenu(nav_Menu);
 
-                    if (email.isEmpty()) {
-                        editTextMail.setError("Email is required");
-                        editTextMail.requestFocus();
-                        return;
-                    }
-                    if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                        editTextMail.setError("Enter a valid Email");
-                        editTextMail.requestFocus();
-                        return;
-                    }
-                    if (password.isEmpty()) {
-                        editTextPass.setError("Password is required");
-                        editTextPass.requestFocus();
-                        return;
-                    }
-                    firebaseAuth.signInWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        hideKeyboardFrom(requireContext(), view);
+                                    FragmentTransaction addTransaction = getParentFragmentManager().beginTransaction();
+                                    addTransaction.replace(R.id.fragment_container, new HomeFragment());
+                                    addTransaction.commit();
 
-                                        NavigationView navigationView = (NavigationView) requireActivity().findViewById(R.id.nav_view);
-                                        Menu nav_Menu = navigationView.getMenu();
-                                        onPrepareOptionsMenu(nav_Menu);
-
-                                        FragmentTransaction addTransaction = getParentFragmentManager().beginTransaction();
-                                        addTransaction.replace(R.id.fragment_container, new ProfileFragment());
-                                        addTransaction.commit();
-                                    }else{
-                                        Toast.makeText(getContext(),
-                                                "Failed to login! Check credentials.",
-                                                Toast.LENGTH_LONG).show();
-                                    }
-
+                                    Toast.makeText(getContext(), "Login Successful", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(getContext(),
+                                            "Failed to login! Check credentials.",
+                                            Toast.LENGTH_LONG).show();
                                 }
-                            });
-                }
-            });
-
+                            }
+                        });
+            }
+        });
         return rootView;
     }
+
     public static void hideKeyboardFrom(Context context, View view) {
         InputMethodManager input = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         input.hideSoftInputFromWindow(view.getWindowToken(), 0);
