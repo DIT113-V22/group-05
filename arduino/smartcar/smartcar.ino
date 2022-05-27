@@ -244,11 +244,11 @@ void loop()
             // Serial.print("B sen: ");
             // Serial.println(backUltDis);
 
-            // Serial.print("gyroscopeAngle: ");
-            // Serial.println(gyroscopeAngle);
+            // Serial.print("timeForCollision: ");
+            // Serial.println(timeForCollision);
 
-            // Serial.print("angleCha: ");
-            // Serial.println(angleChangeDegree);
+            Serial.print("angleCha: ");
+            Serial.println(angleChangeDegree);
             
             // Serial.print("speed: ");
             // Serial.println(car.getSpeed());
@@ -300,11 +300,19 @@ void loop()
             setDriveForwards(true);
         }
 
-        if (startUp > 75)
+        if (startUp > 75 && timeForCollision == 0)
         {
             // Serial.println(startUp);
             registerCollision(frontUltDis, leftUltDis, rightUltDis, backUltDis, angleChangeDegree, carSpeed);
-        } 
+        }
+        else if (timeForCollision >= 1 && timeForCollision <= 74)
+        {
+            timeForCollision = timeForCollision + 1;
+        }  
+        else if (timeForCollision >= 75)
+        {
+            timeForCollision = 0;
+        }
         else
         {
             startUp = startUp + 1;
@@ -450,6 +458,7 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
         mqtt.publish("/smartcar/safetysystem/collision", "true");
         }
         collision = true;
+        timeForCollision = timeForCollision + 1;
     } else if (angleChangeDegree >= 2 && carSpeed <= 0.000400 && safeStationaryAngleChange || angleChangeDegree <= -2 && carSpeed <= 0.000400 && safeStationaryAngleChange){
             if (!collision)
         {
@@ -457,6 +466,7 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
         mqtt.publish("/smartcar/safetysystem/collision", "true");
         }
         collision = true;
+        timeForCollision = timeForCollision + 1;
     } else if (frontUltDis <= 23 && frontUltDis != 0 || leftUltDis <= 23 && leftUltDis != 0 || rightUltDis <= 23 && rightUltDis != 0 || backUltDis <= 23 && backUltDis != 0){
             if (!collision)
         {
@@ -464,6 +474,7 @@ void registerCollision(long frontUltDis, long leftUltDis, long rightUltDis, long
         mqtt.publish("/smartcar/safetysystem/collision", "true");
         }
         collision = true;
+        timeForCollision = timeForCollision + 1;
     } else {
             if (collision)
         {
