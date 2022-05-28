@@ -79,7 +79,7 @@ In brief, first and foremost we will be implementing our planned safety features
 
 ***
 
-### Software Architechture
+### Software Architecture
 
 - [Wikipage describing the general software architecture of the project](https://github.com/DIT113-V22/group-05/wiki/Software-Architecture)
 
