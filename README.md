@@ -5,7 +5,6 @@
 ![Godot Engine](https://img.shields.io/badge/GODOT-%23FFFFFF.svg?style=for-the-badge&logo=godot-engine)
 ![Blender](https://img.shields.io/badge/blender-%23F5792A.svg?style=for-the-badge&logo=blender&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
-![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white)
 
 [![Arduino CI](https://github.com/DIT113-V22/group-05/actions/workflows/arduino-build.yml/badge.svg?branch=master&event=push)](https://github.com/DIT113-V22/group-05/actions/workflows/arduino-build.yml)
 [![Android CI](https://github.com/DIT113-V22/group-05/actions/workflows/android.yml/badge.svg?branch=master&event=push)](https://github.com/DIT113-V22/group-05/actions/workflows/android.yml)
@@ -13,8 +12,6 @@
 ***
 
 # Group 5 - Safety First 🚘
-
-***
 
 ## Table of Contents
 * [What is our goal?](#what-is-our-goal)
