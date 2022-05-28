@@ -1,21 +1,38 @@
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=java&logoColor=white)
+![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
+![Arduino](https://img.shields.io/badge/-Arduino-00979D?style=for-the-badge&logo=Arduino&logoColor=white)
+![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
+![Godot Engine](https://img.shields.io/badge/GODOT-%23FFFFFF.svg?style=for-the-badge&logo=godot-engine)
+![Blender](https://img.shields.io/badge/blender-%23F5792A.svg?style=for-the-badge&logo=blender&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
+![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white)
+
 [![Arduino CI](https://github.com/DIT113-V22/group-05/actions/workflows/arduino-build.yml/badge.svg?branch=master&event=push)](https://github.com/DIT113-V22/group-05/actions/workflows/arduino-build.yml)
 [![Android CI](https://github.com/DIT113-V22/group-05/actions/workflows/android.yml/badge.svg?branch=master&event=push)](https://github.com/DIT113-V22/group-05/actions/workflows/android.yml)
-***
-
-
-### Contents
-- [What?](#what)
-- [Why?](#why)
-- [How?](#how)
-- [System installation](#system-installation)
-- [Dependencies](#dependencies)
-- [The Team](#the-team)
-- [License](#license)
 
 ***
 
-# Group 5
-#### WHAT:
+# Group 5 - Safety First 🚘
+
+***
+
+## Table of Contents
+* [What is our goal?](#what-is-our-goal)
+* [Why are we embarking on this project?](#why-are-we-embarking-on-this-project)
+* [How are we going to achieve our goal?](#how-are-we-going-to-achieve-our-goal)
+* [Technologies](#technologies)
+* [Installation & Setup](#installation--setup)
+* [Dependencies](#dependencies)
+* [The Team](#the-team)
+* [License](#license)
+
+***
+
+### What is our goal?
+The penultimate goal for us is to have safety features that aid a driver of a motor vehicle, whether
+it be in motion or otherwise. This in turn provides a certain peace of mind and an extra sense of 
+safety and comfort whilst on the road. Now, this is just the beginning in a series of advancements 
+towards an ultimate goal of truly self-driving and self-aware vehicles.
 ##### Minimum viable product:
 1. When the car is moving towards a static object, it should automatically stop to avoid collision.
 2. When the car is standing still and another car is heading towards it. The car that is standing still will automatically move out of the way to avoid collision.
@@ -29,30 +46,42 @@
 
 *** 
 
-#### WHY:
-The idea is to permit the car to recognize obstacles and other SmartCars. This would be the first step towards self-driving cars, guide and assist with parking, prevent car collisions, thus decreasing accidents. 
-According to the World Health Organization, road traffic injuries caused an estimated 1.35 million deaths worldwide in 2016. That is, one person is killed every 25 seconds. 
-Many people lose their lives due to driving accidents and by creating these features to be universally available to car companies make it less likely for people to die in car accidents
-By implementing this in a miniature car we allow us to get a rough idea of how we can implement it in a larger version.
+### Why are we embarking on this project?
+According to the World Health Organization, road traffic injuries caused an estimated 1.35 million 
+deaths worldwide in 2016. That is, one person is killed every 25 seconds. Many people are either 
+injured or unfortunately lose their lives due to driving accidents, by creating these features to be
+universally available to all car companies, we can help reduce the number of fatal collisions worldwide.
+
+According to a [study](https://www.iihs.org/media/259e5bbd-f859-42a7-bd54-3888f7a2d3ef/e9boUQ/Topics/ADVANCED%20DRIVER%20ASSISTANCE/IIHS-real-world-CA-benefits.pdf) 
+by the Insurance Institute for Highway Safety (IIHS), collision avoidance technologies reduced car accidents in various ways, such as:
+
+- Forward collision warning technologies reduced front-to-rear crashes by 27%, and front-to-rear crashes with injuries by 20%.
+- Forward collision warning technologies with autobrake reduced front-to-rear crashes by 50% and front-to-rear crashes with injuries by 56%.
+- Rear automatic braking reduced backing-up collisions by 78%.
+
+Our overarching project starts of in a risk-free and to the best of our abilities, a controlled environment. 
+This can help setup the foundation for working with vehicles in the real world which have a different set of challenges to tackle.
 
 ***
 
-#### HOW:
-Learning more about the emulator in general, and using github to keep track and document our progress. We would break into teams to divide up the workload. We would then bring our work back together to ensure the code still works together and for testing purposes.
-Accessing sensors (for example: Infrared, Ultrasonic sensor, gyroscope, camera), would allow the car to scan its environment and register obstacles in its surroundings. If the sensors would pick up an object getting closer it would move out of its path. 
-We will develop an app using Android Studio and connect it to the Godot Emulator to be able to control the car in the virtual environment. We would then aim to implement support to control the physical car with the developed app.
+### How are we going to achieve our goal?
+In brief, first and foremost we will be implementing our planned safety features in three stages. End users are provided an app to control the car in it's virtual environment. it includes a live camera feed and other extended functionality provided by the app such as emergency contacts and all relating functions. Finally, create a modded environment in the emulator for showcasing the project. Any extra planned features will solely depend upon time and resource availability -> Milestones in [our wiki.](https://github.com/DIT113-V22/group-05/wiki/Milestones)
 
-List of items we would need: 
-* Godot Editor 
-* SMCE Godot emulator
-* Arduino IDE
-* Android Studio 
-* Github
+***
+
+### Technologies
+* Godot Editor
 * Blender
+* SMCE Godot emulator
+* Arduino (C++)
+* Android Studio (Java)
+* Git (Version control)
+* MQTT
+* Firebase
 
 ***
 
-### System Installation
+### Installation & Setup
 
 Installation guidance are provided in detail on the Wiki pages below.
 
