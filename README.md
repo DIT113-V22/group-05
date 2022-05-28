@@ -18,6 +18,7 @@
 * [Why are we embarking on this project?](#why-are-we-embarking-on-this-project)
 * [How are we going to achieve our goal?](#how-are-we-going-to-achieve-our-goal)
 * [Technologies](#technologies)
+* [Software Architecture](#software-architecture)
 * [Installation & Setup](#installation--setup)
 * [Dependencies](#dependencies)
 * [The Team](#the-team)
@@ -75,6 +76,12 @@ In brief, first and foremost we will be implementing our planned safety features
 * Git (Version control)
 * MQTT
 * Firebase
+
+***
+
+### Software Architechture
+
+- [Wikipage describing the general software architecture of the project](https://github.com/DIT113-V22/group-05/wiki/Software-Architecture)
 
 ***
 
