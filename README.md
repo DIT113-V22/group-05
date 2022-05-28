@@ -64,8 +64,10 @@ Installation guidance are provided in detail on the Wiki pages below.
 
 ### Dependencies
 
-- [Arduino IDE](https://www.arduino.cc/en/software)
+- [Arduino IDE](https://www.arduino.cc/en/software) or - [Visual Studio Code](https://code.visualstudio.com/)
 - [SMCE-gd](https://github.com/ItJustWorksTM/smce-gd)
+- [Android Studio](https://developer.android.com/studio)
+- [Mosquitto Broker](https://mosquitto.org/)
 
 ***
 
@@ -76,5 +78,12 @@ Installation guidance are provided in detail on the Wiki pages below.
 * [Liam Axelrod](https://github.com/liamaxelrod)
 * [Sepehr Moradian](https://github.com/sepehrmoradian)
 * [Ossian Ålund](https://github.com/o55ian)
+
+***
+
+### License
+MIT © Group-05
+
+The source code for the repository is licensed under the MIT license, refer to [LICENSE](https://github.com/DIT113-V22/group-05/wiki/License) file in the repository.
 
 ***
