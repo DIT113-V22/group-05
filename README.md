@@ -21,6 +21,7 @@
 * [Software Architecture](#software-architecture)
 * [Installation & Setup](#installation--setup)
 * [User Manual](#user-manual)
+* [Demo Video](#demo-video)
 * [Dependencies](#dependencies)
 * [The Team](#the-team)
 * [License](#license)
@@ -100,6 +101,10 @@ Installation guidance are provided in detail on the Wiki pages below.
 Downloadable PDF available in our wiki.
 [User Manual](https://github.com/DIT113-V22/group-05/wiki/User-Manual).
 
+***
+
+### Demo Video
+[Link](https://github.com/DIT113-V22/group-05/wiki/User-Manual) to our demo video.
 ***
 
 ### Dependencies
