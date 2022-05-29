@@ -78,6 +78,7 @@ In brief, first and foremost we will be implementing our planned safety features
 * Git (Version control)
 * MQTT
 * Firebase
+* Visual Paradigm
 
 ***
 
