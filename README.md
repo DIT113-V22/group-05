@@ -56,16 +56,16 @@ According to a [study](https://www.iihs.org/media/259e5bbd-f859-42a7-bd54-3888f7
 by the Insurance Institute for Highway Safety (IIHS), collision avoidance technologies reduced car accidents in various ways, such as:
 
 - Forward collision warning technologies reduced front-to-rear crashes by 27%, and front-to-rear crashes with injuries by 20%.
-- Forward collision warning technologies with autobrake reduced front-to-rear crashes by 50% and front-to-rear crashes with injuries by 56%.
+- Forward collision warning technologies with auto brake reduced front-to-rear crashes by 50% and front-to-rear crashes with injuries by 56%.
 - Rear automatic braking reduced backing-up collisions by 78%.
 
-Our overarching project starts of in a risk-free and to the best of our abilities, a controlled environment. 
-This can help setup the foundation for working with vehicles in the real world which have a different set of challenges to tackle.
+Our overarching project starts off in a risk-free, and to the best of our abilities, a controlled environment. 
+This can help set up the foundation for working with vehicles in the real world which have a different set of challenges to tackle.
 
 ***
 
 ### How are we going to achieve our goal?
-In brief, first and foremost we will be implementing our planned safety features in three stages. End users are provided an app to control the car in it's virtual environment. it includes a live camera feed and other extended functionality provided by the app such as emergency contacts and all relating functions. Finally, create a modded environment in the emulator for showcasing the project. Any extra planned features will solely depend upon time and resource availability -> Milestones in [our wiki.](https://github.com/DIT113-V22/group-05/wiki/Milestones)
+In brief, first and foremost, we will be implementing our planned safety features in three stages. End users are provided with an app to control the car in its virtual environment. It includes a live camera feed and other extended functionality provided by the app, such as emergency contacts and all relating functions. Finally, create a modded environment in the emulator for showcasing the project. Any extra planned features will solely depend upon time and resource availability -> Milestones in [our wiki.](https://github.com/DIT113-V22/group-05/wiki/Milestones)
 
 ***
 
@@ -90,7 +90,7 @@ In brief, first and foremost we will be implementing our planned safety features
 
 ### Installation & Setup
 
-Installation guidance are provided in detail on the Wiki pages below.
+Installation guidance is provided in detail on the Wiki pages below.
 
 - [Installing the software for users](https://github.com/DIT113-V22/group-05/wiki/Installation-and-Setup-guide).
 
