@@ -20,6 +20,7 @@
 * [Technologies](#technologies)
 * [Software Architecture](#software-architecture)
 * [Installation & Setup](#installation--setup)
+* [User Manual](#user-manual)
 * [Dependencies](#dependencies)
 * [The Team](#the-team)
 * [License](#license)
@@ -92,6 +93,12 @@ Installation guidance are provided in detail on the Wiki pages below.
 - [Installing the software for users](https://github.com/DIT113-V22/group-05/wiki/Installation-and-Setup-guide).
 
 - [Installing the software for developers](https://github.com/DIT113-V22/group-05/wiki/Tools-for-developers).
+
+***
+
+### User Manual
+Downloadable PDF available in our wiki.
+[User Manual](https://github.com/DIT113-V22/group-05/wiki/User-Manual).
 
 ***
 
