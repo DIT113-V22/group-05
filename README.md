@@ -104,7 +104,7 @@ Downloadable PDF available in our wiki.
 ***
 
 ### Demo Video
-[Link](https://github.com/DIT113-V22/group-05/wiki/User-Manual) to our demo video.
+[Link](https://www.youtube.com/watch?v=x5Cp20F-CqE) to our demo video.
 ***
 
 ### Dependencies
